@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * @module helpers/border
  */
@@ -63,17 +64,20 @@ const helpersBorder = (three = window.THREE) => {
         });
       }
 
-      if (!this._helpersSlice.geometry.vertices) {
+      const slicePosAttr = this._helpersSlice.geometry.attributes.position;
+      if (!slicePosAttr) {
         return;
       }
 
       this._geometry = new three.BufferGeometry();
-  
-      // set vertices positions
-      const nbOfVertices = this._helpersSlice.geometry.vertices.length;
+
+      // set vertices positions (outline vertices + closing vertex)
+      const nbOfVertices = slicePosAttr.count;
       const positions = new Float32Array((nbOfVertices + 1) * 3);
-      positions.set(this._helpersSlice.geometry.attributes.position.array, 0);
-      positions.set(this._helpersSlice.geometry.vertices[0].toArray(), nbOfVertices * 3);
+      positions.set(slicePosAttr.array, 0);
+      positions[nbOfVertices * 3]     = slicePosAttr.getX(0);
+      positions[nbOfVertices * 3 + 1] = slicePosAttr.getY(0);
+      positions[nbOfVertices * 3 + 2] = slicePosAttr.getZ(0);
       this._geometry.setAttribute( 'position', new three.Float32BufferAttribute( positions, 3 ) );
 
       this._mesh = new three.Line(this._geometry, this._material);
@@ -111,4 +115,4 @@ const helpersBorder = (three = window.THREE) => {
 // export factory
 export { helpersBorder };
 // default export to
-export default helpersBorder();
+export default helpersBorder(THREE);

@@ -1017,3 +1017,4 @@ var moduleType = typeof module;
 if ((moduleType !== 'undefined') && module.exports) {
     module.exports = JpegImage;
 }
+export default JpegImage;

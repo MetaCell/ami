@@ -460,16 +460,33 @@ export default class CoreUtils {
    * @returns {Number}
    */
   static getGeometryArea(geometry) {
-    if (geometry.faces.length < 1) {
-      return 0.0;
-    }
+    const pos = geometry.attributes && geometry.attributes.position;
+    if (!pos) return 0.0;
 
+    const index = geometry.index;
+    const tri = new Triangle();
+    const vA = new Vector3();
+    const vB = new Vector3();
+    const vC = new Vector3();
     let area = 0.0;
-    let vertices = geometry.vertices;
 
-    geometry.faces.forEach(function(elem) {
-      area += new Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
-    });
+    if (index) {
+      for (let i = 0; i < index.count; i += 3) {
+        vA.fromBufferAttribute(pos, index.getX(i));
+        vB.fromBufferAttribute(pos, index.getX(i + 1));
+        vC.fromBufferAttribute(pos, index.getX(i + 2));
+        tri.set(vA, vB, vC);
+        area += tri.getArea();
+      }
+    } else {
+      for (let i = 0; i < pos.count; i += 3) {
+        vA.fromBufferAttribute(pos, i);
+        vB.fromBufferAttribute(pos, i + 1);
+        vC.fromBufferAttribute(pos, i + 2);
+        tri.set(vA, vB, vC);
+        area += tri.getArea();
+      }
+    }
 
     return area;
   }

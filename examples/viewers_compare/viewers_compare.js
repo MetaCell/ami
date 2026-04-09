@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals Stats, dat*/
 
 import CamerasOrthographic from 'base/cameras/cameras.orthographic';
@@ -153,7 +154,7 @@ window.onload = function() {
   ];
 
   let files = data.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
+    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/slicer_brain/' + v;
   });
 
   function buildGUI(stackHelper) {
@@ -162,7 +163,6 @@ window.onload = function() {
       if (meshLayer1) {
         meshLayer1.geometry.dispose();
         meshLayer1.geometry = stackHelper.slice.geometry;
-        meshLayer1.geometry.verticesNeedUpdate = true;
       }
     }
 
@@ -178,7 +178,7 @@ window.onload = function() {
         // add mesh in this scene with right shaders...
         meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
         // go the LPS space
-        meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
+        meshLayerMix.applyMatrix4(stackHelper.stack._ijk2LPS);
 
         sceneLayerMix.add(meshLayerMix);
       }
@@ -332,7 +332,7 @@ window.onload = function() {
 
     if (
       mergedSeries[0].seriesInstanceUID !==
-      'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz'
+      'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz'
     ) {
       stack = mergedSeries[1].stack[0];
       stack2 = mergedSeries[0].stack[0];
@@ -412,7 +412,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
-    meshLayer1.applyMatrix(stack._ijk2LPS);
+    meshLayer1.applyMatrix4(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
     //
@@ -437,7 +437,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
-    meshLayerMix.applyMatrix(stack._ijk2LPS);
+    meshLayerMix.applyMatrix4(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
 
     // set camera

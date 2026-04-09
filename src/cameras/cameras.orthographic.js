@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import Intersections from '../core/core.intersections';
 import Validators from '../core/core.validators';
 
@@ -734,4 +735,4 @@ const camerasOrthographic = (three = window.THREE) => {
 // export factory
 export { camerasOrthographic };
 // default export to
-export default camerasOrthographic();
+export default camerasOrthographic(THREE);

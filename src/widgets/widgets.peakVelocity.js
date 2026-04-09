@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 import CoreUtils from '../core/core.utils';
@@ -297,4 +298,4 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 };
 
 export { widgetsPeakVelocity };
-export default widgetsPeakVelocity();
+export default widgetsPeakVelocity(THREE);

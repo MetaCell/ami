@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import ShadersUniform from '../shaders/shaders.localizer.uniform';
 import ShadersVertex from '../shaders/shaders.localizer.vertex';
@@ -39,7 +40,7 @@ const helpersLocalizer = (three = window.THREE) => {
     _create() {
       this._prepareMaterial();
       this._mesh = new three.Mesh(this._geometry, this._material);
-      this._mesh.applyMatrix(this._stack._ijk2LPS);
+      this._mesh.applyMatrix4(this._stack._ijk2LPS);
       this.add(this._mesh);
     }
 
@@ -230,4 +231,4 @@ const helpersLocalizer = (three = window.THREE) => {
 };
 
 export { helpersLocalizer };
-export default helpersLocalizer();
+export default helpersLocalizer(THREE);

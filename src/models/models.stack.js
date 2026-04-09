@@ -5,7 +5,7 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
-const binaryString = require('math-float32-to-binary-string');
+import binaryString from 'math-float32-to-binary-string';
 
 /**
  * Stack object.
@@ -427,7 +427,7 @@ export default class ModelsStack extends ModelsBase {
 
     // lps 2 ijk
     this._lps2IJK = new Matrix4();
-    this._lps2IJK.getInverse(this._ijk2LPS);
+    this._lps2IJK.copy(this._ijk2LPS).invert();
   }
 
   /**
@@ -437,7 +437,7 @@ export default class ModelsStack extends ModelsBase {
     this._aabb2LPS = CoreUtils.aabb2LPS(this._xCosine, this._yCosine, this._zCosine, this._origin);
 
     this._lps2AABB = new Matrix4();
-    this._lps2AABB.getInverse(this._aabb2LPS);
+    this._lps2AABB.copy(this._aabb2LPS).invert();
   }
 
   /**

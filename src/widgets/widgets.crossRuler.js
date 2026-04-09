@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
@@ -207,13 +208,12 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     createMesh() {
       // geometry
-      this._geometry = new three.Geometry();
-      this._geometry.vertices = [
+      this._geometry = new three.BufferGeometry().setFromPoints([
         this._handles[0].worldPosition,
         this._handles[1].worldPosition,
         this._handles[2].worldPosition,
         this._handles[3].worldPosition,
-      ];
+      ]);
 
       // material
       this._material = new three.LineBasicMaterial();
@@ -283,7 +283,12 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     updateMeshPosition() {
       if (this._geometry) {
-        this._geometry.verticesNeedUpdate = true;
+        this._geometry.setFromPoints([
+          this._handles[0].worldPosition,
+          this._handles[1].worldPosition,
+          this._handles[2].worldPosition,
+          this._handles[3].worldPosition,
+        ]);
       }
     }
 
@@ -629,4 +634,4 @@ const widgetsCrossRuler = (three = window.THREE) => {
 };
 
 export { widgetsCrossRuler };
-export default widgetsCrossRuler();
+export default widgetsCrossRuler(THREE);

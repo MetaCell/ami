@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 import CoreUtils from '../core/core.utils';
@@ -263,16 +264,16 @@ const widgetsRectangle = (three = window.THREE) => {
           .subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition)
           .projectOnVector(this._camera.up);
 
-        this._geometry.vertices[0].copy(this._handles[0].worldPosition);
-        this._geometry.vertices[1].copy(
-          new three.Vector3().addVectors(this._handles[0].worldPosition, progection)
-        );
-        this._geometry.vertices[2].copy(
-          new three.Vector3().subVectors(this._handles[1].worldPosition, progection)
-        );
-        this._geometry.vertices[3].copy(this._handles[1].worldPosition);
-
-        this._geometry.verticesNeedUpdate = true;
+        const posAttr = this._geometry.attributes.position;
+        const h0 = this._handles[0].worldPosition;
+        const h1 = this._handles[1].worldPosition;
+        const v1 = new three.Vector3().addVectors(h0, progection);
+        const v2 = new three.Vector3().subVectors(h1, progection);
+        posAttr.setXYZ(0, h0.x, h0.y, h0.z);
+        posAttr.setXYZ(1, v1.x, v1.y, v1.z);
+        posAttr.setXYZ(2, v2.x, v2.y, v2.z);
+        posAttr.setXYZ(3, h1.x, h1.y, h1.z);
+        posAttr.needsUpdate = true;
         this._geometry.computeBoundingSphere();
       }
     }
@@ -448,4 +449,4 @@ const widgetsRectangle = (three = window.THREE) => {
 };
 
 export { widgetsRectangle };
-export default widgetsRectangle();
+export default widgetsRectangle(THREE);

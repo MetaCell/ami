@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * Original authors from THREEJS repo
  * @author Eberhard Graether / http://egraether.com/
@@ -689,4 +690,4 @@ const trackball = (three = window.THREE) => {
 // export factory
 export { trackball };
 // default export to
-export default trackball();
+export default trackball(THREE);

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals Stats, dat*/
 
 import CamerasOrthographic from 'base/cameras/cameras.orthographic';
@@ -9,6 +10,7 @@ import HelpersContour from 'base/helpers/helpers.contour';
 import HelpersLocalizer from 'base/helpers/helpers.localizer';
 import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
+import FreeSurferLoader from 'base/loaders/loaders.freesurfer';
 
 // standard global variables
 let stats;
@@ -90,7 +92,7 @@ let dataInfo = [
   [
     'adi1',
     {
-      location: 'https://rawgit.com/FNNDSC/data/master/fsm/lh.orig',
+      location: 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/fsm/lh.orig',
       label: 'Left',
       loaded: false,
       material: null,
@@ -106,7 +108,7 @@ let dataInfo = [
   [
     'adi2',
     {
-      location: 'https://rawgit.com/FNNDSC/data/master/fsm/rh.orig',
+      location: 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/fsm/rh.orig',
       label: 'Right',
       loaded: false,
       material: null,
@@ -286,7 +288,10 @@ function render() {
     data.forEach(function(object, key) {
       object.materialFront.clippingPlanes = [clipPlane1];
       object.materialBack.clippingPlanes = [clipPlane1];
-      r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
+      r1.renderer.setRenderTarget(redTextureTarget);
+      r1.renderer.clear();
+      r1.renderer.render(object.scene, r1.camera);
+      r1.renderer.setRenderTarget(null);
       r1.renderer.clearDepth();
       redContourHelper.contourWidth = object.selected ? 3 : 2;
       redContourHelper.contourOpacity = object.selected ? 1 : 0.8;
@@ -360,7 +365,7 @@ window.onload = function() {
   // init threeJS
   init();
 
-  let files = ['https://rawgit.com/FNNDSC/data/master/mgh/orig.mgz'];
+  let files = ['https://cdn.jsdelivr.net/gh/FNNDSC/data@master/mgh/orig.mgz'];
 
   // load sequence for each file
   // instantiate the loader
@@ -741,7 +746,7 @@ window.onload = function() {
       // load meshes on the stack is all set
       let meshesLoaded = 0;
       function loadSTLObject(object) {
-        const stlLoader = new THREE.FreeSurferLoader();
+        const stlLoader = new FreeSurferLoader();
         stlLoader.load(object.location, function(geometry) {
           geometry.computeVertexNormals();
           // 3D mesh
@@ -775,7 +780,7 @@ window.onload = function() {
             0,
             1
           );
-          object.mesh.applyMatrix(RASToLPS);
+          object.mesh.applyMatrix4(RASToLPS);
           r0.scene.add(object.mesh);
 
           object.scene = new THREE.Scene();
@@ -791,7 +796,7 @@ window.onload = function() {
           });
 
           object.meshFront = new THREE.Mesh(geometry, object.materialFront);
-          object.meshFront.applyMatrix(RASToLPS);
+          object.meshFront.applyMatrix4(RASToLPS);
           object.scene.add(object.meshFront);
 
           // back
@@ -805,7 +810,7 @@ window.onload = function() {
           });
 
           object.meshBack = new THREE.Mesh(geometry, object.materialBack);
-          object.meshBack.applyMatrix(RASToLPS);
+          object.meshBack.applyMatrix4(RASToLPS);
           object.scene.add(object.meshBack);
           sceneClip.add(object.scene);
 

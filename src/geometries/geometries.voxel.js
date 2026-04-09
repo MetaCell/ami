@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  *
  * @module geometries/voxel
@@ -15,42 +16,28 @@ const geometriesVoxel = (three = window.THREE) => {
 
       this._location = dataPosition;
 
-      this.applyMatrix(
+      this.applyMatrix4(
         new three.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z)
       );
-
-      this.verticesNeedUpdate = true;
     }
 
     resetVertices() {
-      this.vertices[0].set(0.5, 0.5, 0.5);
-      this.vertices[1].set(0.5, 0.5, -0.5);
-      this.vertices[2].set(0.5, -0.5, 0.5);
-      this.vertices[3].set(0.5, -0.5, -0.5);
-      this.vertices[4].set(-0.5, 0.5, -0.5);
-      this.vertices[5].set(-0.5, 0.5, 0.5);
-      this.vertices[6].set(-0.5, -0.5, -0.5);
-      this.vertices[7].set(-0.5, -0.5, 0.5);
+      const box = new three.BoxGeometry(1, 1, 1);
+      this.copy(box);
+      box.dispose();
+      this.applyMatrix4(
+        new three.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z)
+      );
     }
 
     set location(location) {
       this._location = location;
-
-      // update vertices from location
-      this.vertices[0].set(+0.5, +0.5, +0.5);
-      this.vertices[1].set(+0.5, +0.5, -0.5);
-      this.vertices[2].set(+0.5, -0.5, +0.5);
-      this.vertices[3].set(+0.5, -0.5, -0.5);
-      this.vertices[4].set(-0.5, +0.5, -0.5);
-      this.vertices[5].set(-0.5, +0.5, +0.5);
-      this.vertices[6].set(-0.5, -0.5, -0.5);
-      this.vertices[7].set(-0.5, -0.5, +0.5);
-
-      this.applyMatrix(
+      const box = new three.BoxGeometry(1, 1, 1);
+      this.copy(box);
+      box.dispose();
+      this.applyMatrix4(
         new three.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z)
       );
-
-      this.verticesNeedUpdate = true;
     }
 
     get location() {
@@ -62,4 +49,4 @@ const geometriesVoxel = (three = window.THREE) => {
 // export factory
 export { geometriesVoxel };
 // default export to
-export default geometriesVoxel();
+export default geometriesVoxel(THREE);

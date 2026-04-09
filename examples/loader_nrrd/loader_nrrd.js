@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+import { VTKLoader } from 'three/examples/jsm/loaders/VTKLoader.js';
 /* globals Stats*/
 
 import ControlsTrackball from 'base/controls/controls.trackball';
@@ -76,8 +78,8 @@ window.onload = function() {
   init();
 
   // load vtk file
-  let loader1 = new THREE.VTKLoader();
-  loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function(
+  let loader1 = new VTKLoader();
+  loader1.load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/marc_avf/avf.vtk', function(
     geometry
   ) {
     geometry.computeVertexNormals();
@@ -89,7 +91,7 @@ window.onload = function() {
     let mesh = new THREE.Mesh(geometry, material);
     let RASToLPS = new THREE.Matrix4();
     RASToLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
+    mesh.applyMatrix4(RASToLPS);
     scene.add(mesh);
   });
 
@@ -97,7 +99,7 @@ window.onload = function() {
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
   loader
-    .load('https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/avf_float_32.nii.gz')
+    .load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/marc_avf/avf_float_32.nii.gz')
     .then(function() {
       // make a proper function for this guy...
       let series = loader.data[0].mergeSeries(loader.data)[0];

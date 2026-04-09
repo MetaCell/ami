@@ -1,6 +1,7 @@
 /**
  * @module helpers/x/renderer3d
  */
+import * as THREE from 'three';
 import ControlsTrackball from '../../controls/controls.trackball';
 
 export default class {

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import CoreIntersections from '../core/core.intersections';
 
@@ -338,4 +339,4 @@ const widgetsHandle = (three = window.THREE) => {
 };
 
 export { widgetsHandle };
-export default widgetsHandle();
+export default widgetsHandle(THREE);

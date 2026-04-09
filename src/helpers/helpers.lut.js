@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import CoreUtils from '../core/core.utils';
 
 /**
@@ -783,4 +784,4 @@ const helpersLut = (three = window.THREE) => {
 };
 
 export { helpersLut };
-export default helpersLut();
+export default helpersLut(THREE);

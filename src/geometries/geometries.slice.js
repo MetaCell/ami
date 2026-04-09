@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import coreIntersections from '../core/core.intersections';
 import coreUtils from '../core/core.utils';
@@ -43,11 +44,11 @@ import coreUtils from '../core/core.utils';
  */
 
 const geometriesSlice = (three = window.THREE) => {
-  if (three === undefined || three.ShapeBufferGeometry === undefined) {
+  if (three === undefined || three.ShapeGeometry === undefined) {
     return null;
   }
 
-  const Constructor = three.ShapeBufferGeometry;
+  const Constructor = three.ShapeGeometry;
   return class extends Constructor {
     constructor(halfDimensions, center, position, direction, toAABB = new three.Matrix4()) {
       //
@@ -118,4 +119,4 @@ const geometriesSlice = (three = window.THREE) => {
 // export factory
 export { geometriesSlice };
 // default export to
-export default geometriesSlice();
+export default geometriesSlice(THREE);

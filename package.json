@@ -72,6 +72,7 @@
     "build:prod": "vite build --mode production",
     "clean": "rimraf build",
     "dev": "vite build --watch",
+    "dev:examples": "vite --config vite.examples.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src"

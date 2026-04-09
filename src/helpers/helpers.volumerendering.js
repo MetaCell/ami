@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import ShadersUniform from '../shaders/shaders.vr.uniform';
 import ShadersVertex from '../shaders/shaders.vr.vertex';
@@ -255,4 +256,4 @@ const helpersVolumeRendering = (three = window.THREE) => {
 };
 
 export { helpersVolumeRendering };
-export default helpersVolumeRendering();
+export default helpersVolumeRendering(THREE);

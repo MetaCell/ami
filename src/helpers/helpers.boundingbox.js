@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * @module helpers/boundingbox
  */
@@ -110,4 +111,4 @@ const helpersBoundingBox = (three = window.THREE) => {
 // export factory
 export { helpersBoundingBox };
 // default export too
-export default helpersBoundingBox();
+export default helpersBoundingBox(THREE);

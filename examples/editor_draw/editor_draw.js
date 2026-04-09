@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals dat*/
 // general imports
 
@@ -312,10 +313,15 @@ function render() {
   // render
   controls.update();
   // render first layer offscreen
-  renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+  renderer.setRenderTarget(sceneLayer0TextureTarget);
+  renderer.clear();
+  renderer.render(sceneLayer0, camera);
   // render second layer offscreen
-  renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+  renderer.setRenderTarget(sceneLayer1TextureTarget);
+  renderer.clear();
+  renderer.render(sceneLayer1, camera);
   // mix the layers and render it ON screen!
+  renderer.setRenderTarget(null);
   renderer.render(sceneLayerMix, camera);
 }
 
@@ -403,7 +409,6 @@ window.onload = function() {
     if (meshLayer1) {
       meshLayer1.geometry.dispose();
       meshLayer1.geometry = stackHelper.slice.geometry;
-      meshLayer1.geometry.verticesNeedUpdate = true;
     }
   }
 
@@ -422,7 +427,7 @@ window.onload = function() {
       // add mesh in this scene with right shaders...
       meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
       // go the LPS space
-      meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
+      meshLayerMix.applyMatrix4(stackHelper.stack._ijk2LPS);
 
       sceneLayerMix.add(meshLayerMix);
     }
@@ -703,7 +708,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
-    meshLayer1.applyMatrix(stack._ijk2LPS);
+    meshLayer1.applyMatrix4(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
     // Create the Mix layer
@@ -724,7 +729,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
-    meshLayerMix.applyMatrix(stack._ijk2LPS);
+    meshLayerMix.applyMatrix4(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
 
     //
@@ -1081,11 +1086,11 @@ window.onload = function() {
   ];
 
   let files = filenames.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/PET/' + v;
+    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/rsna_2/PET/' + v;
   });
 
   files.push(
-    'https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/SEG/3DSlicer/tumor_User1_Manual_Trial1.dcm'
+    'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/rsna_2/SEG/3DSlicer/tumor_User1_Manual_Trial1.dcm'
   );
 
   // load sequence for each file

@@ -1,5 +1,5 @@
 /** * Imports ***/
-const PAKO = require('pako');
+import PAKO from 'pako';
 
 import LoadersBase from './loaders.base';
 import CoreUtils from '../core/core.utils';

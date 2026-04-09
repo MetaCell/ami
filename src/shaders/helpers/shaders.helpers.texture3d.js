@@ -74,7 +74,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   // Map row and column to uv
   vec2 uv = vec2(0,0);
   uv.x = (0.5 + colIndex) / textureSizeF;
-  uv.y = 1. - (0.5 + rowIndexF) / textureSizeF;
+  uv.y = (0.5 + rowIndexF) / textureSizeF;
 
   float textureIndexF = float(textureIndex);
   dataValue = vec4(0.) + ${content};

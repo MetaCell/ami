@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 import ModelsVoxel from '../models/models.voxel';
@@ -278,4 +279,4 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 };
 
 export { widgetsVoxelprobe };
-export default widgetsVoxelprobe();
+export default widgetsVoxelprobe(THREE);

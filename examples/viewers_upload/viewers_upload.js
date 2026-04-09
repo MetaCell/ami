@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals dat*/
 import CoreUtils from 'base/core/core.utils';
 import LoadersVolume from 'base/loaders/loaders.volume';

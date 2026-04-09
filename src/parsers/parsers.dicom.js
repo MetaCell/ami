@@ -6,10 +6,10 @@ import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
 
-let DicomParser = require('dicom-parser');
-let Jpeg = require('jpeg-lossless-decoder-js');
-let JpegBaseline = require('../../external/scripts/jpeg');
-let Jpx = require('../../external/scripts/jpx');
+import * as DicomParser from 'dicom-parser';
+import Jpeg from 'jpeg-lossless-decoder-js';
+import JpegBaseline from '../../external/scripts/jpeg';
+import Jpx from '../../external/scripts/jpx';
 let openJPEG; // for one time initialization
 
 /**

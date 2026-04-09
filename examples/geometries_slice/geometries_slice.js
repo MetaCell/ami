@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals Stats, dat*/
 
 import ControlsTrackball from 'base/controls/controls.trackball';
@@ -52,9 +53,7 @@ function updateGeometries() {
     particleLight.position.z = Math.cos(timer * 3) * 90;
 
     // re-draw the line
-    line.geometry.vertices[0] = stackHelper.slice.planePosition;
-    line.geometry.vertices[1] = particleLight.position;
-    line.geometry.verticesNeedUpdate = true;
+    line.geometry.setFromPoints([stackHelper.slice.planePosition, particleLight.position]);
 
     // update plane direction...
     let dirLPS = new THREE.Vector3(
@@ -218,7 +217,7 @@ window.onload = function() {
   ];
 
   let files = t2.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
+    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v;
   });
 
   loader
@@ -238,11 +237,11 @@ window.onload = function() {
 
       // LINE STUFF
       const materialLine = new THREE.LineBasicMaterial();
-      const geometryLine = new THREE.Geometry();
       stackHelper.slice.updateMatrixWorld();
-      geometryLine.vertices.push(stackHelper.slice.position);
-      geometryLine.vertices.push(particleLight.position);
-      geometryLine.verticesNeedUpdate = true;
+      const geometryLine = new THREE.BufferGeometry().setFromPoints([
+        stackHelper.slice.position,
+        particleLight.position,
+      ]);
       line = new THREE.Line(geometryLine, materialLine);
       scene.add(line);
 

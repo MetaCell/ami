@@ -4052,3 +4052,4 @@ function loadJpegStream(id, imageUrl, objs) {
   });
   img.src = imageUrl;
 }
+export default JpxImage;

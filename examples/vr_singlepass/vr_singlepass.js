@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* globals Stats, dat*/
 
 import ControlsTrackball from 'base/controls/controls.trackball';
@@ -232,7 +233,7 @@ window.onload = function() {
   // init threeJS
   init();
 
-  let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  let filename = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/eun_brain/eun_uchar_8.nii.gz';
   let files = [filename];
 
   // load sequence for each file

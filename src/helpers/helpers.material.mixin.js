@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * Helpers material mixin.
  *
@@ -55,7 +56,7 @@ const helpersMaterialMixin = (three = window.THREE) => {
           three.NearestFilter
         );
         tex.needsUpdate = true;
-        tex.flipY = true;
+        tex.flipY = false;
         this._textures.push(tex);
       }
     }
@@ -63,4 +64,4 @@ const helpersMaterialMixin = (three = window.THREE) => {
 };
 
 export { helpersMaterialMixin };
-export default helpersMaterialMixin();
+export default helpersMaterialMixin(THREE);

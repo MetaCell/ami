@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import { geometriesSlice } from '../geometries/geometries.slice';
 import ShadersUniform from '../shaders/shaders.data.uniform';
@@ -368,7 +369,7 @@ const helpersSlice = (three = window.THREE) => {
         return;
       }
 
-      if (!this._geometry.vertices) {
+      if (!this._geometry.attributes || !this._geometry.attributes.position) {
         return;
       }
 
@@ -543,21 +544,15 @@ const helpersSlice = (three = window.THREE) => {
 
     cartesianEquation() {
       // Make sure we have a geometry
-      if (!this._geometry || !this._geometry.vertices || this._geometry.vertices.length < 3) {
+      const posAttr = this._geometry && this._geometry.attributes && this._geometry.attributes.position;
+      if (!posAttr || posAttr.count < 3) {
         return new three.Vector4();
       }
 
-      let vertices = this._geometry.vertices;
       let dataToWorld = this._stack.ijk2LPS;
-      let p1 = new three.Vector3(vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(
-        dataToWorld
-      );
-      let p2 = new three.Vector3(vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(
-        dataToWorld
-      );
-      let p3 = new three.Vector3(vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(
-        dataToWorld
-      );
+      let p1 = new three.Vector3().fromBufferAttribute(posAttr, 0).applyMatrix4(dataToWorld);
+      let p2 = new three.Vector3().fromBufferAttribute(posAttr, 1).applyMatrix4(dataToWorld);
+      let p3 = new three.Vector3().fromBufferAttribute(posAttr, 2).applyMatrix4(dataToWorld);
       let v1 = new three.Vector3();
       let v2 = new three.Vector3();
       let normal = v1
@@ -571,4 +566,4 @@ const helpersSlice = (three = window.THREE) => {
 };
 
 export { helpersSlice };
-export default helpersSlice();
+export default helpersSlice(THREE);

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import ShadersUniform from '../shaders/shaders.contour.uniform';
 import ShadersVertex from '../shaders/shaders.contour.vertex';
@@ -175,4 +176,4 @@ const helpersContour = (three = window.THREE) => {
 // export factory
 export { helpersContour };
 // default export to
-export default helpersContour();
+export default helpersContour(THREE);

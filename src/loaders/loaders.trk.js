@@ -321,11 +321,14 @@ Object.assign(THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
       nbPoints = reader.getUint32(offset, littleEndian);
       offset += 4;
 
+      const _trackVertices = [];
+      const _trackColors = [];
+
       let track = {
         points: [],
         scalars: [],
         properties: [],
-        geometry: new THREE.Geometry(),
+        geometry: new THREE.BufferGeometry(),
         xProperties: {},
       };
 
@@ -341,9 +344,8 @@ Object.assign(THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
         track.points[k].push(reader.getFloat32(offset, littleEndian));
         offset += 4;
 
-        // add geometry
-        //
-        track.geometry.vertices.push(
+        // accumulate vertices
+        _trackVertices.push(
           new THREE.Vector3(track.points[k][0], track.points[k][1], track.points[k][2])
         );
 
@@ -399,8 +401,14 @@ Object.assign(THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
         diff[1] /= colordistance;
         diff[2] /= colordistance;
 
-        track.geometry.colors.push(new THREE.Color(diff[0], diff[1], diff[2]));
+        _trackColors.push(diff[0], diff[1], diff[2]);
       }
+
+      track.geometry.setFromPoints(_trackVertices);
+      track.geometry.setAttribute(
+        'color',
+        new THREE.Float32BufferAttribute(_trackColors, 3)
+      );
 
       // get the property of this track
       for (let o = 0; o < header.N_PROPERTIES[0]; o++) {

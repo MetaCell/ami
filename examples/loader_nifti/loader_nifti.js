@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+import { VTKLoader } from 'three/examples/jsm/loaders/VTKLoader.js';
 /* globals Stats*/
 
 import ControlsTrackball from 'base/controls/controls.trackball';
@@ -73,9 +75,9 @@ window.onload = function() {
   init();
 
   // load vtk file
-  let loader1 = new THREE.VTKLoader();
+  let loader1 = new VTKLoader();
   loader1.load(
-    'https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk',
+    'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/fetalatlas_brain/cortex.vtk',
     function(geometry) {
       geometry.computeVertexNormals();
       let material = new THREE.MeshLambertMaterial({
@@ -85,7 +87,7 @@ window.onload = function() {
       brain = new THREE.Mesh(geometry, material);
       let toLPS = new THREE.Matrix4();
       toLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-      brain.applyMatrix(toLPS);
+      brain.applyMatrix4(toLPS);
       scene.add(brain);
     }
   );
@@ -97,7 +99,7 @@ window.onload = function() {
   let t2 = ['template_T2.nii.gz'];
 
   let files = t2.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
+    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/fetalatlas_brain/t2/' + v;
   });
 
   // load sequence for each file

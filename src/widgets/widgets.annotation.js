@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
@@ -223,9 +224,10 @@ const widgetsAnnotation = (three = window.THREE) => {
       this.updateMeshColor();
 
       // line geometry
-      this._geometry = new three.Geometry();
-      this._geometry.vertices.push(this._handles[0].worldPosition);
-      this._geometry.vertices.push(this._handles[1].worldPosition);
+      this._geometry = new three.BufferGeometry().setFromPoints([
+        this._handles[0].worldPosition,
+        this._handles[1].worldPosition,
+      ]);
 
       // line mesh
       this._meshline = new three.Line(this._geometry, this._material);
@@ -283,7 +285,10 @@ const widgetsAnnotation = (three = window.THREE) => {
 
     updateMeshPosition() {
       if (this._geometry) {
-        this._geometry.verticesNeedUpdate = true;
+        this._geometry.setFromPoints([
+          this._handles[0].worldPosition,
+          this._handles[1].worldPosition,
+        ]);
       }
 
       if (this._cone) {
@@ -425,4 +430,4 @@ const widgetsAnnotation = (three = window.THREE) => {
 };
 
 export { widgetsAnnotation };
-export default widgetsAnnotation();
+export default widgetsAnnotation(THREE);

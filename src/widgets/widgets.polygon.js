@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 import CoreUtils from '../core/core.utils';
@@ -382,9 +383,6 @@ const widgetsPolygon = (three = window.THREE) => {
 
       console.warn = oldWarn;
 
-      this._geometry.vertices = orderedpoints;
-      this._geometry.verticesNeedUpdate = true;
-      this._geometry.elementsNeedUpdate = true;
 
       this.updateMeshColor();
 
@@ -400,9 +398,6 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     updateMeshPosition() {
-      if (this._geometry) {
-        this._geometry.verticesNeedUpdate = true;
-      }
     }
 
     updateDOMColor() {
@@ -603,4 +598,4 @@ const widgetsPolygon = (three = window.THREE) => {
 };
 
 export { widgetsPolygon };
-export default widgetsPolygon();
+export default widgetsPolygon(THREE);

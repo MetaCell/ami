@@ -10,7 +10,7 @@ window.onload = function() {
 
   // CREATE THE 3D MESH
   const xMesh = new XMesh();
-  xMesh.file = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
+  xMesh.file = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/marc_avf/avf.vtk';
   xMesh.materialColor = 0xffeb3b;
 
   // LOAD AND RENDER THE 3D MESH
@@ -23,7 +23,7 @@ window.onload = function() {
 
   // CREATE THE 3D VOLUME
   const xVolume = new XVolume();
-  xVolume.file = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/avf_float_32.nii.gz';
+  xVolume.file = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/marc_avf/avf_float_32.nii.gz';
   xVolume.progressbarContainer = renderer.container;
 
   // LOAD AND RENDER THE 3D VOLUME

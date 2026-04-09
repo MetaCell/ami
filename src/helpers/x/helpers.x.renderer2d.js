@@ -4,6 +4,7 @@
 import CamerasOrthographic from '../../cameras/cameras.orthographic';
 import ControlsOrthographic from '../../controls/controls.trackballortho';
 
+import * as THREE from 'three';
 import { Vector3 } from 'three';
 
 export default class {

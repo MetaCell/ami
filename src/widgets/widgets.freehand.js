@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 import CoreUtils from '../core/core.utils';
@@ -346,9 +347,6 @@ const widgetsFreehand = (three = window.THREE) => {
 
       console.warn = oldWarn;
 
-      this._geometry.vertices = orderedpoints;
-      this._geometry.verticesNeedUpdate = true;
-      this._geometry.elementsNeedUpdate = true;
 
       this.updateMeshColor();
 
@@ -364,9 +362,6 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     updateMeshPosition() {
-      if (this._geometry) {
-        this._geometry.verticesNeedUpdate = true;
-      }
     }
 
     isPointOnLine(pointA, pointB, pointToCheck) {
@@ -602,4 +597,4 @@ const widgetsFreehand = (three = window.THREE) => {
 };
 
 export { widgetsFreehand };
-export default widgetsFreehand();
+export default widgetsFreehand(THREE);

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /** * Imports ***/
 import { helpersBorder } from '../helpers/helpers.border';
 import { helpersBoundingBox } from '../helpers/helpers.boundingbox';
@@ -484,4 +485,4 @@ const helpersStack = (three = window.THREE) => {
 // export factory
 export { helpersStack };
 // default export to
-export default helpersStack();
+export default helpersStack(THREE);

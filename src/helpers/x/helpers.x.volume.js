@@ -1,6 +1,7 @@
 /**
  * @module helpers/x/volume
  */
+import * as THREE from 'three';
 import HelpersStack from '../helpers.stack';
 import LoadersVolume from '../../loaders/loaders.volume';
 

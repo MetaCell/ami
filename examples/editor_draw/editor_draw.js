@@ -116,6 +116,12 @@ function setupEditor() {
    *  Loop through IJK BBox and see if voxel can be mapped to screen
    */
   function mapCanvasToData() {
+    // Read the entire canvas once to avoid per-voxel GPU readbacks
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+    const canvasW = canvas.width;
+    const canvasH = canvas.height;
+
     for (let i = ijkBBox[0]; i < ijkBBox[1] + 1; i++) {
       for (let j = ijkBBox[2]; j < ijkBBox[3] + 1; j++) {
         for (let k = ijkBBox[4]; k < ijkBBox[5] + 1; k++) {
@@ -130,8 +136,11 @@ function setupEditor() {
           screenCoordinates.y = Math.round(((-screenCoordinates.y + 1) * canvas.offsetHeight) / 2);
           screenCoordinates.z = 0;
 
-          let pixel = context.getImageData(screenCoordinates.x, screenCoordinates.y, 1, 1).data;
-          if (pixel[3] > 0 && i >= 0 && j >= 0 && k >= 0) {
+          const px = screenCoordinates.x;
+          const py = screenCoordinates.y;
+          if (px < 0 || px >= canvasW || py < 0 || py >= canvasH) continue;
+          const alpha = pixels[(py * canvasW + px) * 4 + 3];
+          if (alpha > 0 && i >= 0 && j >= 0 && k >= 0) {
             // find index and texture
             let voxelIndex = i + j * stack2._columns + k * stack2._rows * stack2._columns;
 

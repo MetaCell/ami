@@ -1,7 +1,5 @@
 /** * Imports ***/
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector3 } from 'three/src/math/Vector3';
-import { RGBFormat, RGBAFormat } from 'three/src/constants';
+import { Matrix4, Vector3, RGBFormat, RGBAFormat } from 'three';
 
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';

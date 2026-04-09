@@ -1,10 +1,6 @@
 import Validators from './core.validators';
 
-import { Box3 } from 'three/src/math/Box3';
-import { Raycaster } from 'three/src/core/Raycaster';
-import { Triangle } from 'three/src/math/Triangle';
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector3 } from 'three/src/math/Vector3';
+import { Box3, Raycaster, Triangle, Matrix4, Vector3 } from 'three';
 
 /**
  * General purpose functions.

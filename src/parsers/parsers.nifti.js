@@ -218,7 +218,7 @@ export default class ParsersNifti extends ParsersVolume {
       const rowY = [
         -this._dataSet.affine[1][0],
         -this._dataSet.affine[1][1],
-        this._dataSet.affine[0][2],
+        this._dataSet.affine[1][2],
       ];
       return [...rowX, ...rowY];
     } else if (this._dataSet.qform_code === 0) {

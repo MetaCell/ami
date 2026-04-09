@@ -1,8 +1,7 @@
 import CoreUtils from './core.utils';
 import Validators from './core.validators';
 
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector3 } from 'three/src/math/Vector3';
+import { Matrix4, Vector3 } from 'three';
 
 /**
  * Compute/test intersection between different objects.

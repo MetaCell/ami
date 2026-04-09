@@ -409,7 +409,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
           THREE.NearestFilter
         );
         tex.needsUpdate = true;
-        tex.flipY = true;
+        tex.flipY = false;
         _textures.push(tex);
       }
 

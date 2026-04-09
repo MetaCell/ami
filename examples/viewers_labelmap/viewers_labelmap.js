@@ -45,10 +45,15 @@ function render() {
   // render
   controls.update();
   // render first layer offscreen
-  renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+  renderer.setRenderTarget(sceneLayer0TextureTarget);
+  renderer.clear();
+  renderer.render(sceneLayer0, camera);
   // render second layer offscreen
-  renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+  renderer.setRenderTarget(sceneLayer1TextureTarget);
+  renderer.clear();
+  renderer.render(sceneLayer1, camera);
   // mix the layers and render it ON screen!
+  renderer.setRenderTarget(null);
   renderer.render(sceneLayerMix, camera);
   statsyay.update();
 }
@@ -620,7 +625,7 @@ window.onload = function() {
         THREE.NearestFilter
       );
       tex.needsUpdate = true;
-      tex.flipY = true;
+      tex.flipY = false;
       textures2.push(tex);
     }
 

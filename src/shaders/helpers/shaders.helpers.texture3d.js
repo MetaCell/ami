@@ -72,7 +72,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   float colIndex = float(inTextureIndex - uTextureSize * rowIndex);
 
   // Map row and column to uv
-  vec2 uv = vec2(0,0);
+  vec2 uv = vec2(0.0, 0.0);
   uv.x = (0.5 + colIndex) / textureSizeF;
   uv.y = (0.5 + rowIndexF) / textureSizeF;
 

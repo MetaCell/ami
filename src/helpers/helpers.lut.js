@@ -137,7 +137,7 @@ const helpersLut = (three = window.THREE) => {
       texture.mapping = three.UVMapping;
       texture.wrapS = texture.wrapT = three.ClampToEdgeWrapping;
       texture.magFilter = texture.minFilter = three.NearestFilter;
-      texture.premultiplyAlpha = true;
+      texture.premultiplyAlpha = false;
       texture.needsUpdate = true;
       return texture;
     }

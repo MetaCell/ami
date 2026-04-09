@@ -148,7 +148,7 @@ void main(void) {
       float texHeight = 1./textureHeight;
     
       // Map row and column to uv
-      vec2 uv = vec2(0,0);
+      vec2 uv = vec2(0.0, 0.0);
       uv.x = 0.5 * texWidth + (texWidth * float(colIndex));
       uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);
   

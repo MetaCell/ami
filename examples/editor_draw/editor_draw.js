@@ -672,7 +672,7 @@ window.onload = function() {
         THREE.NearestFilter
       );
       tex.needsUpdate = true;
-      tex.flipY = true;
+      tex.flipY = false;
       textures2.push(tex);
     }
 

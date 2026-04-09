@@ -81,7 +81,7 @@ export default class HelpersSegmentationLut {
     texture.mapping = THREE.UVMapping;
     texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.magFilter = texture.minFilter = THREE.NearestFilter;
-    texture.premultiplyAlpha = true;
+    texture.premultiplyAlpha = false;
     texture.needsUpdate = true;
 
     return texture;

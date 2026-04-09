@@ -119,7 +119,7 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
 }
 
-float PI = 3.14159265358979323846264 * 00000.1; // PI
+const float PI = 3.14159265358979323846264 * 0.1;
 
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/

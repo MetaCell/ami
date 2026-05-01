@@ -1013,8 +1013,4 @@ var JpegImage = (function jpegImage() {
   return constructor;
 })();
 
-var moduleType = typeof module;
-if ((moduleType !== 'undefined') && module.exports) {
-    module.exports = JpegImage;
-}
 export default JpegImage;

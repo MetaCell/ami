@@ -179,7 +179,7 @@ export default class LoadersVolumes extends LoadersBase {
 
   parseFrameClosure(series, stack, url, i, dataParser, resolve, reject) {
     return () => {
-      this.parseFrame(series, stack, url, i, dataParser, resolve, reject);
+      this.parseFrame(series, stack, url, i, dataParser, resolve, reject).catch(reject);
     };
   }
 
@@ -193,7 +193,7 @@ export default class LoadersVolumes extends LoadersBase {
    * @param {promise.resolve} resolve - promise resolve args
    * @param {promise.reject} reject - promise reject args
    */
-  parseFrame(series, stack, url, i, dataParser, resolve, reject) {
+  async parseFrame(series, stack, url, i, dataParser, resolve, reject) {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
@@ -207,7 +207,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
-    frame.pixelData = dataParser.extractPixelData(i);
+    frame.pixelData = await dataParser.extractPixelData(i);
     frame.pixelSpacing = dataParser.pixelSpacing(i);
     frame.spacingBetweenSlices = dataParser.spacingBetweenSlices(i);
     frame.sliceThickness = dataParser.sliceThickness(i);

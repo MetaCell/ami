@@ -2,15 +2,15 @@
 import UtilsCore from '../core/core.utils';
 import ParsersVolume from './parsers.volume';
 
-import OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
+import OpenJPEGJS from '@cornerstonejs/codec-openjpeg/decode';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
 
 import * as DicomParser from 'dicom-parser';
-import Jpeg from 'jpeg-lossless-decoder-js';
+import { Decoder as JpegLosslessDecoder } from 'jpeg-lossless-decoder-js';
 import JpegBaseline from '../../external/scripts/jpeg';
 import Jpx from '../../external/scripts/jpx';
-let openJPEG; // for one time initialization
+const openJPEGReady = OpenJPEGJS();
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
@@ -673,11 +673,9 @@ export default class ParsersDicom extends ParsersVolume {
     return stackID;
   }
 
-  extractPixelData(frameIndex = 0) {
-    // decompress
-    let decompressedData = this._decodePixelData(frameIndex);
-
-    let numberOfChannels = this.numberOfChannels();
+  async extractPixelData(frameIndex = 0) {
+    const decompressedData = await this._decodePixelData(frameIndex);
+    const numberOfChannels = this.numberOfChannels();
 
     if (numberOfChannels > 1) {
       return this._convertColorSpace(decompressedData);
@@ -779,7 +777,7 @@ export default class ParsersDicom extends ParsersVolume {
     );
   }
 
-  _decodePixelData(frameIndex = 0) {
+  async _decodePixelData(frameIndex = 0) {
     // if compressed..?
     let transferSyntaxUID = this.transferSyntaxUID();
 
@@ -887,105 +885,35 @@ export default class ParsersDicom extends ParsersVolume {
     return jpxImage.tiles[0].items;
   }
 
-  _decodeOpenJPEG(frameIndex = 0) {
+  async _decodeJ2K(frameIndex = 0) {
     const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     const bytesPerPixel = this.bitsAllocated(frameIndex) <= 8 ? 1 : 2;
     const signed = this.pixelRepresentation(frameIndex) === 1;
-    const dataPtr = openJPEG._malloc(encodedPixelData.length);
 
-    openJPEG.writeArrayToMemory(encodedPixelData, dataPtr);
-
-    // create param outpout
-    const imagePtrPtr = openJPEG._malloc(4);
-    const imageSizePtr = openJPEG._malloc(4);
-    const imageSizeXPtr = openJPEG._malloc(4);
-    const imageSizeYPtr = openJPEG._malloc(4);
-    const imageSizeCompPtr = openJPEG._malloc(4);
-    const ret = openJPEG.ccall(
-      'jp2_decode',
-      'number',
-      ['number', 'number', 'number', 'number', 'number', 'number', 'number'],
-      [
-        dataPtr,
-        encodedPixelData.length,
-        imagePtrPtr,
-        imageSizePtr,
-        imageSizeXPtr,
-        imageSizeYPtr,
-        imageSizeCompPtr,
-      ]
-    );
-    const imagePtr = openJPEG.getValue(imagePtrPtr, '*');
-
-    if (ret !== 0) {
-      console.log('[opj_decode] decoding failed!');
-      openJPEG._free(dataPtr);
-      openJPEG._free(imagePtr);
-      openJPEG._free(imageSizeXPtr);
-      openJPEG._free(imageSizeYPtr);
-      openJPEG._free(imageSizePtr);
-      openJPEG._free(imageSizeCompPtr);
-
-      return;
+    let openjpeg;
+    try {
+      openjpeg = await openJPEGReady;
+    } catch (e) {
+      console.log('[j2k_decode] OpenJPEG failed to initialize, falling back to jpx');
+      return this._decodeJpx(frameIndex);
     }
 
-    // Copy the data from the EMSCRIPTEN heap into the correct type array
-    const length =
-      openJPEG.getValue(imageSizeXPtr, 'i32') *
-      openJPEG.getValue(imageSizeYPtr, 'i32') *
-      openJPEG.getValue(imageSizeCompPtr, 'i32');
-    const src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
-    let pixelData;
+    const decoder = new openjpeg.J2KDecoder();
+    const encodedBuffer = decoder.getEncodedBuffer(encodedPixelData.length);
+    encodedBuffer.set(encodedPixelData);
+    decoder.decode();
+
+    const decodedBuffer = decoder.getDecodedBuffer();
+    const frameInfo = decoder.getFrameInfo();
+    const numPixels = frameInfo.width * frameInfo.height * frameInfo.componentCount;
 
     if (bytesPerPixel === 1) {
-      if (Uint8Array.from) {
-        pixelData = Uint8Array.from(src32);
-      } else {
-        pixelData = new Uint8Array(length);
-        for (let i = 0; i < length; i++) {
-          pixelData[i] = src32[i];
-        }
-      }
+      return new Uint8Array(decodedBuffer.buffer, decodedBuffer.byteOffset, numPixels).slice();
     } else if (signed) {
-      if (Int16Array.from) {
-        pixelData = Int16Array.from(src32);
-      } else {
-        pixelData = new Int16Array(length);
-        for (let i = 0; i < length; i++) {
-          pixelData[i] = src32[i];
-        }
-      }
-    } else if (Uint16Array.from) {
-      pixelData = Uint16Array.from(src32);
+      return new Int16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, numPixels).slice();
     } else {
-      pixelData = new Uint16Array(length);
-      for (let i = 0; i < length; i++) {
-        pixelData[i] = src32[i];
-      }
+      return new Uint16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, numPixels).slice();
     }
-
-    openJPEG._free(dataPtr);
-    openJPEG._free(imagePtrPtr);
-    openJPEG._free(imagePtr);
-    openJPEG._free(imageSizePtr);
-    openJPEG._free(imageSizeXPtr);
-    openJPEG._free(imageSizeYPtr);
-    openJPEG._free(imageSizeCompPtr);
-
-    return pixelData;
-  }
-
-  // from cornerstone
-  _decodeJ2K(frameIndex = 0) {
-    if (!openJPEG) {
-      openJPEG = OpenJPEG();
-      if (!openJPEG || !openJPEG._jp2_decode) {
-        // OpenJPEG failed to initialize
-        return this._decodeJpx(frameIndex);
-      }
-    }
-
-    return this._decodeOpenJPEG(frameIndex);
   }
 
   _decodeRLE(frameIndex = 0) {
@@ -1022,7 +950,7 @@ export default class ParsersDicom extends ParsersVolume {
     let pixelRepresentation = this.pixelRepresentation(frameIndex);
     let bitsAllocated = this.bitsAllocated(frameIndex);
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
-    let decoder = new Jpeg.lossless.Decoder();
+    let decoder = new JpegLosslessDecoder();
     let decompressedData = decoder.decode(
       encodedPixelData.buffer,
       encodedPixelData.byteOffset,

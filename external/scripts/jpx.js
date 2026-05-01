@@ -4036,10 +4036,7 @@ MessageHandler.prototype = {
   }
 };
 
-var moduleType = typeof module;
-if ((moduleType !== 'undefined') && module.exports) {
-    module.exports = JpxImage;
-}
+
 
 function loadJpegStream(id, imageUrl, objs) {
   var img = new Image();

@@ -2,18 +2,24 @@ import WidgetsCss from './widgets.css';
 
 import {COLORS} from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
+import type { Matrix4, Vector3, Mesh } from 'three';
+
+interface WidgetControls {
+  object: any;
+  domElement: HTMLElement;
+}
 
 interface WidgetParameter {
   calibrationFactor: number;
   frameIndex: number;
   hideMesh: boolean;
   hideHandleMesh: boolean;
-  ijk2LPS: THREE.Matrix4;
-  lps2IJK: THREE.Matrix4;
+  ijk2LPS: Matrix4;
+  lps2IJK: Matrix4;
   pixelSpacing: number;
   stack: {};
   ultrasoundRegions: Array<{}>;
-  worldPosition: THREE.Vector3;
+  worldPosition: Vector3;
 }
 
 interface USRegion {
@@ -38,7 +44,7 @@ const widgetsBase = (three = (window as any).THREE) => {
 
   const Constructor = three.Object3D;
   return class extends Constructor {
-    constructor(targetMesh: THREE.Mesh, controls: THREE.OrbitControls, params: WidgetParameter) {
+    constructor(targetMesh: Mesh, controls: WidgetControls, params: WidgetParameter) {
       super();
 
       this._widgetType = 'Base';
@@ -122,7 +128,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number}
      */
-    public getArea(points: THREE.Vector3[]) {
+    public getArea(points: Vector3[]) {
       let area = 0;
       let j = points.length - 1; // the last vertex is the 'previous' one to the first
 
@@ -142,7 +148,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number|null}
      */
-    public getRegionByXY(regions: USRegion[], point: THREE.Vector3) {
+    public getRegionByXY(regions: USRegion[], point: Vector3) {
       let result = null;
 
       regions.some((region, ind) => {
@@ -169,7 +175,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Vector2|null}
      */
-    public getPointInRegion(region: USRegion, point: THREE.Vector3) {
+    public getPointInRegion(region: USRegion, point: Vector3) {
       if (!region) {
         return null;
       }
@@ -188,7 +194,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Vector2|null}
      */
-    public getUsPoint(regions: USRegion[], point: THREE.Vector3) {
+    public getUsPoint(regions: USRegion[], point: Vector3) {
       return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
     }
 
@@ -200,7 +206,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number|null}
      */
-    public getUsDistance(pointA: THREE.Vector3, pointB: THREE.Vector3) {
+    public getUsDistance(pointA: Vector3, pointB: Vector3) {
       const regions = this._params.ultrasoundRegions || [];
 
       if (regions.length < 1) {
@@ -234,7 +240,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Object}
      */
-    public getDistanceData(pointA: THREE.Vector3, pointB: THREE.Vector3, calibrationFactor: number) {
+    public getDistanceData(pointA: Vector3, pointB: Vector3, calibrationFactor: number) {
       let distance = null;
       let units = null;
 
@@ -263,7 +269,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       };
     }
 
-    public getLineData(pointA: THREE.Vector3, pointB: THREE.Vector3) {
+    public getLineData(pointA: Vector3, pointB: Vector3) {
       const line = pointB.clone().sub(pointA);
       const center = pointB
         .clone()
@@ -282,7 +288,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       };
     }
 
-    public getRectData(pointA: THREE.Vector3, pointB: THREE.Vector3) {
+    public getRectData(pointA: Vector3, pointB: Vector3) {
       const line = pointB.clone().sub(pointA);
       const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
       const min = pointA.clone().min(pointB); // coordinates of the top left corner
@@ -304,7 +310,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      * @param {Vector3}     point  label's center coordinates (default)
      * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
      */
-    public adjustLabelTransform(label: HTMLDivElement, point: THREE.Vector3, corner: boolean) {
+    public adjustLabelTransform(label: HTMLDivElement, point: Vector3, corner: boolean) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
       let y =
         Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
@@ -330,7 +336,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       return new three.Vector2(x, y);
     }
 
-    public worldToScreen(worldCoordinate: THREE.Vector3) {
+    public worldToScreen(worldCoordinate: Vector3) {
       const screenCoordinates = worldCoordinate.clone();
       screenCoordinates.project(this._camera);
 
@@ -422,7 +428,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       return this._targetMesh;
     }
 
-    set targetMesh(targetMesh: THREE.Mesh) {
+    set targetMesh(targetMesh: Mesh) {
       this._targetMesh = targetMesh;
       this.update();
     }
@@ -431,7 +437,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       return this._worldPosition;
     }
 
-    set worldPosition(worldPosition: THREE.Vector3) {
+    set worldPosition(worldPosition: Vector3) {
       this._worldPosition.copy(worldPosition);
       this.update();
     }

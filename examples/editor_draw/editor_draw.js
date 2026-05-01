@@ -38,7 +38,7 @@ let stackHelper;
 let stack2;
 let textures2;
 let ijkBBox = [99999999, 0, 9999999, 0, 999999999, 0];
-let layerMix = {
+const layerMix = {
   opacity1: 1.0,
   lut: null,
 };
@@ -49,7 +49,7 @@ let lastPoint = null;
 let currentPoint = null;
 let isEditing = false;
 let isDrawing = false;
-let cursor = {
+const cursor = {
   color: '#d9d9d9',
   value: 0,
   size: 15,
@@ -58,12 +58,12 @@ let cursor = {
 };
 let segmentsList = [];
 let segmentsDict = {};
-let editorStats = {
+const editorStats = {
   '0': 0,
   '1': 0,
   '2': 0,
 };
-let firstRender = false;
+const firstRender = false;
 
 // FUNCTIONS
 /**
@@ -74,7 +74,7 @@ function setupEditor() {
    *
    */
   function distanceBetween(point1, point2) {
-    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
+    return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2);
   }
 
   /**
@@ -88,14 +88,14 @@ function setupEditor() {
    *
    */
   function initEditorStats() {
-    let nbVoxels = stack2._columns * stack2._rows * stack2._frame.length;
-    let textureSize = 4096;
-    let textureDimension = textureSize * textureSize;
+    const nbVoxels = stack2._columns * stack2._rows * stack2._frame.length;
+    const textureSize = 4096;
+    const textureDimension = textureSize * textureSize;
 
     for (let i = 0; i < nbVoxels; i++) {
-      let rawDataIndex = ~~(i / textureDimension);
-      let inRawDataIndex = i % textureDimension;
-      let value = stack2.rawData[rawDataIndex][inRawDataIndex];
+      const rawDataIndex = ~~(i / textureDimension);
+      const inRawDataIndex = i % textureDimension;
+      const value = stack2.rawData[rawDataIndex][inRawDataIndex];
       editorStats[value] += 1;
     }
 
@@ -127,9 +127,9 @@ function setupEditor() {
         for (let k = ijkBBox[4]; k < ijkBBox[5] + 1; k++) {
           // ijk to world
           // center of voxel
-          let worldCoordinate = new THREE.Vector3(i, j, k).applyMatrix4(stack2._ijk2LPS);
+          const worldCoordinate = new THREE.Vector3(i, j, k).applyMatrix4(stack2._ijk2LPS);
           // world to screen coordinate
-          let screenCoordinates = worldCoordinate.clone();
+          const screenCoordinates = worldCoordinate.clone();
           screenCoordinates.project(camera);
 
           screenCoordinates.x = Math.round(((screenCoordinates.x + 1) * canvas.offsetWidth) / 2);
@@ -142,17 +142,17 @@ function setupEditor() {
           const alpha = pixels[(py * canvasW + px) * 4 + 3];
           if (alpha > 0 && i >= 0 && j >= 0 && k >= 0) {
             // find index and texture
-            let voxelIndex = i + j * stack2._columns + k * stack2._rows * stack2._columns;
+            const voxelIndex = i + j * stack2._columns + k * stack2._rows * stack2._columns;
 
-            let textureSize = 4096;
-            let textureDimension = textureSize * textureSize;
+            const textureSize = 4096;
+            const textureDimension = textureSize * textureSize;
 
-            let rawDataIndex = ~~(voxelIndex / textureDimension);
-            let inRawDataIndex = voxelIndex % textureDimension;
+            const rawDataIndex = ~~(voxelIndex / textureDimension);
+            const inRawDataIndex = voxelIndex % textureDimension;
 
             // update value...
-            let oldValue = stack2.rawData[rawDataIndex][inRawDataIndex];
-            let newValue = cursor.value;
+            const oldValue = stack2.rawData[rawDataIndex][inRawDataIndex];
+            const newValue = cursor.value;
 
             if (oldValue != newValue) {
               // update raw data
@@ -224,12 +224,12 @@ function setupEditor() {
       context.fillStyle = cursor.color;
 
       if (isDrawing) {
-        let dist = distanceBetween(lastPoint, currentPoint);
-        let angle = angleBetween(lastPoint, currentPoint);
+        const dist = distanceBetween(lastPoint, currentPoint);
+        const angle = angleBetween(lastPoint, currentPoint);
 
         for (let i = 0; i < dist; i += 5) {
-          let x = lastPoint.x + Math.sin(angle) * i;
-          let y = lastPoint.y + Math.cos(angle) * i;
+          const x = lastPoint.x + Math.sin(angle) * i;
+          const y = lastPoint.y + Math.cos(angle) * i;
           drawCircle(x, y);
         }
 
@@ -345,7 +345,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -407,7 +407,7 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
   /**
@@ -449,14 +449,14 @@ window.onload = function() {
     ijkBBox = [stack2._columns, 0, stack2._rows, 0, stack2.frame.length, 0];
 
     // IJK BBox of the plane
-    let slice = stackHelper._slice;
-    let vertices = slice._geometry.vertices;
+    const slice = stackHelper._slice;
+    const vertices = slice._geometry.vertices;
     // to LPS
     for (let i = 0; i < vertices.length; i++) {
-      let wc = new THREE.Vector3(vertices[i].x, vertices[i].y, vertices[i].z).applyMatrix4(
+      const wc = new THREE.Vector3(vertices[i].x, vertices[i].y, vertices[i].z).applyMatrix4(
         stackHelper.stack._ijk2LPS
       );
-      let dc = wc.applyMatrix4(stack2._lps2IJK);
+      const dc = wc.applyMatrix4(stack2._lps2IJK);
       dc.x = Math.round(dc.x * 10) / 10;
       dc.y = Math.round(dc.y * 10) / 10;
       dc.z = Math.round(dc.z * 10) / 10;
@@ -501,27 +501,27 @@ window.onload = function() {
     updateIJKBBox();
 
     // BUILD THE GUI
-    let gui = new dat.GUI({
+    const gui = new dat.GUI({
       autoPlace: false,
     });
-    let customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
     // PET FOLDER
-    let layer0Folder = gui.addFolder('PET');
+    const layer0Folder = gui.addFolder('PET');
 
-    let indexUpdate = layer0Folder
+    const indexUpdate = layer0Folder
       .add(stackHelper, 'index', 245, 253)
       .step(1)
       .listen();
-    indexUpdate.onChange(function() {
+    indexUpdate.onChange(() => {
       updateLayer1();
       updateLayerMix();
       updateIJKBBox();
     });
 
-    let updateInterpolation = layer0Folder.add(stackHelper.slice, 'interpolation');
-    updateInterpolation.onChange(function(value) {
+    const updateInterpolation = layer0Folder.add(stackHelper.slice, 'interpolation');
+    updateInterpolation.onChange((value) => {
       if (value) {
         stackHelper.slice.interpolation = 1;
       } else {
@@ -531,20 +531,20 @@ window.onload = function() {
     layer0Folder.open();
 
     // SEGMENTATION FOLDER
-    let layerMixFolder = gui.addFolder('Segmentation');
+    const layerMixFolder = gui.addFolder('Segmentation');
 
-    let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
-    opacityLayerMix1.onChange(function(value) {
+    const opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
+    opacityLayerMix1.onChange((value) => {
       uniformsLayerMix.uOpacity1.value = value;
     });
 
     layerMixFolder.open();
 
     // EDITOR FODLER
-    let editorFolder = gui.addFolder('Editor');
+    const editorFolder = gui.addFolder('Editor');
     editorFolder.add(cursor, 'size', 1, 50).step(1);
-    let brushSegment = editorFolder.add(cursor, 'segment', segmentsList);
-    brushSegment.onChange(function(value) {
+    const brushSegment = editorFolder.add(cursor, 'segment', segmentsList);
+    brushSegment.onChange((value) => {
       // update color and value
       cursor.value = segmentsDict[value].value;
       cursor.color = segmentsDict[value].color;
@@ -582,7 +582,7 @@ window.onload = function() {
      *
      */
     function onWindowResize() {
-      let threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d');
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -607,7 +607,7 @@ window.onload = function() {
     //
     //
     // first stack of first series
-    let mergedSeries = loader.data[0].mergeSeries(loader.data);
+    const mergedSeries = loader.data[0].mergeSeries(loader.data);
     loader.free();
     loader = null;
 
@@ -653,8 +653,8 @@ window.onload = function() {
 
     // add labels
     for (let i = 0; i < stack2._segmentationSegments.length; i++) {
-      let label = stack2._segmentationSegments[i].segmentLabel;
-      let number = stack2._segmentationSegments[i].segmentNumber;
+      const label = stack2._segmentationSegments[i].segmentLabel;
+      const number = stack2._segmentationSegments[i].segmentNumber;
       segmentsList.push(label);
       segmentsDict[label] = {
         color: `rgba(
@@ -668,7 +668,7 @@ window.onload = function() {
 
     textures2 = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
+      const tex = new THREE.DataTexture(
         stack2.rawData[m],
         stack2.textureSize,
         stack2.textureSize,
@@ -705,8 +705,8 @@ window.onload = function() {
     uniformsLayer1.uLowerUpperThreshold.value = [...stack2.minMax];
 
     // generate shaders on-demand!
-    let fs = new ShadersDataFragment(uniformsLayer1);
-    let vs = new ShadersDataVertex();
+    const fs = new ShadersDataFragment(uniformsLayer1);
+    const vs = new ShadersDataVertex();
     materialLayer1 = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
@@ -725,8 +725,8 @@ window.onload = function() {
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
 
-    let fls = new ShadersLayerFragment(uniformsLayerMix);
-    let vls = new ShadersLayerVertex();
+    const fls = new ShadersLayerFragment(uniformsLayerMix);
+    const vls = new ShadersLayerVertex();
     materialLayerMix = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
@@ -743,21 +743,21 @@ window.onload = function() {
 
     //
     // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    const worldbb = stack.worldBoundingBox();
+    const lpsDims = new THREE.Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
     );
 
     // box: {halfDimensions, center}
-    let box = {
+    const box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
-    let canvas = {
+    const canvas = {
       width: threeD.clientWidth,
       height: threeD.clientHeight,
     };
@@ -792,7 +792,7 @@ window.onload = function() {
     uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
   }
 
-  let filenames = [
+  const filenames = [
     '000000.dcm',
     '000001.dcm',
     '000002.dcm',
@@ -1094,9 +1094,7 @@ window.onload = function() {
     '000298.dcm',
   ];
 
-  let files = filenames.map(function(v) {
-    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/rsna_2/PET/' + v;
-  });
+  const files = filenames.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/rsna_2/PET/' + v);
 
   files.push(
     'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/rsna_2/SEG/3DSlicer/tumor_User1_Manual_Trial1.dcm'
@@ -1108,7 +1106,7 @@ window.onload = function() {
 
   loader
     .load(files)
-    .then(function() {
+    .then(() => {
       handleSeries();
       addListeners();
       setupGUI();
@@ -1120,7 +1118,7 @@ window.onload = function() {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

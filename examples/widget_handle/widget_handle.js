@@ -24,7 +24,7 @@ let stats;
 let scene;
 let camera;
 let offsets;
-let widgets = [];
+const widgets = [];
 const widgetsAvailable = [
   'Handle',
   'VoxelProbe',
@@ -55,7 +55,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -94,7 +94,7 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
 
@@ -105,13 +105,13 @@ window.onload = function() {
   loader.load(file).then(series => {
     const stack = series[0]._stack[0];
     loader.free();
-    let stackHelper = new HelpersStack(stack);
+    const stackHelper = new HelpersStack(stack);
 
     scene.add(stackHelper);
 
-    threeD.addEventListener('mouseup', function() {
+    threeD.addEventListener('mouseup', () => {
       // if something hovered, exit
-      for (let widget of widgets) {
+      for (const widget of widgets) {
         if (widget.active) {
           widget.onEnd();
           return;
@@ -119,10 +119,10 @@ window.onload = function() {
       }
     });
 
-    threeD.addEventListener('mousemove', function(evt) {
+    threeD.addEventListener('mousemove', (evt) => {
       // if something hovered, exit
       let cursor = 'default';
-      for (let widget of widgets) {
+      for (const widget of widgets) {
         widget.onMove(evt);
         if (widget.hovered) {
           cursor = 'pointer';
@@ -132,9 +132,9 @@ window.onload = function() {
       threeD.style.cursor = cursor;
     });
 
-    threeD.addEventListener('mousedown', function(evt) {
+    threeD.addEventListener('mousedown', (evt) => {
       // if something hovered, exit
-      for (let widget of widgets) {
+      for (const widget of widgets) {
         if (widget.hovered) {
           widget.onStart(evt);
           return;
@@ -144,15 +144,15 @@ window.onload = function() {
       threeD.style.cursor = 'default';
 
       // mouse position
-      let mouse = {
+      const mouse = {
         x: ((evt.clientX - offsets.left) / threeD.offsetWidth) * 2 - 1,
         y: -((evt.clientY - offsets.top) / threeD.offsetHeight) * 2 + 1,
       };
 
       // update the raycaster
-      let raycaster = new THREE.Raycaster();
+      const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
-      let intersects = raycaster.intersectObject(stackHelper.slice.mesh);
+      const intersects = raycaster.intersectObject(stackHelper.slice.mesh);
 
       if (intersects.length <= 0) {
         return;
@@ -264,7 +264,7 @@ window.onload = function() {
       };
 
       // repaint all widgets
-      for (let widget of widgets) {
+      for (const widget of widgets) {
         widget.update();
       }
     }

@@ -24,7 +24,7 @@ let threeD;
  * @return {*}
  */
 function componentToHex(c) {
-  let hex = c.toString(16);
+  const hex = c.toString(16);
   return hex.length === 1 ? '0' + hex : hex;
 }
 
@@ -47,7 +47,7 @@ function updateGeometries() {
   if (stackHelper) {
     // move the "light"
     // update light position
-    let timer = Date.now() * 0.00025;
+    const timer = Date.now() * 0.00025;
     particleLight.position.x = Math.sin(timer * 7) * 70;
     particleLight.position.y = Math.cos(timer * 5) * 80;
     particleLight.position.z = Math.cos(timer * 3) * 90;
@@ -56,7 +56,7 @@ function updateGeometries() {
     line.geometry.setFromPoints([stackHelper.slice.planePosition, particleLight.position]);
 
     // update plane direction...
-    let dirLPS = new THREE.Vector3(
+    const dirLPS = new THREE.Vector3(
       particleLight.position.x - stackHelper.slice.planePosition.x,
       particleLight.position.y - stackHelper.slice.planePosition.y,
       particleLight.position.z - stackHelper.slice.planePosition.z
@@ -69,7 +69,7 @@ function updateGeometries() {
     stackHelper.border.helpersSlice = stackHelper.slice;
 
     // update colors based on planeDirection
-    let color = rgbToHex(
+    const color = rgbToHex(
       Math.round(Math.abs(255 * dirLPS.x)),
       Math.round(Math.abs(255 * dirLPS.y)),
       Math.round(Math.abs(255 * dirLPS.z))
@@ -99,7 +99,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -150,7 +150,7 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
 
@@ -158,7 +158,7 @@ window.onload = function() {
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
 
-  let t2 = [
+  const t2 = [
     '36444280',
     '36444294',
     '36444308',
@@ -216,13 +216,11 @@ window.onload = function() {
     '36748242',
   ];
 
-  let files = t2.map(function(v) {
-    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v;
-  });
+  const files = t2.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v);
 
   loader
     .load(files)
-    .then(function() {
+    .then(() => {
       const series = loader.data[0].mergeSeries(loader.data)[0];
       const stack = series.stack[0];
       stackHelper = new HelpersStack(stack);
@@ -251,7 +249,7 @@ window.onload = function() {
       controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
       // create GUI
-      let gui = new dat.GUI({
+      const gui = new dat.GUI({
         autoPlace: false,
       });
 
@@ -259,17 +257,17 @@ window.onload = function() {
       customContainer.appendChild(gui.domElement);
       customContainer = null;
 
-      let positionFolder = gui.addFolder('Plane position');
-      let worldBBox = stackHelper.stack.worldBoundingBox();
-      let frameIndexControllerOriginI = positionFolder
+      const positionFolder = gui.addFolder('Plane position');
+      const worldBBox = stackHelper.stack.worldBoundingBox();
+      const frameIndexControllerOriginI = positionFolder
         .add(stackHelper.slice.planePosition, 'x', worldBBox[0], worldBBox[1])
         .step(0.01)
         .listen();
-      let frameIndexControllerOriginJ = positionFolder
+      const frameIndexControllerOriginJ = positionFolder
         .add(stackHelper.slice.planePosition, 'y', worldBBox[2], worldBBox[3])
         .step(0.01)
         .listen();
-      let frameIndexControllerOriginK = positionFolder
+      const frameIndexControllerOriginK = positionFolder
         .add(stackHelper.slice.planePosition, 'z', worldBBox[4], worldBBox[5])
         .step(0.01)
         .listen();
@@ -313,7 +311,7 @@ window.onload = function() {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

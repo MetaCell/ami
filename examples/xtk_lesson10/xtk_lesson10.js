@@ -3,7 +3,7 @@ import XRenderer3D from 'base/helpers/x/helpers.x.renderer3d';
 import XMesh from 'base/helpers/x/helpers.x.mesh';
 import XVolume from 'base/helpers/x/helpers.x.volume';
 
-window.onload = function() {
+window.onload = () => {
   // INIT THE RENDERER
   const renderer = new XRenderer3D();
   renderer.animate();

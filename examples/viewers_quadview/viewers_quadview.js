@@ -88,7 +88,7 @@ const r3 = {
 };
 
 // data to be loaded
-let dataInfo = [
+const dataInfo = [
   [
     'adi1',
     {
@@ -123,13 +123,13 @@ let dataInfo = [
   ],
 ];
 
-let data = new Map(dataInfo);
+const data = new Map(dataInfo);
 
 // extra variables to show mesh plane intersections in 2D renderers
-let sceneClip = new THREE.Scene();
-let clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
-let clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
-let clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
+const sceneClip = new THREE.Scene();
+const clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
+const clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
+const clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 
 function initRenderer3D(renderObj) {
   // renderer
@@ -218,21 +218,21 @@ function initHelpersStack(rendererObj, stack) {
   rendererObj.stackHelper.slice.canvasHeight = rendererObj.domElement.clientHeight;
 
   // set camera
-  let worldbb = stack.worldBoundingBox();
-  let lpsDims = new THREE.Vector3(
+  const worldbb = stack.worldBoundingBox();
+  const lpsDims = new THREE.Vector3(
     (worldbb[1] - worldbb[0]) / 2,
     (worldbb[3] - worldbb[2]) / 2,
     (worldbb[5] - worldbb[4]) / 2
   );
 
   // box: {halfDimensions, center}
-  let box = {
+  const box = {
     center: stack.worldCenter().clone(),
     halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
   };
 
   // init and zoom
-  let canvas = {
+  const canvas = {
     width: rendererObj.domElement.clientWidth,
     height: rendererObj.domElement.clientHeight,
   };
@@ -285,7 +285,7 @@ function render() {
     r1.renderer.render(r1.scene, r1.camera);
     // mesh
     r1.renderer.clearDepth();
-    data.forEach(function(object, key) {
+    data.forEach((object, key) => {
       object.materialFront.clippingPlanes = [clipPlane1];
       object.materialBack.clippingPlanes = [clipPlane1];
       r1.renderer.setRenderTarget(redTextureTarget);
@@ -308,7 +308,7 @@ function render() {
     r2.renderer.render(r2.scene, r2.camera);
     // mesh
     r2.renderer.clearDepth();
-    data.forEach(function(object, key) {
+    data.forEach((object, key) => {
       object.materialFront.clippingPlanes = [clipPlane2];
       object.materialBack.clippingPlanes = [clipPlane2];
     });
@@ -322,7 +322,7 @@ function render() {
     r3.renderer.render(r3.scene, r3.camera);
     // mesh
     r3.renderer.clearDepth();
-    data.forEach(function(object, key) {
+    data.forEach((object, key) => {
       object.materialFront.clippingPlanes = [clipPlane3];
       object.materialBack.clippingPlanes = [clipPlane3];
     });
@@ -346,7 +346,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -361,11 +361,11 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS
   init();
 
-  let files = ['https://cdn.jsdelivr.net/gh/FNNDSC/data@master/mgh/orig.mgz'];
+  const files = ['https://cdn.jsdelivr.net/gh/FNNDSC/data@master/mgh/orig.mgz'];
 
   // load sequence for each file
   // instantiate the loader
@@ -373,22 +373,22 @@ window.onload = function() {
   let loader = new LoadersVolume();
   loader
     .load(files)
-    .then(function() {
-      let series = loader.data[0].mergeSeries(loader.data)[0];
+    .then(() => {
+      const series = loader.data[0].mergeSeries(loader.data)[0];
       loader.free();
       loader = null;
       // get first stack from series
-      let stack = series.stack[0];
+      const stack = series.stack[0];
       stack.prepare();
 
       // center 3d camera/control on the stack
-      let centerLPS = stack.worldCenter();
+      const centerLPS = stack.worldCenter();
       r0.camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       r0.camera.updateProjectionMatrix();
       r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
       // bouding box
-      let boxHelper = new HelpersBoundingBox(stack);
+      const boxHelper = new HelpersBoundingBox(stack);
       r0.scene.add(boxHelper);
 
       // red slice
@@ -421,9 +421,9 @@ window.onload = function() {
       r0.scene.add(r3.scene);
 
       // create new mesh with Localizer shaders
-      let plane1 = r1.stackHelper.slice.cartesianEquation();
-      let plane2 = r2.stackHelper.slice.cartesianEquation();
-      let plane3 = r3.stackHelper.slice.cartesianEquation();
+      const plane1 = r1.stackHelper.slice.cartesianEquation();
+      const plane2 = r2.stackHelper.slice.cartesianEquation();
+      const plane3 = r3.stackHelper.slice.cartesianEquation();
 
       // localizer red slice
       initHelpersLocalizer(r1, stack, plane1, [
@@ -443,16 +443,16 @@ window.onload = function() {
         { plane: plane2, color: new THREE.Color(r2.stackHelper.borderColor) },
       ]);
 
-      let gui = new dat.GUI({
+      const gui = new dat.GUI({
         autoPlace: false,
       });
 
-      let customContainer = document.getElementById('my-gui-container');
+      const customContainer = document.getElementById('my-gui-container');
       customContainer.appendChild(gui.domElement);
 
       // Red
-      let stackFolder1 = gui.addFolder('Axial (Red)');
-      let redChanged = stackFolder1
+      const stackFolder1 = gui.addFolder('Axial (Red)');
+      const redChanged = stackFolder1
         .add(r1.stackHelper, 'index', 0, r1.stackHelper.orientationMaxIndex)
         .step(1)
         .listen();
@@ -462,8 +462,8 @@ window.onload = function() {
         .listen();
 
       // Yellow
-      let stackFolder2 = gui.addFolder('Sagittal (yellow)');
-      let yellowChanged = stackFolder2
+      const stackFolder2 = gui.addFolder('Sagittal (yellow)');
+      const yellowChanged = stackFolder2
         .add(r2.stackHelper, 'index', 0, r2.stackHelper.orientationMaxIndex)
         .step(1)
         .listen();
@@ -473,8 +473,8 @@ window.onload = function() {
         .listen();
 
       // Green
-      let stackFolder3 = gui.addFolder('Coronal (green)');
-      let greenChanged = stackFolder3
+      const stackFolder3 = gui.addFolder('Coronal (green)');
+      const greenChanged = stackFolder3
         .add(r3.stackHelper, 'index', 0, r3.stackHelper.orientationMaxIndex)
         .step(1)
         .listen();
@@ -487,15 +487,15 @@ window.onload = function() {
        * Update Layer Mix
        */
       function updateLocalizer(refObj, targetLocalizersHelpers) {
-        let refHelper = refObj.stackHelper;
-        let localizerHelper = refObj.localizerHelper;
-        let plane = refHelper.slice.cartesianEquation();
+        const refHelper = refObj.stackHelper;
+        const localizerHelper = refObj.localizerHelper;
+        const plane = refHelper.slice.cartesianEquation();
         localizerHelper.referencePlane = plane;
 
         // bit of a hack... works fine for this application
         for (let i = 0; i < targetLocalizersHelpers.length; i++) {
           for (let j = 0; j < 3; j++) {
-            let targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
+            const targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
             if (
               targetPlane &&
               plane.x.toFixed(6) === targetPlane.x.toFixed(6) &&
@@ -514,20 +514,20 @@ window.onload = function() {
       function updateClipPlane(refObj, clipPlane) {
         const stackHelper = refObj.stackHelper;
         const camera = refObj.camera;
-        let vertices = stackHelper.slice.geometry.vertices;
-        let p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(
+        const vertices = stackHelper.slice.geometry.vertices;
+        const p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(
           stackHelper._stack.ijk2LPS
         );
-        let p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(
+        const p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(
           stackHelper._stack.ijk2LPS
         );
-        let p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(
+        const p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(
           stackHelper._stack.ijk2LPS
         );
 
         clipPlane.setFromCoplanarPoints(p1, p2, p3);
 
-        let cameraDirection = new THREE.Vector3(1, 1, 1);
+        const cameraDirection = new THREE.Vector3(1, 1, 1);
         cameraDirection.applyQuaternion(camera.quaternion);
 
         if (cameraDirection.dot(clipPlane.normal) > 0) {
@@ -599,7 +599,7 @@ window.onload = function() {
 
         const intersects = raycaster.intersectObjects(scene.children, true);
         if (intersects.length > 0) {
-          let ijk = CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
+          const ijk = CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
 
           r1.stackHelper.index = ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
           r2.stackHelper.index = ijk.getComponent((r2.stackHelper.orientation + 2) % 3);
@@ -747,7 +747,7 @@ window.onload = function() {
       let meshesLoaded = 0;
       function loadSTLObject(object) {
         const stlLoader = new FreeSurferLoader();
-        stlLoader.load(object.location, function(geometry) {
+        stlLoader.load(object.location, (geometry) => {
           geometry.computeVertexNormals();
           // 3D mesh
           object.material = new THREE.MeshLambertMaterial({
@@ -760,7 +760,7 @@ window.onload = function() {
           object.mesh.objRef = object;
           const array = r1.stackHelper.stack.lps2IJK.toArray();
 
-          let RASToLPS = new THREE.Matrix4();
+          const RASToLPS = new THREE.Matrix4();
           const worldCenter = r1.stackHelper.stack.worldCenter();
           RASToLPS.set(
             -1,
@@ -834,11 +834,11 @@ window.onload = function() {
         });
       }
 
-      data.forEach(function(object, key) {
+      data.forEach((object, key) => {
         loadSTLObject(object);
       });
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

@@ -27,7 +27,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -56,11 +56,11 @@ function init() {
   camera.position.z = 250;
 
   scene.add(new THREE.AmbientLight(0x353535));
-  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(200, 200, 1000).normalize();
   scene.add(directionalLight);
 
-  let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+  const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight2.position.set(-200, -200, -1000).normalize();
   scene.add(directionalLight2);
 
@@ -73,23 +73,23 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
 
   // load vtk file
-  let loader1 = new VTKLoader();
-  loader1.load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/marc_avf/avf.vtk', function(
+  const loader1 = new VTKLoader();
+  loader1.load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/marc_avf/avf.vtk', (
     geometry
-  ) {
+  ) => {
     geometry.computeVertexNormals();
-    let material = new THREE.MeshLambertMaterial({
+    const material = new THREE.MeshLambertMaterial({
       shading: THREE.SmoothShading,
       color: 0xe91e63,
       side: THREE.DoubleSide,
     });
-    let mesh = new THREE.Mesh(geometry, material);
-    let RASToLPS = new THREE.Matrix4();
+    const mesh = new THREE.Mesh(geometry, material);
+    const RASToLPS = new THREE.Matrix4();
     RASToLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     mesh.applyMatrix4(RASToLPS);
     scene.add(mesh);
@@ -100,17 +100,17 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
   loader
     .load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/marc_avf/avf_float_32.nii.gz')
-    .then(function() {
+    .then(() => {
       // make a proper function for this guy...
-      let series = loader.data[0].mergeSeries(loader.data)[0];
-      let stack = series.stack[0];
+      const series = loader.data[0].mergeSeries(loader.data)[0];
+      const stack = series.stack[0];
       stackHelper = new HelpersStack(stack);
       stackHelper.bbox.color = 0xf9f9f9;
       stackHelper.border.color = 0xf9f9f9;
       scene.add(stackHelper);
 
       // update camrea's and control's target
-      let centerLPS = stackHelper.stack.worldCenter();
+      const centerLPS = stackHelper.stack.worldCenter();
       camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
       controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -134,7 +134,7 @@ window.onload = function() {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

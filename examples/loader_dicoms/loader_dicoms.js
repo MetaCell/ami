@@ -34,7 +34,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -71,7 +71,7 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
 
@@ -79,7 +79,7 @@ window.onload = function() {
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
 
-  let t2 = [
+  const t2 = [
     '36444280',
     '36444294',
     '36444308',
@@ -137,24 +137,22 @@ window.onload = function() {
     // '36748242',
   ];
 
-  let files = t2.map(function(v) {
-    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v;
-  });
+  const files = t2.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v);
 
   // load sequence for all files
   loader
     .load(files)
-    .then(function() {
+    .then(() => {
       // make a proper function for this guy...
-      let series = loader.data[0].mergeSeries(loader.data)[0];
-      let stack = series.stack[0];
+      const series = loader.data[0].mergeSeries(loader.data)[0];
+      const stack = series.stack[0];
       stackHelper = new HelpersStack(stack);
       stackHelper.bbox.color = 0xf9f9f9;
       stackHelper.border.color = 0xf9f9f9;
       scene.add(stackHelper);
 
       // update camrea's and control's target
-      let centerLPS = stackHelper.stack.worldCenter();
+      const centerLPS = stackHelper.stack.worldCenter();
       camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
       controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -178,7 +176,7 @@ window.onload = function() {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

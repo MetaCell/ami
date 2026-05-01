@@ -21,7 +21,7 @@ let camera;
 let statsyay;
 let threeD;
 //
-let mouse = {
+const mouse = {
   x: 0,
   y: 0,
 };
@@ -54,13 +54,13 @@ let meshLayerMix;
 let uniformsLayerMix;
 let materialLayerMix;
 
-let layer1 = {
+const layer1 = {
   opacity: 1.0,
   lut: null,
   interpolation: 1,
 };
 
-let layerMix = {
+const layerMix = {
   opacity0: 1.0,
   opacity1: 1.0,
   type0: 0,
@@ -92,7 +92,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -149,18 +149,16 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS...
   init();
 
-  let data = [
+  const data = [
     'patient1/7001_t1_average_BRAINSABC.nii.gz',
     'patient2/7002_t1_average_BRAINSABC.nii.gz',
   ];
 
-  let files = data.map(function(v) {
-    return 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/slicer_brain/' + v;
-  });
+  const files = data.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/slicer_brain/' + v);
 
   function buildGUI(stackHelper) {
     function updateLayer1() {
@@ -189,19 +187,19 @@ window.onload = function() {
       }
     }
 
-    let stack = stackHelper._stack;
+    const stack = stackHelper._stack;
 
-    let gui = new dat.GUI({
+    const gui = new dat.GUI({
       autoPlace: false,
     });
 
-    let customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
     //
     // layer 0 folder
     //
-    let layer0Folder = gui.addFolder('Layer 0 (Base)');
+    const layer0Folder = gui.addFolder('Layer 0 (Base)');
     layer0Folder
       .add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1])
       .step(1)
@@ -213,17 +211,17 @@ window.onload = function() {
     layer0Folder.add(stackHelper.slice, 'intensityAuto');
     layer0Folder.add(stackHelper.slice, 'invert');
 
-    let lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
-    lutUpdate.onChange(function(value) {
+    const lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
+    lutUpdate.onChange((value) => {
       lutLayer0.lut = value;
       stackHelper.slice.lutTexture = lutLayer0.texture;
     });
 
-    let indexUpdate = layer0Folder
+    const indexUpdate = layer0Folder
       .add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1)
       .step(1)
       .listen();
-    indexUpdate.onChange(function() {
+    indexUpdate.onChange(() => {
       updateLayer1();
       updateLayerMix();
     });
@@ -238,20 +236,20 @@ window.onload = function() {
     //
     // layer 1 folder
     //
-    let layer1Folder = gui.addFolder('Layer 1');
-    let interpolationLayer1 = layer1Folder
+    const layer1Folder = gui.addFolder('Layer 1');
+    const interpolationLayer1 = layer1Folder
       .add(layer1, 'interpolation', 0, 1)
       .step(1)
       .listen();
-    interpolationLayer1.onChange(function(value) {
+    interpolationLayer1.onChange((value) => {
       uniformsLayer1.uInterpolation.value = value;
       // re-compute shaders
-      let fs = new ShadersFragment(uniformsLayer1);
+      const fs = new ShadersFragment(uniformsLayer1);
       materialLayer1.fragmentShader = fs.compute();
       materialLayer1.needsUpdate = true;
     });
-    let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
-    layer1LutUpdate.onChange(function(value) {
+    const layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
+    layer1LutUpdate.onChange((value) => {
       lutLayer1.lut = value;
       // propagate to shaders
       uniformsLayer1.uLut.value = 1;
@@ -263,17 +261,17 @@ window.onload = function() {
     //
     // layer mix folder
     //
-    let layerMixFolder = gui.addFolder('Layer Mix');
-    let opacityLayerMix = layerMixFolder
+    const layerMixFolder = gui.addFolder('Layer Mix');
+    const opacityLayerMix = layerMixFolder
       .add(layerMix, 'opacity1', 0, 1)
       .step(0.01)
       .listen();
-    opacityLayerMix.onChange(function(value) {
+    opacityLayerMix.onChange((value) => {
       uniformsLayerMix.uOpacity1.value = value;
     });
 
-    let layerMixTrackMouseUpdate = layerMixFolder.add(layerMix, 'trackMouse');
-    layerMixTrackMouseUpdate.onChange(function(value) {
+    const layerMixTrackMouseUpdate = layerMixFolder.add(layerMix, 'trackMouse');
+    layerMixTrackMouseUpdate.onChange((value) => {
       if (value) {
         uniformsLayerMix.uTrackMouse.value = 1;
       } else {
@@ -284,7 +282,7 @@ window.onload = function() {
     layerMixFolder.open();
 
     // hook up callbacks
-    controls.addEventListener('OnScroll', function(e) {
+    controls.addEventListener('OnScroll', (e) => {
       if (e.delta > 0) {
         if (stackHelper.index >= stack.dimensionsIJK.z - 1) {
           return false;
@@ -305,7 +303,7 @@ window.onload = function() {
     updateLayerMix();
 
     function onWindowResize() {
-      let threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d');
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -328,7 +326,7 @@ window.onload = function() {
   function handleSeries() {
     //
     // first stack of first series
-    let mergedSeries = loader.data[0].mergeSeries(loader.data);
+    const mergedSeries = loader.data[0].mergeSeries(loader.data);
     loader.free();
     loader = null;
 
@@ -349,7 +347,7 @@ window.onload = function() {
     stack = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
 
-    let stackHelper = new HelpersStack(stack);
+    const stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
 
@@ -367,9 +365,9 @@ window.onload = function() {
     // pixels packing for the fragment shaders now happens there
     stack2.pack();
 
-    let textures2 = [];
+    const textures2 = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
+      const tex = new THREE.DataTexture(
         stack2.rawData[m],
         stack2.textureSize,
         stack2.textureSize,
@@ -405,8 +403,8 @@ window.onload = function() {
     uniformsLayer1.uLowerUpperThreshold.value = [...stack2.minMax];
 
     // generate shaders on-demand!
-    let fs = new ShadersFragment(uniformsLayer1);
-    let vs = new ShadersVertex();
+    const fs = new ShadersFragment(uniformsLayer1);
+    const vs = new ShadersVertex();
     materialLayer1 = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
@@ -429,8 +427,8 @@ window.onload = function() {
     uniformsLayerMix.uMouse.value = new THREE.Vector2(0, 0);
 
     // generate shaders on-demand!
-    let fls = new ShadersLayerFragment(uniformsLayerMix);
-    let vls = new ShadersLayerVertex();
+    const fls = new ShadersLayerFragment(uniformsLayerMix);
+    const vls = new ShadersLayerVertex();
     materialLayerMix = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
@@ -446,21 +444,21 @@ window.onload = function() {
     sceneLayerMix.add(meshLayerMix);
 
     // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    const worldbb = stack.worldBoundingBox();
+    const lpsDims = new THREE.Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
     );
 
     // box: {halfDimensions, center}
-    let box = {
+    const box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50),
     };
 
     // init and zoom
-    let canvas = {
+    const canvas = {
       width: threeD.clientWidth,
       height: threeD.clientHeight,
     };
@@ -497,7 +495,7 @@ window.onload = function() {
   // load sequence for each file
   loader
     .load(files)
-    .then(function() {
+    .then(() => {
       handleSeries();
       // force 1st render
       render();
@@ -506,7 +504,7 @@ window.onload = function() {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(function(error) {
+    .catch((error) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

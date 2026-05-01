@@ -16,7 +16,7 @@ let threeD;
 let lut;
 
 let ctrlDown = false;
-let drag = {
+const drag = {
   start: {
     x: null,
     y: null,
@@ -24,7 +24,7 @@ let drag = {
 };
 
 // probe
-let camUtils = {
+const camUtils = {
   invertRows: false,
   invertColumns: false,
   rotate: false,
@@ -45,7 +45,7 @@ function init() {
     renderer.render(scene, camera);
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -81,14 +81,14 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // notify puppeteer to take screenshot
   const puppetDiv = document.createElement('div');
   puppetDiv.setAttribute('id', 'puppeteer');
   document.body.appendChild(puppetDiv);
 
   // hookup load button
-  document.getElementById('buttoninput').onclick = function() {
+  document.getElementById('buttoninput').onclick = () => {
     document.getElementById('filesinput').click();
   };
 
@@ -98,30 +98,30 @@ window.onload = function() {
   function updateLabels(labels, modality) {
     if (modality === 'CR' || modality === 'DX') return;
 
-    let top = document.getElementById('top');
+    const top = document.getElementById('top');
     top.innerHTML = labels[0];
 
-    let bottom = document.getElementById('bottom');
+    const bottom = document.getElementById('bottom');
     bottom.innerHTML = labels[1];
 
-    let right = document.getElementById('right');
+    const right = document.getElementById('right');
     right.innerHTML = labels[2];
 
-    let left = document.getElementById('left');
+    const left = document.getElementById('left');
     left.innerHTML = labels[3];
   }
 
   function buildGUI(stackHelper) {
-    let stack = stackHelper._stack;
+    const stack = stackHelper._stack;
 
-    let gui = new dat.GUI({
+    const gui = new dat.GUI({
       autoPlace: false,
     });
 
-    let customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
-    let stackFolder = gui.addFolder('Stack');
+    const stackFolder = gui.addFolder('Stack');
     stackFolder
       .add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1] - stack.minMax[0])
       .step(1)
@@ -155,58 +155,58 @@ window.onload = function() {
     );
     lut.luts = HelpersLut.presetLuts();
 
-    let lutUpdate = stackFolder.add(stackHelper.slice, 'lut', lut.lutsAvailable());
-    lutUpdate.onChange(function(value) {
+    const lutUpdate = stackFolder.add(stackHelper.slice, 'lut', lut.lutsAvailable());
+    lutUpdate.onChange((value) => {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
-    let lutDiscrete = stackFolder.add(lut, 'discrete', false);
-    lutDiscrete.onChange(function(value) {
+    const lutDiscrete = stackFolder.add(lut, 'discrete', false);
+    lutDiscrete.onChange((value) => {
       lut.discrete = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
 
-    let index = stackFolder
+    const index = stackFolder
       .add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1)
       .step(1)
       .listen();
     stackFolder.open();
 
     // camera
-    let cameraFolder = gui.addFolder('Camera');
-    let invertRows = cameraFolder.add(camUtils, 'invertRows');
-    invertRows.onChange(function() {
+    const cameraFolder = gui.addFolder('Camera');
+    const invertRows = cameraFolder.add(camUtils, 'invertRows');
+    invertRows.onChange(() => {
       camera.invertRows();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
-    invertColumns.onChange(function() {
+    const invertColumns = cameraFolder.add(camUtils, 'invertColumns');
+    invertColumns.onChange(() => {
       camera.invertColumns();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let angle = cameraFolder
+    const angle = cameraFolder
       .add(camera, 'angle', 0, 360)
       .step(1)
       .listen();
-    angle.onChange(function() {
+    angle.onChange(() => {
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let rotate = cameraFolder.add(camUtils, 'rotate');
-    rotate.onChange(function() {
+    const rotate = cameraFolder.add(camUtils, 'rotate');
+    rotate.onChange(() => {
       camera.rotate();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let orientationUpdate = cameraFolder.add(camUtils, 'orientation', [
+    const orientationUpdate = cameraFolder.add(camUtils, 'orientation', [
       'default',
       'axial',
       'coronal',
       'sagittal',
     ]);
-    orientationUpdate.onChange(function(value) {
+    orientationUpdate.onChange((value) => {
       camera.orientation = value;
       camera.update();
       camera.fitBox(2);
@@ -217,8 +217,8 @@ window.onload = function() {
       stackHelper.index = Math.floor(index.__max / 2);
     });
 
-    let conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
-    conventionUpdate.onChange(function(value) {
+    const conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
+    conventionUpdate.onChange((value) => {
       camera.convention = value;
       camera.update();
       camera.fitBox(2);
@@ -230,9 +230,9 @@ window.onload = function() {
    * Connect all callbevent observesrs
    */
   function hookCallbacks(stackHelper) {
-    let stack = stackHelper._stack;
+    const stack = stackHelper._stack;
     // hook up callbacks
-    controls.addEventListener('OnScroll', function(e) {
+    controls.addEventListener('OnScroll', (e) => {
       if (e.delta > 0) {
         if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
           return false;
@@ -250,7 +250,7 @@ window.onload = function() {
      * On window resize callback
      */
     function onWindowResize() {
-      let threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d');
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -289,7 +289,7 @@ window.onload = function() {
           drag.start.x = event.clientX;
           drag.start.y = event.clientY;
         }
-        let threshold = 15;
+        const threshold = 15;
 
         stackHelper.slice.intensityAuto = false;
 
@@ -321,30 +321,30 @@ window.onload = function() {
     loader = null;
     // prepare for slice visualization
     // first stack of first series
-    let stack = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
+    const stack = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
 
-    let stackHelper = new HelpersStack(stack);
+    const stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.borderColor = '#2196F3';
     stackHelper.border.visible = false;
     scene.add(stackHelper);
 
     // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    const worldbb = stack.worldBoundingBox();
+    const lpsDims = new THREE.Vector3(
       (worldbb[1] - worldbb[0]) / 2,
       (worldbb[3] - worldbb[2]) / 2,
       (worldbb[5] - worldbb[4]) / 2
     );
 
     // box: {halfDimensions, center}
-    let box = {
+    const box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
-    let canvas = {
+    const canvas = {
       width: threeD.clientWidth,
       height: threeD.clientHeight,
     };
@@ -361,7 +361,7 @@ window.onload = function() {
   }
 
   let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
+  const seriesContainer = [];
 
   /**
    * Filter array of data by extension
@@ -392,23 +392,19 @@ window.onload = function() {
       return (
         Promise.resolve()
           // load the file
-          .then(function() {
-            return new Promise(function(resolve, reject) {
-              let myReader = new FileReader();
+          .then(() => new Promise((resolve, reject) => {
+              const myReader = new FileReader();
               // should handle errors too...
-              myReader.addEventListener('load', function(e) {
+              myReader.addEventListener('load', (e) => {
                 resolve(e.target.result);
               });
               myReader.readAsArrayBuffer(files[index]);
-            });
-          })
-          .then(function(buffer) {
-            return loader.parse({ url: files[index].name, buffer });
-          })
-          .then(function(series) {
+            }))
+          .then((buffer) => loader.parse({ url: files[index].name, buffer }))
+          .then((series) => {
             seriesContainer.push(series);
           })
-          .catch(function(error) {
+          .catch((error) => {
             window.console.log('oops... something went wrong...');
             window.console.log(error);
           })
@@ -426,13 +422,11 @@ window.onload = function() {
           new Promise((resolve, reject) => {
             const myReader = new FileReader();
             // should handle errors too...
-            myReader.addEventListener('load', function(e) {
+            myReader.addEventListener('load', (e) => {
               resolve(e.target.result);
             });
             myReader.readAsArrayBuffer(files[i].file);
-          }).then(function(buffer) {
-            return { url: files[i].file.name, buffer };
-          })
+          }).then((buffer) => ({ url: files[i].file.name, buffer }))
         );
       }
 
@@ -440,10 +434,10 @@ window.onload = function() {
         .then(rawdata => {
           return loader.parse(rawdata);
         })
-        .then(function(series) {
+        .then((series) => {
           seriesContainer.push(series);
         })
-        .catch(function(error) {
+        .catch((error) => {
           window.console.log('oops... something went wrong...');
           window.console.log(error);
         });
@@ -455,7 +449,7 @@ window.onload = function() {
     const dataGroups = [];
     // convert object into array
     for (let i = 0; i < evt.target.files.length; i++) {
-      let dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
+      const dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
       if (
         dataUrl.extension.toUpperCase() === 'MHD' ||
         dataUrl.extension.toUpperCase() === 'RAW' ||
@@ -489,10 +483,10 @@ window.onload = function() {
     // run the load sequence
     // load sequence for all files
     Promise.all(loadSequenceContainer)
-      .then(function() {
+      .then(() => {
         handleSeries(seriesContainer);
       })
-      .catch(function(error) {
+      .catch((error) => {
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });

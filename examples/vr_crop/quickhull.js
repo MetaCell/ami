@@ -5,7 +5,7 @@
  *
  */
 
-(function() {
+(() => {
   var Visible = 0;
   var Deleted = 1;
 
@@ -57,7 +57,7 @@
 
       object.updateMatrixWorld(true);
 
-      object.traverse(function(node) {
+      object.traverse((node) => {
         var i, l, point;
 
         var geometry = node.geometry;
@@ -304,7 +304,7 @@
     // Computes the initial simplex assigning to its faces all the points
     // that are candidates to form part of the hull
 
-    computeInitialHull: (function() {
+    computeInitialHull: (() => {
       var line3, plane, closestPoint;
 
       return function computeInitialHull() {
@@ -673,7 +673,7 @@
   }
 
   Object.assign(Face, {
-    create: function(a, b, c) {
+    create: (a, b, c) => {
       var face = new Face();
 
       var e0 = new HalfEdge(a, face);
@@ -711,7 +711,7 @@
       return edge;
     },
 
-    compute: (function() {
+    compute: (() => {
       var triangle;
 
       return function compute() {

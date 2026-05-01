@@ -20,7 +20,7 @@ let modified = false;
 let wheel = null;
 let wheelTO = null;
 
-let myStack = {
+const myStack = {
   algorithm: 'ray marching',
   lut: 'random',
   opacity: 'random',
@@ -45,7 +45,7 @@ function onEnd(event) {
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
 
-    setTimeout(function() {
+    setTimeout(() => {
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
@@ -62,12 +62,12 @@ function onWheel() {
 
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO);
-    wheelTO = setTimeout(function() {
+    wheelTO = setTimeout(() => {
       renderer.setPixelRatio(0.5 * window.devicePixelRatio);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
 
-      setTimeout(function() {
+      setTimeout(() => {
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
         wheel = null;
@@ -90,22 +90,22 @@ function onWindowResize() {
 }
 
 function buildGUI() {
-  let gui = new dat.GUI({
+  const gui = new dat.GUI({
     autoPlace: false,
   });
 
-  let customContainer = document.getElementById('my-gui-container');
+  const customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
-  let stackFolder = gui.addFolder('Settings');
-  let algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
-  algorithmUpdate.onChange(function(value) {
+  const stackFolder = gui.addFolder('Settings');
+  const algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
+  algorithmUpdate.onChange((value) => {
     vrHelper.algorithm = value === 'mip' ? 1 : 0;
     modified = true;
   });
 
-  let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
-  lutUpdate.onChange(function(value) {
+  const lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
+  lutUpdate.onChange((value) => {
     lut.lut = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
@@ -116,46 +116,46 @@ function buildGUI() {
   vrHelper.uniforms.uTextureLUT.value.dispose();
   vrHelper.uniforms.uTextureLUT.value = lut.texture;
 
-  let opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
-  opacityUpdate.onChange(function(value) {
+  const opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
+  opacityUpdate.onChange((value) => {
     lut.lutO = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
     modified = true;
   });
 
-  let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
-  stepsUpdate.onChange(function(value) {
+  const stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
+  stepsUpdate.onChange((value) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uSteps.value = value;
       modified = true;
     }
   });
 
-  let alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
-  alphaCorrrectionUpdate.onChange(function(value) {
+  const alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
+  alphaCorrrectionUpdate.onChange((value) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uAlphaCorrection.value = value;
       modified = true;
     }
   });
 
-  let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
-  interpolationUpdate.onChange(function(value) {
+  const interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  interpolationUpdate.onChange((value) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
   });
 
-  let shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
-  shadingUpdate.onChange(function(value) {
+  const shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
+  shadingUpdate.onChange((value) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
   });
 
-  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(0.1);
-  shininessUpdate.onChange(function(value) {
+  const shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(0.1);
+  shininessUpdate.onChange((value) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
@@ -182,7 +182,7 @@ function init() {
     render();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -229,12 +229,12 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS
   init();
 
-  let filename = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/eun_brain/eun_uchar_8.nii.gz';
-  let files = [filename];
+  const filename = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  const files = [filename];
 
   // load sequence for each file
   // instantiate the loader
@@ -242,11 +242,11 @@ window.onload = function() {
   loader
     .load(files)
     .then(() => {
-      let series = loader.data[0].mergeSeries(loader.data)[0];
+      const series = loader.data[0].mergeSeries(loader.data)[0];
       loader.free();
       loader = null;
       // get first stack from series
-      let stack = series.stack[0];
+      const stack = series.stack[0];
 
       vrHelper = new HelpersVR(stack);
       // scene
@@ -261,7 +261,7 @@ window.onload = function() {
       vrHelper.uniforms.uLut.value = 1;
 
       // update camrea's and interactor's target
-      let centerLPS = stack.worldCenter();
+      const centerLPS = stack.worldCenter();
       camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
       controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -270,15 +270,15 @@ window.onload = function() {
       buildGUI();
 
       // screenshot experiment
-      let screenshotElt = document.getElementById('screenshot');
-      screenshotElt.addEventListener('click', function() {
+      const screenshotElt = document.getElementById('screenshot');
+      screenshotElt.addEventListener('click', () => {
         controls.update();
 
         if (ready) {
           renderer.render(scene, camera);
         }
 
-        let screenshot = renderer.domElement.toDataURL();
+        const screenshot = renderer.domElement.toDataURL();
         screenshotElt.download = 'AMI-' + Date.now() + '.png';
         screenshotElt.href = screenshot;
       });

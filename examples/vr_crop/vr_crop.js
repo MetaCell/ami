@@ -34,7 +34,7 @@ let uniformsSecondPass = null;
 let materialSecondPass = null;
 let rtTexture = null;
 
-let myStack = {
+const myStack = {
   lut: 'random',
   opacity: 'random',
   steps: 256,
@@ -44,8 +44,8 @@ let myStack = {
   interpolation: 1,
 };
 
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 function onMouseMove(event) {
   // calculate mouse position in normalized device coordinates
@@ -70,10 +70,10 @@ function onStart(event) {
 
   for (let i = 0; i < intersects.length; i++) {
     console.log(intersects[i]);
-    let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    let sphere = new THREE.Mesh(geometry, material);
-    let point = intersects[i].point;
+    const geometry = new THREE.SphereGeometry(5, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const sphere = new THREE.Mesh(geometry, material);
+    const point = intersects[i].point;
     points.push(point);
     sphere.position.set(point.x, point.y, point.z);
     scene.add(sphere);
@@ -87,10 +87,10 @@ function onStart(event) {
 
   for (let i = 0; i < intersects.length; i++) {
     console.log(intersects[i]);
-    let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    let sphere = new THREE.Mesh(geometry, material);
-    let point = intersects[i].point;
+    const geometry = new THREE.SphereGeometry(5, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const sphere = new THREE.Mesh(geometry, material);
+    const point = intersects[i].point;
     points.push(point);
     sphere.position.set(point.x, point.y, point.z);
     scene.add(sphere);
@@ -99,15 +99,15 @@ function onStart(event) {
 
   if (points.length === 10) {
     console.log(points);
-    let geometry = new ConvexGeometry(points);
-    let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    let mesh = new THREE.Mesh(geometry, material);
+    const geometry = new ConvexGeometry(points);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const mesh = new THREE.Mesh(geometry, material);
 
-    let sphere_bsp = new ThreeBSP(mesh);
+    const sphere_bsp = new ThreeBSP(mesh);
     const currentMesh = baseMesh;
-    let base_bsp = new ThreeBSP(currentMesh);
-    let subtract_bsp = base_bsp.intersect(sphere_bsp);
-    let result = subtract_bsp.toMesh(materialFirstPass);
+    const base_bsp = new ThreeBSP(currentMesh);
+    const subtract_bsp = base_bsp.intersect(sphere_bsp);
+    const result = subtract_bsp.toMesh(materialFirstPass);
     result.geometry.computeVertexNormals();
     // sceneT.remove(currentMesh);
     // baseMesh = result;
@@ -115,9 +115,9 @@ function onStart(event) {
 
     scene.remove(boxMeshSecondPass);
     const currentMesh2 = boxMeshSecondPass;
-    let base_bsp2 = new ThreeBSP(currentMesh2);
-    let subtract_bsp2 = base_bsp2.subtract(sphere_bsp);
-    let result2 = subtract_bsp2.toMesh(materialSecondPass);
+    const base_bsp2 = new ThreeBSP(currentMesh2);
+    const subtract_bsp2 = base_bsp2.subtract(sphere_bsp);
+    const result2 = subtract_bsp2.toMesh(materialSecondPass);
     result2.geometry.computeVertexNormals();
 
     scene.remove(currentMesh2);
@@ -153,7 +153,7 @@ function onWheel() {
 
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO);
-    wheelTO = setTimeout(function() {
+    wheelTO = setTimeout(() => {
       uniformsSecondPass.uSteps.value = myStack.steps;
       vrHelper.interpolation = myStack.interpolation;
       wheel = null;
@@ -175,16 +175,16 @@ function onWindowResize() {
 }
 
 function buildGUI() {
-  let gui = new dat.GUI({
+  const gui = new dat.GUI({
     autoPlace: false,
   });
 
-  let customContainer = document.getElementById('my-gui-container');
+  const customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
-  let stackFolder = gui.addFolder('Settings');
-  let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
-  lutUpdate.onChange(function(value) {
+  const stackFolder = gui.addFolder('Settings');
+  const lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
+  lutUpdate.onChange((value) => {
     lut.lut = value;
     uniformsSecondPass.uTextureLUT.value.dispose();
     uniformsSecondPass.uTextureLUT.value = lut.texture;
@@ -195,32 +195,32 @@ function buildGUI() {
   uniformsSecondPass.uTextureLUT.value.dispose();
   uniformsSecondPass.uTextureLUT.value = lut.texture;
 
-  let opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
-  opacityUpdate.onChange(function(value) {
+  const opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
+  opacityUpdate.onChange((value) => {
     lut.lutO = value;
     uniformsSecondPass.uTextureLUT.value.dispose();
     uniformsSecondPass.uTextureLUT.value = lut.texture;
     modified = true;
   });
 
-  let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
-  stepsUpdate.onChange(function(value) {
+  const stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
+  stepsUpdate.onChange((value) => {
     if (uniformsSecondPass) {
       uniformsSecondPass.uSteps.value = value;
       modified = true;
     }
   });
 
-  let alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
-  alphaCorrrectionUpdate.onChange(function(value) {
+  const alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
+  alphaCorrrectionUpdate.onChange((value) => {
     if (uniformsSecondPass) {
       uniformsSecondPass.uAlphaCorrection.value = value;
       modified = true;
     }
   });
 
-  let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
-  interpolationUpdate.onChange(function(value) {
+  const interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  interpolationUpdate.onChange((value) => {
     if (uniformsSecondPass) {
       modified = true;
     }
@@ -247,7 +247,7 @@ function init() {
     stats.update();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(() => {
       animate();
     });
   }
@@ -294,11 +294,11 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = () => {
   // init threeJS
   init();
 
-  let filename = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  const filename = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/eun_brain/eun_uchar_8.nii.gz';
 
   // load sequence for each file
   // instantiate the loader
@@ -306,12 +306,12 @@ window.onload = function() {
   loader
     .load(filename)
     .then(() => {
-      let series = loader.data[0].mergeSeries(loader.data)[0];
+      const series = loader.data[0].mergeSeries(loader.data)[0];
       loader.free();
       loader = null;
       // get first stack from series
-      let stack = series.stack[0];
-      let stackHelper = new HelpersStack(stack);
+      const stack = series.stack[0];
+      const stackHelper = new HelpersStack(stack);
 
       vrHelper = new HelpersVR(stack);
       // scene
@@ -332,12 +332,12 @@ window.onload = function() {
       );
 
       // Material
-      let material = new THREE.MeshBasicMaterial({
+      const material = new THREE.MeshBasicMaterial({
         //   wireframe: true,
       });
       material.side = THREE.DoubleSide;
 
-      let uniformsFirstPass = {
+      const uniformsFirstPass = {
         uWorldBBox: {
           type: 'fv1',
           value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -379,10 +379,10 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       baseMesh = new THREE.Mesh(geometry, materialFirstPass);
       baseMesh.applyMatrix4(stack.ijk2LPS);
 
-      let baseMaterial = new THREE.MeshBasicMaterial({
+      const baseMaterial = new THREE.MeshBasicMaterial({
         wireframe: true,
       });
-      let othermesh = new THREE.Mesh(geometry, baseMaterial);
+      const othermesh = new THREE.Mesh(geometry, baseMaterial);
       othermesh.applyMatrix4(stack.ijk2LPS);
       scene.add(othermesh);
 
@@ -394,9 +394,9 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
 
       sceneT.add(baseMesh);
 
-      let _textures = [];
+      const _textures = [];
       for (let m = 0; m < stack._rawData.length; m++) {
-        let tex = new THREE.DataTexture(
+        const tex = new THREE.DataTexture(
           stack.rawData[m],
           stack.textureSize,
           stack.textureSize,
@@ -436,7 +436,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
 
       // Geometry
       const scale = 4;
-      let newGeometry = new THREE.BoxGeometry(
+      const newGeometry = new THREE.BoxGeometry(
         scale * dimensions.x,
         scale * dimensions.y,
         scale * dimensions.z
@@ -450,7 +450,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       );
 
       // Material
-      let newMaterial = new THREE.MeshBasicMaterial({
+      const newMaterial = new THREE.MeshBasicMaterial({
         wireframe: true,
       });
       newMaterial.side = THREE.DoubleSide;
@@ -470,8 +470,8 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       uniformsSecondPass.uAlphaCorrection.value = myStack.alphaCorrection;
 
       //
-      let fs = new VRFragment(uniformsSecondPass);
-      let vs = new VRVertex();
+      const fs = new VRFragment(uniformsSecondPass);
+      const vs = new VRVertex();
       materialSecondPass = new THREE.ShaderMaterial({
         uniforms: uniformsSecondPass,
         vertexShader: vs.compute(),
@@ -489,7 +489,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       scene.add(boxMeshSecondPass);
 
       // update camrea's and interactor's target
-      let centerLPS = stack.worldCenter();
+      const centerLPS = stack.worldCenter();
       camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
       controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -498,15 +498,15 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       buildGUI();
 
       // screenshot experiment
-      let screenshotElt = document.getElementById('screenshot');
-      screenshotElt.addEventListener('click', function() {
+      const screenshotElt = document.getElementById('screenshot');
+      screenshotElt.addEventListener('click', () => {
         controls.update();
 
         if (ready) {
           renderer.render(scene, camera);
         }
 
-        let screenshot = renderer.domElement.toDataURL();
+        const screenshot = renderer.domElement.toDataURL();
         screenshotElt.download = 'AMI-' + Date.now() + '.png';
         screenshotElt.href = screenshot;
       });

@@ -1,11 +1,11 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreValidators from '../../src/core/core.validators';
-import { Matrix3 } from 'three/src/math/Matrix3';
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector2 } from 'three/src/math/Vector2';
-import { Vector3 } from 'three/src/math/Vector3';
-import { Vector4 } from 'three/src/math/Vector4';
+import { Matrix3 } from 'three';
+import { Matrix4 } from 'three';
+import { Vector2 } from 'three';
+import { Vector3 } from 'three';
+import { Vector4 } from 'three';
 
 describe('Core.Validator', function() {
   describe('matrix4', function() {

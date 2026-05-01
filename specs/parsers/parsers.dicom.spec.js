@@ -446,11 +446,7 @@ function dicomTestSequence(referenceDataset) {
     // before each, load the data...
     let parser;
 
-    beforeEach(done => {
-      // originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-      // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
-
-      // fetch the data!
+    beforeEach(() => new Promise(resolve => {
       let oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
@@ -465,11 +461,11 @@ function dicomTestSequence(referenceDataset) {
             },
             0
           );
-          done();
+          resolve();
         }
       };
       oReq.send();
-    });
+    }));
 
     // SERIES TESTING
     describe('Series Information', () => {
@@ -633,11 +629,7 @@ function pixelDataTestSequence(referenceDataset) {
     // before each, load the data...
     let parser;
 
-    beforeEach(done => {
-      // originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-      // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
-
-      // fetch the data!
+    beforeEach(() => new Promise(resolve => {
       let oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
@@ -652,11 +644,11 @@ function pixelDataTestSequence(referenceDataset) {
             },
             0
           );
-          done();
+          resolve();
         }
       };
       oReq.send();
-    });
+    }));
 
     describe('Parse pixel data', function() {
       // it('Decompress pixel data', function() {
@@ -666,16 +658,16 @@ function pixelDataTestSequence(referenceDataset) {
       //   expect(true).toBe(true);
       // });
 
-      it('Extract pixel data', function() {
+      it('Extract pixel data', async function() {
         let frameIndex = 0;
-        parser.extractPixelData(frameIndex);
+        await parser.extractPixelData(frameIndex);
         // check typeof and length...
         expect(true).toBe(true);
       });
 
-      it('Min,Max pixel data: ' + referenceDataset.minMax, function() {
+      it('Min,Max pixel data: ' + referenceDataset.minMax, async function() {
         let frameIndex = 0;
-        let pixelData = parser.extractPixelData(frameIndex);
+        let pixelData = await parser.extractPixelData(frameIndex);
         // hack for the compressed data, for now...
         if (pixelData) {
           let minMax = parser.minMaxPixelData(pixelData);

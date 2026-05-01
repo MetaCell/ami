@@ -1,5 +1,6 @@
-/* globals describe, sinon, it, expect, beforeEach*/
+/* globals describe, it, expect, beforeEach*/
 
+import sinon from 'sinon';
 import LoadersBase from '../../src/loaders/loaders.base';
 import ProgressBar from '../../src/helpers/helpers.progressbar';
 
@@ -92,77 +93,68 @@ describe('Loader.Base', function() {
   });
 
   describe('fetch data by given url, and parse it', () => {
-    it('the url is availble, fetch and parse data', (done) => {
-      baseLoader.fetch(sourceUrl)
-                .then((data) => {
-                  expect(data.url).toEqual(sourceUrl);
-                  expect(data.buffer instanceof Object).toEqual(true);
-                  baseLoader.parse(data)
-                            .then((parsedData) => {
-                              expect(data === parsedData).toEqual(true);
-                              done();
-                            });
-                });
-    });
-    it('the url is availble, call loadSequence directly', (done) => {
-      baseLoader
-        .loadSequence(sourceUrl)
+    it('the url is availble, fetch and parse data', () => {
+      return baseLoader.fetch(sourceUrl)
         .then((data) => {
-          // because LoadersBase just have a empty parse
-          // test like above
           expect(data.url).toEqual(sourceUrl);
           expect(data.buffer instanceof Object).toEqual(true);
-          // event tests
-          sinon.assert.calledWith(
-            eventsHandleSpy['fetch-start'], baseSinonMatch);
-          sinon.assert.calledWith(
-            eventsHandleSpy['fetch-success'], baseSinonMatch
-                      .and(new sinon.match.hasOwn('totalLoaded')));
-          sinon.assert.calledWith(
-            eventsHandleSpy['fetch-progress'], baseSinonMatch
-                      .and(new sinon.match.hasOwn('total'))
-                      .and(new sinon.match.hasOwn('loaded')));
-          done();
+          return baseLoader.parse(data).then((parsedData) => {
+            expect(data === parsedData).toEqual(true);
+          });
         });
     });
 
-    it('the url is unavailble', (done) => {
+    it('the url is availble, call loadSequence directly', () => {
+      return baseLoader.loadSequence(sourceUrl).then((data) => {
+        // because LoadersBase just have a empty parse
+        // test like above
+        expect(data.url).toEqual(sourceUrl);
+        expect(data.buffer instanceof Object).toEqual(true);
+        // event tests
+        sinon.assert.calledWith(
+          eventsHandleSpy['fetch-start'], baseSinonMatch);
+        sinon.assert.calledWith(
+          eventsHandleSpy['fetch-success'], baseSinonMatch
+                    .and(new sinon.match.hasOwn('totalLoaded')));
+        sinon.assert.calledWith(
+          eventsHandleSpy['fetch-progress'], baseSinonMatch
+                    .and(new sinon.match.hasOwn('total'))
+                    .and(new sinon.match.hasOwn('loaded')));
+      });
+    });
+
+    it('the url is unavailble', () => {
       // some helper on how to handle this case
-      baseLoader.fetch('/base/data/dicom/xxx.tar')
+      return baseLoader.fetch('/base/data/dicom/xxx.tar')
         .catch((error) => {
           expect(error).toEqual('Not Found');
-          done();
         });
     });
   });
 
   describe('load data by urls', () => {
-    it('give a single url', (done) => {
-      baseLoader.load(sourceUrl)
-                .then((data) => {
-                  expect(Array.isArray(data)).toBe(true);
-                  expect(data.length).toBe(1);
-                  expect(eventsHandleSpy['load-start'].calledOnce).toBe(true);
-                  sinon.assert.calledWith(
-                    eventsHandleSpy['load-start'],
-                    new sinon.match({files: [sourceUrl]})
-                              .and(new sinon.match.hasOwn('time')));
-                  done();
-                });
+    it('give a single url', () => {
+      return baseLoader.load(sourceUrl).then((data) => {
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBe(1);
+        expect(eventsHandleSpy['load-start'].calledOnce).toBe(true);
+        sinon.assert.calledWith(
+          eventsHandleSpy['load-start'],
+          new sinon.match({files: [sourceUrl]})
+                    .and(new sinon.match.hasOwn('time')));
+      });
     });
 
-    it('give urls with array', (done) => {
+    it('give urls with array', () => {
       const urls = [
         '/base/data/dicom/adi_slice.dcm',
         '/base/data/dicom/dcm.seg.andrei',
         '/base/data/nifti/adi_slice.nii',
       ];
-      baseLoader.load(urls)
-                .then((data) => {
-                  expect(Array.isArray(data)).toBe(true);
-                  expect(data.length).toBe(3);
-                  done();
-                });
+      return baseLoader.load(urls).then((data) => {
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBe(3);
+      });
     });
   });
 });

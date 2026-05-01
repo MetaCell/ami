@@ -1,5 +1,6 @@
-/* globals describe, fdescribe, it, fit, expect, beforeEach*/
+/* globals describe, it, expect, beforeEach*/
 
+import sinon from 'sinon';
 import VolumeLoader from '../../src/loaders/loaders.volume';
 
 describe('Volume Loader', function() {
@@ -33,34 +34,29 @@ describe('Volume Loader', function() {
   });
 
   describe('parse data', () => {
-    it('give a single url', (done) => {
-      loader.load(sourceUrl)
-                .then((data) => {
-                  expect(Array.isArray(data)).toBe(true);
-                  expect(data.length).toBe(1);
-                  // just test events of parse, the other events test at loader.base.spec.js
-                  sinon.assert.calledWith(eventsHandleSpy['parse-start'], baseSinonMatch);
-                  sinon.assert.calledWith(eventsHandleSpy['parsing'], baseSinonMatch
-                                                                        .and(new sinon.match.hasOwn('total'))
-                                                                        .and(new sinon.match.hasOwn('parsed')));
-                  sinon.assert.calledWith(eventsHandleSpy['parse-success'], baseSinonMatch
-                                                                        .and(new sinon.match.hasOwn('total'))
-                                                                        .and(new sinon.match.hasOwn('parsed')));
-                  done();
-                });
+    it('give a single url', () => {
+      return loader.load(sourceUrl).then((data) => {
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBe(1);
+        sinon.assert.calledWith(eventsHandleSpy['parse-start'], baseSinonMatch);
+        sinon.assert.calledWith(eventsHandleSpy['parsing'], baseSinonMatch
+                                                              .and(new sinon.match.hasOwn('total'))
+                                                              .and(new sinon.match.hasOwn('parsed')));
+        sinon.assert.calledWith(eventsHandleSpy['parse-success'], baseSinonMatch
+                                                              .and(new sinon.match.hasOwn('total'))
+                                                              .and(new sinon.match.hasOwn('parsed')));
+      });
     });
 
-    it('give urls with array', (done) => {
+    it('give urls with array', () => {
       const urls = [
         '/base/data/dicom/adi_slice.dcm',
         '/base/data/nifti/adi_slice.nii',
       ];
-      loader.load(urls)
-                .then((data) => {
-                  expect(Array.isArray(data)).toBe(true);
-                  expect(data.length).toBe(2);
-                  done();
-                });
+      return loader.load(urls).then((data) => {
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBe(2);
+      });
     });
   });
 });

@@ -22,8 +22,7 @@ function crop(value, decimals) {
 function test(dataset, datasetDicom) {
   let parserDicom = null;
 
-  beforeEach(done => {
-    // fetch dicom data
+  beforeEach(() => new Promise(resolve => {
     let oReqDicom = new XMLHttpRequest();
     oReqDicom.open('GET', datasetDicom.url, true);
     oReqDicom.responseType = 'arraybuffer';
@@ -38,18 +37,17 @@ function test(dataset, datasetDicom) {
           },
           0
         );
-        done();
+        resolve();
       }
     };
     oReqDicom.send();
-  });
+  }));
 
   // test extraction of tags of interest
   describe(dataset.format, function() {
     let parser = null;
 
-    beforeEach(done => {
-      // fetch other data
+    beforeEach(() => new Promise(resolve => {
       let oReqData = new XMLHttpRequest();
       oReqData.open('GET', dataset.url, true);
       oReqData.responseType = 'arraybuffer';
@@ -64,11 +62,11 @@ function test(dataset, datasetDicom) {
             },
             0
           );
-          done();
+          resolve();
         }
       };
       oReqData.send();
-    });
+    }));
 
     it('image position', function() {
       let frameIndex = 0;
@@ -102,11 +100,11 @@ function test(dataset, datasetDicom) {
       expect(crop(dataOrientation[5], 5)).toBe(crop(dicomOrientation[5], 5));
     });
 
-    it('pixel data', function() {
+    it('pixel data', async function() {
       let frameIndex = 0;
       let rows = parser.rows(frameIndex);
       let columns = parser.columns(frameIndex);
-      let dicomPixelData = parserDicom.extractPixelData(frameIndex);
+      let dicomPixelData = await parserDicom.extractPixelData(frameIndex);
       let pixelData = parser.extractPixelData(frameIndex);
 
       expect(pixelData.join()).toEqual(dicomPixelData.join());

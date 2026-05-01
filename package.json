@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "type": "module",
   "main": "./build/ami.cjs",
   "module": "./build/ami.js",

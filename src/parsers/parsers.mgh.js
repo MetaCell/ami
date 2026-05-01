@@ -275,7 +275,7 @@ export default class ParsersMgh extends ParsersVolume {
        */
       let shiftHigh = 0;
       let shiftLow = 0;
-      if (this._swapendian) {
+      if (this._swapEndian) {
         shiftHigh = 4;
       } else {
         shiftLow = 4;

@@ -2,7 +2,7 @@
 import UtilsCore from '../core/core.utils';
 import ParsersVolume from './parsers.volume';
 
-import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
+import OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
 
@@ -977,11 +977,6 @@ export default class ParsersDicom extends ParsersVolume {
 
   // from cornerstone
   _decodeJ2K(frameIndex = 0) {
-    if (typeof OpenJPEG === 'undefined') {
-      // OpenJPEG decoder not loaded
-      return this._decodeJpx(frameIndex);
-    }
-
     if (!openJPEG) {
       openJPEG = OpenJPEG();
       if (!openJPEG || !openJPEG._jp2_decode) {

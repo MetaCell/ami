@@ -11,4 +11,5 @@ export * from './shaders/shaders';
 export * from './widgets/widgets';
 
 import pkg from '../package.json';
+
 window.console.log(`ami ${pkg.version}`);

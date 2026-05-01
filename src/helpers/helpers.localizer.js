@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 /** * Imports ***/
+import ShadersFragment from '../shaders/shaders.localizer.fragment';
 import ShadersUniform from '../shaders/shaders.localizer.uniform';
 import ShadersVertex from '../shaders/shaders.localizer.vertex';
-import ShadersFragment from '../shaders/shaders.localizer.fragment';
 
 /**
  * @module helpers/localizer

@@ -1,11 +1,10 @@
 /**
  * @module helpers/x/renderer2d
  */
-import CamerasOrthographic from '../../cameras/cameras.orthographic';
-import ControlsOrthographic from '../../controls/controls.trackballortho';
-
 import * as THREE from 'three';
 import { Vector3 } from 'three';
+import CamerasOrthographic from '../../cameras/cameras.orthographic';
+import ControlsOrthographic from '../../controls/controls.trackballortho';
 
 export default class {
   constructor(containerId = 'r2d', orientation = 'default') {

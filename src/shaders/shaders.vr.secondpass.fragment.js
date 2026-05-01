@@ -1,5 +1,4 @@
 import shadersInterpolation from './interpolation/shaders.interpolation';
-import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
 
 export default class ShadersFragment {
   // pass uniforms object
@@ -58,13 +57,13 @@ void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradien
 
 void main(void) {
   const int maxSteps = 1024;
-  
+
     //
     vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,
                   ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );
     //The back position is the world space position stored in the texture.
     vec3 backPosNormalized = texture2D(uTextureBack, texc).xyz;
-    
+
     //
     vec3 tBack = vec3(backPosNormalized.x * (uWorldBBox[1] - uWorldBBox[0]) + uWorldBBox[0],
                        backPosNormalized.y * (uWorldBBox[3] - uWorldBBox[2]) + uWorldBBox[2],
@@ -74,7 +73,7 @@ void main(void) {
     // gl_FragColor = vec4(tFront.xyz, 1.);
     // // gl_FragColor = vec4(backPosNormalized.xyz, 1.);
     // return;
-  
+
   // the ray
   vec3 rayOrigin = cameraPosition;
   float dist = distance(tBack, tFront);

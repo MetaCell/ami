@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 /**
  * Original authors from THREEJS repo
  * @author Eberhard Graether / http://egraether.com/

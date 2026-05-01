@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { widgetsBase } from './widgets.base';
 import CoreIntersections from '../core/core.intersections';
+import { widgetsBase } from './widgets.base';
 
 /**
  * @module widgets/handle

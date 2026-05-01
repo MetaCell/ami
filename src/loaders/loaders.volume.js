@@ -1,16 +1,16 @@
 /** * Imports ***/
 import PAKO from 'pako';
 
-import LoadersBase from './loaders.base';
 import CoreUtils from '../core/core.utils';
+import ModelsFrame from '../models/models.frame';
 import ModelsSeries from '../models/models.series';
 import ModelsStack from '../models/models.stack';
-import ModelsFrame from '../models/models.frame';
 import ParsersDicom from '../parsers/parsers.dicom';
+import ParsersMgh from '../parsers/parsers.mgh';
 import ParsersMhd from '../parsers/parsers.mhd';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
-import ParsersMgh from '../parsers/parsers.mgh';
+import LoadersBase from './loaders.base';
 
 /**
  *

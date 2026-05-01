@@ -1,10 +1,9 @@
 import * as THREE from 'three';
+import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 /** * Imports ***/
+import ShadersFragment from '../shaders/shaders.vr.fragment';
 import ShadersUniform from '../shaders/shaders.vr.uniform';
 import ShadersVertex from '../shaders/shaders.vr.vertex';
-import ShadersFragment from '../shaders/shaders.vr.fragment';
-
-import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/volumerendering

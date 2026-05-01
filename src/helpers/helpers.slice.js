@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 /** * Imports ***/
 import { geometriesSlice } from '../geometries/geometries.slice';
+import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
+import ShadersFragment from '../shaders/shaders.data.fragment';
 import ShadersUniform from '../shaders/shaders.data.uniform';
 import ShadersVertex from '../shaders/shaders.data.vertex';
-import ShadersFragment from '../shaders/shaders.data.fragment';
-
-import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/slice

@@ -1,6 +1,6 @@
 /** Imports **/
-import HelpersProgressBar from '../helpers/helpers.progressbar';
 import EventEmitter from 'eventemitter3';
+import HelpersProgressBar from '../helpers/helpers.progressbar';
 
 /**
  *

@@ -1,15 +1,15 @@
 /** * Imports ***/
-import UtilsCore from '../core/core.utils';
-import ParsersVolume from './parsers.volume';
+
 
 import OpenJPEGJS from '@cornerstonejs/codec-openjpeg/decode';
-
-import { RLEDecoder } from '../decoders/decoders.rle';
-
 import * as DicomParser from 'dicom-parser';
 import { Decoder as JpegLosslessDecoder } from 'jpeg-lossless-decoder-js';
 import JpegBaseline from '../../external/scripts/jpeg';
 import Jpx from '../../external/scripts/jpx';
+import UtilsCore from '../core/core.utils';
+import { RLEDecoder } from '../decoders/decoders.rle';
+import ParsersVolume from './parsers.volume';
+
 const openJPEGReady = OpenJPEGJS();
 
 /**
@@ -188,7 +188,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   /**
    * Raw dataset
-   * 
+   *
    * @return {*}
    */
   rawHeader() {

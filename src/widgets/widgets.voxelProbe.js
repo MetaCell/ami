@@ -1,8 +1,8 @@
 import * as THREE from 'three';
+import CoreUtils from '../core/core.utils';
+import ModelsVoxel from '../models/models.voxel';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
-import ModelsVoxel from '../models/models.voxel';
-import CoreUtils from '../core/core.utils';
 
 /**
  * @module widgets/voxelProbe
@@ -194,11 +194,11 @@ const widgetsVoxelprobe = (three = window.THREE) => {
       const ijkContainer = this._label.querySelector('.ijkPosition');
       const valueContainer = this._label.querySelector('.value');
 
-      rasContainer.innerHTML = `LPS: 
+      rasContainer.innerHTML = `LPS:
       ${this._voxel.worldCoordinates.x.toFixed(2)} :
       ${this._voxel.worldCoordinates.y.toFixed(2)} :
       ${this._voxel.worldCoordinates.z.toFixed(2)}`;
-      ijkContainer.innerHTML = `IJK: 
+      ijkContainer.innerHTML = `IJK:
       ${this._voxel.dataCoordinates.x} :
       ${this._voxel.dataCoordinates.y} :
       ${this._voxel.dataCoordinates.z}`;

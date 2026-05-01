@@ -1,11 +1,9 @@
 /** * Imports ***/
-import { Matrix4, Vector3, RGBFormat, RGBAFormat } from 'three';
-
+import binaryString from 'math-float32-to-binary-string';
+import { Matrix4, RGBAFormat, RGBFormat, Vector3 } from 'three';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
-
-import binaryString from 'math-float32-to-binary-string';
 
 /**
  * Stack object.

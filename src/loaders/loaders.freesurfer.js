@@ -1,4 +1,4 @@
-import { EventDispatcher, BufferGeometry, Float32BufferAttribute } from 'three';
+import { BufferGeometry, EventDispatcher, Float32BufferAttribute } from 'three';
 
 class FreeSurferLoader extends EventDispatcher {
   load(url, onLoad, onProgress, onError) {

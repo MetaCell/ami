@@ -1,8 +1,7 @@
-import WidgetsCss from './widgets.css';
-
-import {COLORS} from '../core/core.colors';
+import type { Matrix4, Mesh, Vector3 } from 'three';
+import { COLORS } from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
-import type { Matrix4, Vector3, Mesh } from 'three';
+import WidgetsCss from './widgets.css';
 
 interface WidgetControls {
   object: any;

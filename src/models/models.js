@@ -1,6 +1,6 @@
 import Frame from './models.frame';
-import Stack from './models.stack';
 import Series from './models.series';
+import Stack from './models.stack';
 import Voxel from './models.voxel';
 
-export { Frame as FrameModel, Stack as StackModel, Series as SeriesModel, Voxel as VoxelModel };
+export { Frame as FrameModel, Series as SeriesModel, Stack as StackModel, Voxel as VoxelModel };

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
+import CoreUtils from '../core/core.utils';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
-import CoreUtils from '../core/core.utils';
 
 /**
  * @module widgets/polygon

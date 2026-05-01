@@ -2,8 +2,8 @@
  * @module helpers/x/volume
  */
 import * as THREE from 'three';
-import HelpersStack from '../helpers.stack';
 import LoadersVolume from '../../loaders/loaders.volume';
+import HelpersStack from '../helpers.stack';
 
 export default class extends THREE.Object3D {
   constructor() {

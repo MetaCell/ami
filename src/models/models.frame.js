@@ -1,7 +1,6 @@
 /** * Imports ***/
-import ModelsBase from '../models/models.base';
-
 import { Vector3 } from 'three';
+import ModelsBase from '../models/models.base';
 
 /**
  * Frame object.

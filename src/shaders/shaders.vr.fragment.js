@@ -1,5 +1,5 @@
-import shadersInterpolation from './interpolation/shaders.interpolation';
 import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
+import shadersInterpolation from './interpolation/shaders.interpolation';
 
 export default class ShadersFragment {
   // pass uniforms object
@@ -59,11 +59,11 @@ void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradien
 
 /**
  * Adapted from original sources
- * 
- * Original code: 
+ *
+ * Original code:
  * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
  * https://www.shadertoy.com/view/lt33z7
- * 
+ *
  * The vec3 returned is the RGB color of the light's contribution.
  *
  * k_a: Ambient color
@@ -106,7 +106,7 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   if (dotLN < 0.) {
     // Light not visible from this point on the surface
     return k_a;
-  } 
+  }
 
   if (dotRV < 0.) {
     // Light reflection in opposite direction as viewer, apply only diffuse
@@ -115,7 +115,7 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   }
 
   float specAngle = max(dot(H, normal), 0.0);
-  float specular = pow(dotRV, shininess); //pow(specAngle, shininess); // 
+  float specular = pow(dotRV, shininess); //pow(specAngle, shininess); //
   return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
 }
 
@@ -174,7 +174,7 @@ void main(void) {
 
   mat4 dataToWorld = inverse(uWorldToData);
 
-  // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;  
+  // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;
 
   for(int rayStep = 0; rayStep < maxSteps; rayStep++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;

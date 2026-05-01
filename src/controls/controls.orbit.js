@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com
@@ -131,7 +132,7 @@ var OrbitControls = function ( object, domElement ) {
 		state = STATE.NONE;
 
     };
-    
+
     // this method is there to match the Trackball API
     this.handleResize = function () {
 

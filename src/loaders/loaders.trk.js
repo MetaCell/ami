@@ -1,4 +1,4 @@
-import { EventDispatcher, BufferGeometry, Vector3, Float32BufferAttribute } from 'three';
+import { BufferGeometry, EventDispatcher, Float32BufferAttribute, Vector3 } from 'three';
 
 export default class LoadersTrk extends EventDispatcher {
   load(url, onLoad, onProgress, onError) {

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 /**
  *
  * @module geometries/voxel

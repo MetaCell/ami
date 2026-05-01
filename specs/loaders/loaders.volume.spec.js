@@ -3,7 +3,7 @@
 import sinon from 'sinon';
 import VolumeLoader from '../../src/loaders/loaders.volume';
 
-describe('Volume Loader', function() {
+describe('Volume Loader', () => {
   let loader;
   const eventsHandleSpy = {};
   const sourceUrl = '/base/data/dicom/adi_slice.dcm';

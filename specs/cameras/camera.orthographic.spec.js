@@ -2,14 +2,14 @@
 
 import CarmerasOrthographic from '../../src/cameras/cameras.orthographic';
 
-describe('Cameras.Orthographic', function() {
-  describe('init', function() {
-    it('should return false if input is not valid', function() {
+describe('Cameras.Orthographic', () => {
+  describe('init', () => {
+    it('should return false if input is not valid', () => {
       // invalid input
       expect(true).toEqual(true);
     });
 
-    it('should return true if input is valid', function() {
+    it('should return true if input is valid', () => {
       expect(true).toEqual(true);
     });
   });

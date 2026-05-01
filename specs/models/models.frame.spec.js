@@ -4,7 +4,7 @@ import ModelsFrame from '../../src/models/models.frame';
 
 import { Vector3 } from 'three';
 
-describe('Models.frame', function() {
+describe('Models.frame', () => {
   let validFrame;
   let validFrame2;
   let invalidFrame;
@@ -22,24 +22,24 @@ describe('Models.frame', function() {
     invalidFrame._dimensionIndexValues = undefined;
   });
 
-  describe('merge', function() {
-    it('should return false if merge was not successful', function() {
+  describe('merge', () => {
+    it('should return false if merge was not successful', () => {
       //
       expect(validFrame.merge()).toEqual(false);
       expect(validFrame.merge('whatever')).toEqual(false);
       expect(validFrame.merge(validFrame2)).toEqual(false);
     });
 
-    it('should return true if merge was successful', function() {
+    it('should return true if merge was successful', () => {
       //
       expect(validFrame.merge(validFrame)).toEqual(true);
     });
   });
 
-  describe('cosines', function() {
-    it('should return default orientation if orientation is not valid', function() {
+  describe('cosines', () => {
+    it('should return default orientation if orientation is not valid', () => {
       //
-      let defaultCosines = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
+      const defaultCosines = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
 
       expect(validFrame.cosines()).toEqual(defaultCosines);
 
@@ -52,9 +52,9 @@ describe('Models.frame', function() {
       expect(validFrame.cosines()).toEqual(defaultCosines);
     });
 
-    it('should return good orientation if orientation is valid', function() {
+    it('should return good orientation if orientation is valid', () => {
       //
-      let defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
+      const defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
 
       validFrame._imageOrientation = [0, 1, 0, 0, 0, 1];
       expect(validFrame.cosines()).toEqual(defaultCosines);
@@ -87,14 +87,14 @@ describe('Models.frame', function() {
 
   // });
 
-  describe('_compareArrays', function() {
-    it('should return false if arrays are different', function() {
+  describe('_compareArrays', () => {
+    it('should return false if arrays are different', () => {
       // array of int
       expect(validFrame._compareArrays([1], [2])).toEqual(false);
       expect(validFrame._compareArrays([1], [1, 2])).toEqual(false);
     });
 
-    it('should return true if arrays are identical', function() {
+    it('should return true if arrays are identical', () => {
       // array of int
       expect(validFrame._compareArrays([1, 2, 3], [1, 2, 3])).toEqual(true);
 

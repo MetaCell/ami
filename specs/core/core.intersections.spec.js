@@ -4,9 +4,9 @@ import CoreIntersections from '../../src/core/core.intersections';
 import { Matrix4 } from 'three';
 import { Vector3 } from 'three';
 
-describe('Core.Intersections', function() {
-  describe('validateAabb', function() {
-    it('should return false if AABB is not valid', function() {
+describe('Core.Intersections', () => {
+  describe('validateAabb', () => {
+    it('should return false if AABB is not valid', () => {
       // null provided
       let validate = CoreIntersections.validateAabb(null);
       expect(validate).toEqual(false);
@@ -61,8 +61,8 @@ describe('Core.Intersections', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if AABB is valid', function() {
-      let validate = CoreIntersections.validateAabb({
+    it('should return true if AABB is valid', () => {
+      const validate = CoreIntersections.validateAabb({
         toAABB: new Matrix4(),
         center: new Vector3(),
         halfDimensions: new Vector3(),
@@ -71,8 +71,8 @@ describe('Core.Intersections', function() {
     });
   });
 
-  describe('validatePlane', function() {
-    it('should return false if Plane is not valid', function() {
+  describe('validatePlane', () => {
+    it('should return false if Plane is not valid', () => {
       // null provided
       let validate = CoreIntersections.validatePlane(null);
       expect(validate).toEqual(false);
@@ -102,8 +102,8 @@ describe('Core.Intersections', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if Plane is valid', function() {
-      let validate = CoreIntersections.validatePlane({
+    it('should return true if Plane is valid', () => {
+      const validate = CoreIntersections.validatePlane({
         position: new Vector3(),
         direction: new Vector3(),
       });
@@ -111,14 +111,14 @@ describe('Core.Intersections', function() {
     });
   });
 
-  describe('aabbPlane', function() {
-    it('should return false if aabb or plane is not valid', function() {
+  describe('aabbPlane', () => {
+    it('should return false if aabb or plane is not valid', () => {
       // null provided
-      let validate = CoreIntersections.aabbPlane(null, null);
+      const validate = CoreIntersections.aabbPlane(null, null);
       expect(validate).toEqual(false);
     });
 
-    it('should return array of intersections (if any) if aabb and plane are valid', function() {
+    it('should return array of intersections (if any) if aabb and plane are valid', () => {
       // identity transform
       let aabb = {
         center: new Vector3(150, 150, 150),
@@ -152,12 +152,12 @@ describe('Core.Intersections', function() {
 
       // rotate along 1 axis && translate
       // do not return duplicate values
-      let m = new Matrix4();
+      const m = new Matrix4();
 
-      let m1 = new Matrix4();
-      let m2 = new Matrix4();
+      const m1 = new Matrix4();
+      const m2 = new Matrix4();
 
-      let gamma = Math.PI / 4;
+      const gamma = Math.PI / 4;
 
       m1.makeRotationY(gamma);
       m2.makeTranslation(150, 150, 150);

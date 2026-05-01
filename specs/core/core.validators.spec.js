@@ -7,15 +7,15 @@ import { Vector2 } from 'three';
 import { Vector3 } from 'three';
 import { Vector4 } from 'three';
 
-describe('Core.Validator', function() {
-  describe('matrix4', function() {
-    it('should return false if matrix is not valid', function() {
+describe('Core.Validator', () => {
+  describe('matrix4', () => {
+    it('should return false if matrix is not valid', () => {
       // null provided
       let validate = CoreValidators.matrix4(null);
       expect(validate).toEqual(false);
 
       // undefined provided
-      let obj = {};
+      const obj = {};
       validate = CoreValidators.matrix4(obj.iamundefined);
       expect(validate).toEqual(false);
 
@@ -36,20 +36,20 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if matrix is valid', function() {
-      let validate = CoreValidators.matrix4(new Matrix4());
+    it('should return true if matrix is valid', () => {
+      const validate = CoreValidators.matrix4(new Matrix4());
       expect(validate).toEqual(true);
     });
   });
 
-  describe('vector3', function() {
-    it('should return false if vector is not valid', function() {
+  describe('vector3', () => {
+    it('should return false if vector is not valid', () => {
       // null provided
       let validate = CoreValidators.vector3(null);
       expect(validate).toEqual(false);
 
       // undefined provided
-      let obj = {};
+      const obj = {};
       validate = CoreValidators.vector3(obj.iamundefined);
       expect(validate).toEqual(false);
 
@@ -74,20 +74,20 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if vector is valid', function() {
-      let validate = CoreValidators.vector3(new Vector3());
+    it('should return true if vector is valid', () => {
+      const validate = CoreValidators.vector3(new Vector3());
       expect(validate).toEqual(true);
     });
   });
 
-  describe('box', function() {
-    it('should return false if box is not valid', function() {
+  describe('box', () => {
+    it('should return false if box is not valid', () => {
       // null provided
       let validate = CoreValidators.box(null);
       expect(validate).toEqual(false);
 
       // undefined provided
-      let obj = {};
+      const obj = {};
       validate = CoreValidators.box(obj.iamundefined);
       expect(validate).toEqual(false);
 
@@ -122,8 +122,8 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if box is valid', function() {
-      let validate = CoreValidators.box({
+    it('should return true if box is valid', () => {
+      const validate = CoreValidators.box({
         center: new Vector3(),
         halfDimensions: new Vector3(),
       });
@@ -131,14 +131,14 @@ describe('Core.Validator', function() {
     });
   });
 
-  describe('ray', function() {
-    it('should return false if ray is not valid', function() {
+  describe('ray', () => {
+    it('should return false if ray is not valid', () => {
       // null provided
       let validate = CoreValidators.ray(null);
       expect(validate).toEqual(false);
 
       // undefined provided
-      let obj = {};
+      const obj = {};
       validate = CoreValidators.ray(obj.iamundefined);
       expect(validate).toEqual(false);
 
@@ -166,8 +166,8 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
     });
 
-    it('should return true if ray is valid', function() {
-      let validate = CoreValidators.ray({
+    it('should return true if ray is valid', () => {
+      const validate = CoreValidators.ray({
         position: new Vector3(),
         direction: new Vector3(),
       });

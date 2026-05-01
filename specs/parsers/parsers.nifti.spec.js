@@ -3,32 +3,32 @@
 import ParsersDicom from '../../src/parsers/parsers.dicom';
 import ParsersNifti from '../../src/parsers/parsers.nifti';
 
-let dicomDataset = {
+const dicomDataset = {
   format: 'dicom',
   url: '/base/data/dicom/adi_slice.dcm',
   parser: ParsersDicom,
 };
 
-let niftiDataset = {
+const niftiDataset = {
   format: 'nifti',
   url: '/base/data/nifti/adi_slice.nii',
   parser: ParsersNifti,
 };
 
 function crop(value, decimals) {
-  return Math.floor(Math.pow(10, decimals) * value) / Math.pow(10, decimals);
+  return Math.floor(10 ** decimals * value) / 10 ** decimals;
 }
 
 function test(dataset, datasetDicom) {
   let parserDicom = null;
 
   beforeEach(() => new Promise(resolve => {
-    let oReqDicom = new XMLHttpRequest();
+    const oReqDicom = new XMLHttpRequest();
     oReqDicom.open('GET', datasetDicom.url, true);
     oReqDicom.responseType = 'arraybuffer';
 
     oReqDicom.onload = () => {
-      let buffer = oReqDicom.response;
+      const buffer = oReqDicom.response;
       if (buffer) {
         parserDicom = new datasetDicom.parser(
           {
@@ -44,16 +44,16 @@ function test(dataset, datasetDicom) {
   }));
 
   // test extraction of tags of interest
-  describe(dataset.format, function() {
+  describe(dataset.format, () => {
     let parser = null;
 
     beforeEach(() => new Promise(resolve => {
-      let oReqData = new XMLHttpRequest();
+      const oReqData = new XMLHttpRequest();
       oReqData.open('GET', dataset.url, true);
       oReqData.responseType = 'arraybuffer';
 
       oReqData.onload = () => {
-        let buffer = oReqData.response;
+        const buffer = oReqData.response;
         if (buffer) {
           parser = new dataset.parser(
             {
@@ -68,29 +68,29 @@ function test(dataset, datasetDicom) {
       oReqData.send();
     }));
 
-    it('image position', function() {
-      let frameIndex = 0;
-      let dicomImagePosition = parserDicom.imagePosition(frameIndex);
-      let imagePosition = parser.imagePosition(frameIndex);
+    it('image position', () => {
+      const frameIndex = 0;
+      const dicomImagePosition = parserDicom.imagePosition(frameIndex);
+      const imagePosition = parser.imagePosition(frameIndex);
 
       expect(crop(imagePosition[0], 5)).toBe(crop(dicomImagePosition[0], 5));
       expect(crop(imagePosition[1], 5)).toBe(crop(dicomImagePosition[1], 5));
       expect(crop(imagePosition[2], 5)).toBe(crop(dicomImagePosition[2], 5));
     });
 
-    it('pixel spacing', function() {
-      let frameIndex = 0;
-      let dicomPixelSpacing = parserDicom.pixelSpacing(frameIndex);
-      let pixelSpacing = parser.pixelSpacing(frameIndex);
+    it('pixel spacing', () => {
+      const frameIndex = 0;
+      const dicomPixelSpacing = parserDicom.pixelSpacing(frameIndex);
+      const pixelSpacing = parser.pixelSpacing(frameIndex);
       // check typeof and length...
       expect(crop(pixelSpacing[0], 5)).toBe(crop(dicomPixelSpacing[0], 5));
       expect(crop(pixelSpacing[1], 5)).toBe(crop(dicomPixelSpacing[1], 5));
     });
 
-    it('image orientation', function() {
-      let frameIndex = 0;
-      let dicomOrientation = parserDicom.imageOrientation(frameIndex);
-      let dataOrientation = parser.imageOrientation(frameIndex);
+    it('image orientation', () => {
+      const frameIndex = 0;
+      const dicomOrientation = parserDicom.imageOrientation(frameIndex);
+      const dataOrientation = parser.imageOrientation(frameIndex);
 
       expect(crop(dataOrientation[0], 5)).toBe(crop(dicomOrientation[0], 5));
       expect(crop(dataOrientation[1], 5)).toBe(crop(dicomOrientation[1], 5));
@@ -100,19 +100,19 @@ function test(dataset, datasetDicom) {
       expect(crop(dataOrientation[5], 5)).toBe(crop(dicomOrientation[5], 5));
     });
 
-    it('pixel data', async function() {
-      let frameIndex = 0;
-      let rows = parser.rows(frameIndex);
-      let columns = parser.columns(frameIndex);
-      let dicomPixelData = await parserDicom.extractPixelData(frameIndex);
-      let pixelData = parser.extractPixelData(frameIndex);
+    it('pixel data', async () => {
+      const frameIndex = 0;
+      const rows = parser.rows(frameIndex);
+      const columns = parser.columns(frameIndex);
+      const dicomPixelData = await parserDicom.extractPixelData(frameIndex);
+      const pixelData = parser.extractPixelData(frameIndex);
 
       expect(pixelData.join()).toEqual(dicomPixelData.join());
     });
   });
 }
 
-describe('Orientation', function() {
+describe('Orientation', () => {
   test(niftiDataset, dicomDataset);
   //   test( nrrdDataset );
 });

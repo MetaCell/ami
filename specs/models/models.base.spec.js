@@ -2,7 +2,7 @@
 
 import ModelsBase from '../../src/models/models.base';
 
-describe('Models.Base', function() {
+describe('Models.Base', () => {
   let validBase;
   let invalidBase;
 
@@ -16,8 +16,8 @@ describe('Models.Base', function() {
     invalidBase.merge = undefined;
   });
 
-  describe('mergeModels', function() {
-    it('should return false if model arrays are not valid', function() {
+  describe('mergeModels', () => {
+    it('should return false if model arrays are not valid', () => {
       //
       let valid = validBase.mergeModels(null, [validBase]);
       expect(valid).toEqual(false);
@@ -26,42 +26,42 @@ describe('Models.Base', function() {
       expect(valid).toEqual(false);
     });
 
-    it('should return true if was successful', function() {
+    it('should return true if was successful', () => {
       // merge was not overloaded!
-      let valid = validBase.mergeModels([validBase], [validBase]);
+      const valid = validBase.mergeModels([validBase], [validBase]);
       expect(valid).toEqual(true);
     });
 
   });
 
-  describe('merge', function() {
-    it('should return false if merge was not successful', function() {
+  describe('merge', () => {
+    it('should return false if merge was not successful', () => {
       //
       expect(validBase.merge()).toEqual(false);
       expect(validBase.merge('whatever')).toEqual(false);
     });
 
-    it('should return true if merge was successful', function() {
+    it('should return true if merge was successful', () => {
       //
       expect(validBase.merge(validBase)).toEqual(true);
     });
   });
 
-  describe('validate', function() {
-    it('should return false if model is not valid', function() {
+  describe('validate', () => {
+    it('should return false if model is not valid', () => {
       // model which doesn't have a merge function
       expect(invalidBase.validate(invalidBase)).toEqual(false);
     });
 
-    it('should return true if target model is valid', function() {
+    it('should return true if target model is valid', () => {
       //
       expect(validBase.validate(validBase)).toEqual(true);
     });
 
   });
 
-  describe('_validateModelArray', function() {
-    it('should return false if model array is not valid', function() {
+  describe('_validateModelArray', () => {
+    it('should return false if model array is not valid', () => {
 
       //
       let valid = validBase._validateModelArray(null);
@@ -76,9 +76,9 @@ describe('Models.Base', function() {
       expect(valid).toEqual(false);
     });
 
-    it('should return true if model array is valid', function() {
+    it('should return true if model array is valid', () => {
       //
-      let valid = validBase._validateModelArray([validBase, validBase]);
+      const valid = validBase._validateModelArray([validBase, validBase]);
       expect(valid).toEqual(true);
     });
 

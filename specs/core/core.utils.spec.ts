@@ -17,12 +17,12 @@ describe('Core.Utils', () => {
       // { min: { x : 0, y : 0,  z : 0 },
       //  max: { x : 0, y : 0,  z : 0 }
       // }
-      expect(bbox.hasOwnProperty('min')).toEqual(true);
+      expect(Object.hasOwn(bbox, 'min')).toEqual(true);
       expect(bbox.min.x).toEqual(0);
       expect(bbox.min.x).toEqual(0);
       expect(bbox.min.y).toEqual(0);
       expect(bbox.min.z).toEqual(0);
-      expect(bbox.hasOwnProperty('max')).toEqual(true);
+      expect(Object.hasOwn(bbox, 'max')).toEqual(true);
       expect(bbox.max.x).toEqual(0);
       expect(bbox.max.y).toEqual(0);
       expect(bbox.max.z).toEqual(0);
@@ -32,11 +32,11 @@ describe('Core.Utils', () => {
       // { min: { x : 0, y : 0,  z : 0 },
       //  max: { x : 2, y : 4,  z : 6 }
       // }
-      expect(bbox.hasOwnProperty('min')).toEqual(true);
+      expect(Object.hasOwn(bbox, 'min')).toEqual(true);
       expect(bbox.min.x).toEqual(0);
       expect(bbox.min.y).toEqual(0);
       expect(bbox.min.z).toEqual(0);
-      expect(bbox.hasOwnProperty('max')).toEqual(true);
+      expect(Object.hasOwn(bbox, 'max')).toEqual(true);
       expect(bbox.max.x).toEqual(2);
       expect(bbox.max.y).toEqual(4);
       expect(bbox.max.z).toEqual(6);

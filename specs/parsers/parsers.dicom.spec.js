@@ -2,7 +2,7 @@
 
 import ParsersDicom from '../../src/parsers/parsers.dicom';
 
-let datasets = [];
+const datasets = [];
 
 function testObjectTemplate(
   name,
@@ -84,7 +84,7 @@ function testObjectTemplate(
 }
 
 // MR
-let data1 = testObjectTemplate(
+const data1 = testObjectTemplate(
   'MR - 16!',
   'http://www.insight-journal.org/midas/collection/view/194',
   '/base/data/dicom/fruit.dcm',
@@ -128,7 +128,7 @@ let data1 = testObjectTemplate(
 );
 // datasets.push(data1);
 
-let data2 = testObjectTemplate(
+const data2 = testObjectTemplate(
   'Osirix test',
   'OSIRIX',
   '/base/data/dicom/MELANIX.dcm',
@@ -173,7 +173,7 @@ let data2 = testObjectTemplate(
 datasets.push(data2);
 
 // US
-let data3 = testObjectTemplate(
+const data3 = testObjectTemplate(
   'US - RGB',
   'http://www.barre.nom.fr/medical/samples/',
   '/base/data/dicom/US-RGB-8-esopecho.dcm',
@@ -218,7 +218,7 @@ let data3 = testObjectTemplate(
 datasets.push(data3);
 
 // MR
-let data4 = testObjectTemplate(
+const data4 = testObjectTemplate(
   'MR - Multiframe',
   'http://www.barre.nom.fr/medical/samples/',
   '/base/data/dicom/MR-MONO2-8-16x-heart.dcm',
@@ -263,7 +263,7 @@ let data4 = testObjectTemplate(
 datasets.push(data4);
 
 // datasets = [];
-let data5 = testObjectTemplate(
+const data5 = testObjectTemplate(
   'SEG - Multiframe',
   'http://www.barre.nom.fr/medical/samples/',
   '/base/data/dicom/dcm.seg.andrei',
@@ -308,7 +308,7 @@ let data5 = testObjectTemplate(
 );
 datasets.push(data5);
 
-let data6 = testObjectTemplate(
+const data6 = testObjectTemplate(
   'MR - JPEG Lossless',
   'http://www.barre.nom.fr/medical/samples/',
   '/base/data/dicom/mi2b2.dcm',
@@ -353,7 +353,7 @@ let data6 = testObjectTemplate(
 );
 datasets.push(data6);
 
-let data7 = testObjectTemplate(
+const data7 = testObjectTemplate(
   'CT - 16 signed - Explicit VR Big Endian',
   '@tommy.qichang',
   '/base/data/dicom/ser002img00001-16-signed.dcm',
@@ -397,7 +397,7 @@ let data7 = testObjectTemplate(
 );
 datasets.push(data7);
 
-let data8 = testObjectTemplate(
+const data8 = testObjectTemplate(
   'CT - 16 signed - J2K',
   'https://github.com/JSibir',
   '/base/data/dicom/j2k.dcm',
@@ -447,12 +447,12 @@ function dicomTestSequence(referenceDataset) {
     let parser;
 
     beforeEach(() => new Promise(resolve => {
-      let oReq = new XMLHttpRequest();
+      const oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
 
       oReq.onload = () => {
-        let buffer = oReq.response;
+        const buffer = oReq.response;
         if (buffer) {
           parser = new ParsersDicom(
             {
@@ -509,17 +509,17 @@ function dicomTestSequence(referenceDataset) {
       });
 
       it('Rows: ' + referenceDataset.rows, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.rows(frameIndex)).toBe(referenceDataset.rows);
       });
 
       it('Columns: ' + referenceDataset.columns, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.columns(frameIndex)).toBe(referenceDataset.columns);
       });
 
       it('Image Orientation: ' + referenceDataset.imageOrientation, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
 
         // compare array through strings as sometimes comparaison appears to fail without reason.
 
@@ -535,86 +535,86 @@ function dicomTestSequence(referenceDataset) {
       });
 
       it('Image Position: ' + referenceDataset.imagePosition, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.imagePosition(frameIndex)).toEqual(referenceDataset.imagePosition);
       });
 
       it('Pixel Spacing: ' + referenceDataset.pixelSpacing, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.pixelSpacing(frameIndex)).toEqual(referenceDataset.pixelSpacing);
       });
 
       it('SOP Instance UID: ' + referenceDataset.sopInstanceUID, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.sopInstanceUID(frameIndex)).toBe(referenceDataset.sopInstanceUID);
       });
 
       it('Slice Thickness: ' + referenceDataset.sliceThickness, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.sliceThickness(frameIndex)).toBe(referenceDataset.sliceThickness);
       });
 
       it('Pixel representation: ' + referenceDataset.pixelRepresentation, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.pixelRepresentation(frameIndex)).toBe(referenceDataset.pixelRepresentation);
       });
 
       it('Bits allocated: ' + referenceDataset.bitsAllocated, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.bitsAllocated(frameIndex)).toBe(referenceDataset.bitsAllocated);
       });
 
       it('High bit: ' + referenceDataset.highBit, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.highBit(frameIndex)).toBe(referenceDataset.highBit);
       });
 
       it('Rescale intercept: ' + referenceDataset.rescaleIntercept, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.rescaleIntercept(frameIndex)).toBe(referenceDataset.rescaleIntercept);
       });
 
       it('Rescale slope: ' + referenceDataset.rescaleSlope, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.rescaleSlope(frameIndex)).toBe(referenceDataset.rescaleSlope);
       });
 
       it('Window center: ' + referenceDataset.windowCenter, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.windowCenter(frameIndex)).toBe(referenceDataset.windowCenter);
       });
 
       it('Window width: ' + referenceDataset.windowWidth, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.windowWidth(frameIndex)).toBe(referenceDataset.windowWidth);
       });
 
       it('Dimension index values: ' + referenceDataset.dimensionIndexValues, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.dimensionIndexValues(frameIndex)).toEqual(
           referenceDataset.dimensionIndexValues
         );
       });
 
       it('Instance number: ' + referenceDataset.instanceNumber, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.instanceNumber(frameIndex)).toEqual(referenceDataset.instanceNumber);
       });
 
       it('Pixel aspect ratio: ' + referenceDataset.pixelAspectRatio, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.pixelAspectRatio(frameIndex)).toEqual(referenceDataset.pixelAspectRatio);
       });
 
       it('In stack position number: ' + referenceDataset.inStackPositionNumber, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.inStackPositionNumber(frameIndex)).toEqual(
           referenceDataset.inStackPositionNumber
         );
       });
 
       it('Stack id: ' + referenceDataset.stackID, () => {
-        let frameIndex = 0;
+        const frameIndex = 0;
         expect(parser.stackID(frameIndex)).toEqual(referenceDataset.stackID);
       });
     });
@@ -625,17 +625,17 @@ function dicomTestSequence(referenceDataset) {
 // length output
 // min/max
 function pixelDataTestSequence(referenceDataset) {
-  describe(referenceDataset.name, function() {
+  describe(referenceDataset.name, () => {
     // before each, load the data...
     let parser;
 
     beforeEach(() => new Promise(resolve => {
-      let oReq = new XMLHttpRequest();
+      const oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
 
       oReq.onload = () => {
-        let buffer = oReq.response;
+        const buffer = oReq.response;
         if (buffer) {
           parser = new ParsersDicom(
             {
@@ -650,7 +650,7 @@ function pixelDataTestSequence(referenceDataset) {
       oReq.send();
     }));
 
-    describe('Parse pixel data', function() {
+    describe('Parse pixel data', () => {
       // it('Decompress pixel data', function() {
       //   let frameIndex = 0;
       //   let pixelData = parser.decompressPixelData(frameIndex);
@@ -658,19 +658,19 @@ function pixelDataTestSequence(referenceDataset) {
       //   expect(true).toBe(true);
       // });
 
-      it('Extract pixel data', async function() {
-        let frameIndex = 0;
+      it('Extract pixel data', async () => {
+        const frameIndex = 0;
         await parser.extractPixelData(frameIndex);
         // check typeof and length...
         expect(true).toBe(true);
       });
 
-      it('Min,Max pixel data: ' + referenceDataset.minMax, async function() {
-        let frameIndex = 0;
-        let pixelData = await parser.extractPixelData(frameIndex);
+      it('Min,Max pixel data: ' + referenceDataset.minMax, async () => {
+        const frameIndex = 0;
+        const pixelData = await parser.extractPixelData(frameIndex);
         // hack for the compressed data, for now...
         if (pixelData) {
-          let minMax = parser.minMaxPixelData(pixelData);
+          const minMax = parser.minMaxPixelData(pixelData);
           expect(minMax).toEqual(referenceDataset.minMax);
         }
       });
@@ -679,7 +679,7 @@ function pixelDataTestSequence(referenceDataset) {
 }
 
 // test extraction of tags of interest
-describe('Parser.dicom', function() {
+describe('Parser.dicom', () => {
   for (let i = 0; i < datasets.length; i++) {
     // test utility functions to get dicom tags
     dicomTestSequence(datasets[i]);

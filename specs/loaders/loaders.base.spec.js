@@ -9,7 +9,7 @@ import ProgressBar from '../../src/helpers/helpers.progressbar';
  * because this two case cover all the events.
  */
 
-describe('Loader.Base', function() {
+describe('Loader.Base', () => {
   let baseLoader;
   const eventsHandleSpy = {};
   const sourceUrl = '/base/data/dicom/adi_slice.dcm';

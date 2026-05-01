@@ -20,9 +20,9 @@ export default class ParsersMHD extends ParsersVolume {
 
     try {
       // parse header (mhd) data
-      let lines = new TextDecoder().decode(data.mhdBuffer).split('\n');
+      const lines = new TextDecoder().decode(data.mhdBuffer).split('\n');
       lines.forEach(line => {
-        let keyvalue = line.split('=');
+        const keyvalue = line.split('=');
         if (keyvalue.length === 2) {
           this._header[keyvalue[0].trim()] = keyvalue[1].trim();
         }
@@ -40,7 +40,7 @@ export default class ParsersMHD extends ParsersVolume {
   }
 
   rightHanded() {
-    let anatomicalOrientation = this._header.AnatomicalOrientation;
+    const anatomicalOrientation = this._header.AnatomicalOrientation;
     if (
       anatomicalOrientation === 'RAS' ||
       anatomicalOrientation === 'RPI' ||
@@ -116,24 +116,24 @@ export default class ParsersMHD extends ParsersVolume {
    * @param {*} frameIndex
    */
   pixelSpacing(frameIndex = 0) {
-    let x = parseFloat(this._header.ElementSpacing[1], 10);
-    let y = parseFloat(this._header.ElementSpacing[0], 10);
-    let z = parseFloat(this._header.ElementSpacing[2], 10);
+    const x = parseFloat(this._header.ElementSpacing[1], 10);
+    const y = parseFloat(this._header.ElementSpacing[0], 10);
+    const z = parseFloat(this._header.ElementSpacing[2], 10);
     return [x, y, z];
   }
 
   imageOrientation(frameIndex = 0) {
-    let invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
-    let invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
+    const invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
+    const invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
 
-    let x = new Vector3(
+    const x = new Vector3(
       parseFloat(this._header.TransformMatrix[0]) * invertX,
       parseFloat(this._header.TransformMatrix[1]) * invertY,
       parseFloat(this._header.TransformMatrix[2])
     );
     x.normalize();
 
-    let y = new Vector3(
+    const y = new Vector3(
       parseFloat(this._header.TransformMatrix[3]) * invertX,
       parseFloat(this._header.TransformMatrix[4]) * invertY,
       parseFloat(this._header.TransformMatrix[5])
@@ -156,9 +156,9 @@ export default class ParsersMHD extends ParsersVolume {
   }
 
   _decompressUncompressed(frameIndex = 0) {
-    let buffer = this._buffer;
-    let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    const buffer = this._buffer;
+    const numberOfChannels = this.numberOfChannels();
+    const numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }

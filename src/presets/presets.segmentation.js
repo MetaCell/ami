@@ -19,7 +19,7 @@ export default class PresetsSegmentation {
   }
 
   fetchPreset(presetID) {
-    let presets = this._presets;
+    const presets = this._presets;
     return presets[presetID];
   }
 
@@ -28,10 +28,10 @@ export default class PresetsSegmentation {
   }
 
   presetsAvailable(type = 'segmentation') {
-    let available = [];
-    let presets = this._presets;
+    const available = [];
+    const presets = this._presets;
 
-    for (let i in presets) {
+    for (const i in presets) {
       available.push(i);
     }
 

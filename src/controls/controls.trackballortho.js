@@ -29,8 +29,8 @@ const trackballOrtho = (three = window.THREE) => {
     ) {
       super();
 
-      let _this = this;
-      let STATE = state;
+      const _this = this;
+      const STATE = state;
 
       this.object = object;
       this.domElement = domElement !== undefined ? domElement : document;
@@ -57,7 +57,7 @@ const trackballOrtho = (three = window.THREE) => {
 
       this.target = new three.Vector3();
 
-      let EPS = 0.000001;
+      const EPS = 0.000001;
 
       let _changed = true;
 
@@ -86,9 +86,9 @@ const trackballOrtho = (three = window.THREE) => {
 
       // events
 
-      let changeEvent = { type: 'change' };
-      let startEvent = { type: 'start' };
-      let endEvent = { type: 'end' };
+      const changeEvent = { type: 'change' };
+      const startEvent = { type: 'start' };
+      const endEvent = { type: 'end' };
 
       // methods
 
@@ -99,9 +99,9 @@ const trackballOrtho = (three = window.THREE) => {
           this.screen.width = window.innerWidth;
           this.screen.height = window.innerHeight;
         } else {
-          let box = this.domElement.getBoundingClientRect();
+          const box = this.domElement.getBoundingClientRect();
           // adjustments come from similar code in the jquery offset() function
-          let d = this.domElement.ownerDocument.documentElement;
+          const d = this.domElement.ownerDocument.documentElement;
           this.screen.left = box.left + window.pageXOffset - d.clientLeft;
           this.screen.top = box.top + window.pageYOffset - d.clientTop;
           this.screen.width = box.width;
@@ -122,8 +122,8 @@ const trackballOrtho = (three = window.THREE) => {
         }
       };
 
-      let getMouseOnScreen = (function() {
-        let vector = new three.Vector2();
+      const getMouseOnScreen = (() => {
+        const vector = new three.Vector2();
 
         return function getMouseOnScreen(pageX, pageY) {
           vector.set(
@@ -160,8 +160,8 @@ const trackballOrtho = (three = window.THREE) => {
         }
       };
 
-      this.panCamera = (function() {
-        let mouseChange = new three.Vector2(),
+      this.panCamera = (() => {
+        const mouseChange = new three.Vector2(),
           objectUp = new three.Vector3(),
           pan = new three.Vector3();
 
@@ -170,8 +170,8 @@ const trackballOrtho = (three = window.THREE) => {
 
           if (mouseChange.lengthSq()) {
             // Scale movement to keep clicked/dragged position under cursor
-            let scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
-            let scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
+            const scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
+            const scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
             mouseChange.x *= scale_x;
             mouseChange.y *= scale_y;
 
@@ -199,7 +199,7 @@ const trackballOrtho = (three = window.THREE) => {
         };
       })();
 
-      this.update = function() {
+      this.update = () => {
         _eye.subVectors(_this.object.position, _this.target);
 
         if (!_this.noZoom) {
@@ -225,7 +225,7 @@ const trackballOrtho = (three = window.THREE) => {
         }
       };
 
-      this.reset = function() {
+      this.reset = () => {
         _state = STATE.NONE;
         _prevState = STATE.NONE;
 
@@ -358,7 +358,7 @@ const trackballOrtho = (three = window.THREE) => {
 
             break;
 
-          case 2:
+          case 2: {
             _state = STATE.TOUCH_ZOOM_PAN;
             var dx = event.touches[0].pageX - event.touches[1].pageX;
             var dy = event.touches[0].pageY - event.touches[1].pageY;
@@ -369,6 +369,7 @@ const trackballOrtho = (three = window.THREE) => {
             _panStart.copy(getMouseOnScreen(x, y));
             _panEnd.copy(_panStart);
             break;
+          }
 
           default:
             _state = STATE.NONE;
@@ -386,7 +387,7 @@ const trackballOrtho = (three = window.THREE) => {
           case 1:
             break;
 
-          case 2:
+          case 2: {
             var dx = event.touches[0].pageX - event.touches[1].pageX;
             var dy = event.touches[0].pageY - event.touches[1].pageY;
             _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
@@ -395,6 +396,7 @@ const trackballOrtho = (three = window.THREE) => {
             var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
             _panEnd.copy(getMouseOnScreen(x, y));
             break;
+          }
 
           default:
             _state = STATE.NONE;
@@ -408,7 +410,7 @@ const trackballOrtho = (three = window.THREE) => {
           case 1:
             break;
 
-          case 2:
+          case 2: {
             _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
 
             var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
@@ -416,6 +418,7 @@ const trackballOrtho = (three = window.THREE) => {
             _panEnd.copy(getMouseOnScreen(x, y));
             _panStart.copy(_panEnd);
             break;
+          }
         }
 
         _state = STATE.NONE;

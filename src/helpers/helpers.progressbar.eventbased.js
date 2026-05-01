@@ -40,15 +40,14 @@ export default class HelpersProgressBarEventBased {
   }
 
   initEventListenner() {
-    const self = this;
 
-    this._emitter.on('load-start', function(event) {
+    this._emitter.on('load-start', (event) => {
       const totalFiles = event.files.length;
-      self.totalFile = totalFiles;
-      self._domTotalFile.innerHTML = totalFiles;
+      this.totalFile = totalFiles;
+      this._domTotalFile.innerHTML = totalFiles;
     });
 
-    this._emitter.on('fetch-start', function(event) {
+    this._emitter.on('fetch-start', (event) => {
       const fetchLi = document.createElement('li');
 
       const fileTag = document.createElement('div');
@@ -65,17 +64,17 @@ export default class HelpersProgressBarEventBased {
       fetchprogress.id = 'file-fetch-' + event.file;
       fetchprogress.style.width = '0%';
       fetchLi.append(fetchprogress);
-      self._domProcessList.append(fetchLi);
+      this._domProcessList.append(fetchLi);
     });
 
-    this._emitter.on('fetch-progress', function(event) {
+    this._emitter.on('fetch-progress', (event) => {
       const id = 'file-fetch-' + event.file;
       const fileFetchDom = document.getElementById(id);
       fileFetchDom.style.width = (event.loaded / event.total) * 100 + '%';
       fileFetchDom.style.border = '1px solid red';
     });
 
-    this._emitter.on('fetch-success', function(event) {
+    this._emitter.on('fetch-success', (event) => {
       // show result
       const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');
@@ -85,23 +84,23 @@ export default class HelpersProgressBarEventBased {
       liParent.append(result);
     });
 
-    this._emitter.on('fetch-error', function(event) {
+    this._emitter.on('fetch-error', (event) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-abort', function(event) {
+    this._emitter.on('fetch-abort', (event) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-end', function(event) {
+    this._emitter.on('fetch-end', (event) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-timeout', function(event) {
+    this._emitter.on('fetch-timeout', (event) => {
       // console.log(event);
     });
 
-    this._emitter.on('parse-start', function(event) {
+    this._emitter.on('parse-start', (event) => {
       const liParent = document.getElementById('file-' + event.file);
       const parseprogress = document.createElement('div');
       parseprogress.id = 'file-parse-' + event.file;
@@ -109,17 +108,17 @@ export default class HelpersProgressBarEventBased {
       liParent.append(parseprogress);
     });
 
-    this._emitter.on('parsing', function(event) {
+    this._emitter.on('parsing', (event) => {
       const id = 'file-parse-' + event.file;
       const fileParseDom = document.getElementById(id);
       fileParseDom.style.width = (event.parsed / event.total) * 100 + '%';
       fileParseDom.style.border = '1px solid yellow';
     });
 
-    this._emitter.on('parse-success', function(event) {
-      self.loaded += 1;
-      self._domCurrentFile.innerHTML = self.loaded;
-      self._domCurrentProgress.style.width = (self.loaded / self.totalFile) * 100 + '%';
+    this._emitter.on('parse-success', (event) => {
+      this.loaded += 1;
+      this._domCurrentFile.innerHTML = this.loaded;
+      this._domCurrentProgress.style.width = (this.loaded / this.totalFile) * 100 + '%';
       // show result
       const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');

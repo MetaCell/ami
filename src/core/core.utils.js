@@ -42,8 +42,8 @@ export default class CoreUtils {
     }
 
     // min/max bound
-    let min = center.clone().sub(halfDimensions);
-    let max = center.clone().add(halfDimensions);
+    const min = center.clone().sub(halfDimensions);
+    const max = center.clone().add(halfDimensions);
 
     return {
       min,
@@ -57,11 +57,11 @@ export default class CoreUtils {
    * @return {Array}
    */
   static minMax(data = []) {
-    let minMax = [65535, -32768];
-    let numPixels = data.length;
+    const minMax = [65535, -32768];
+    const numPixels = data.length;
 
     for (let index = 0; index < numPixels; index++) {
-      let spv = data[index];
+      const spv = data[index];
       minMax[0] = Math.min(minMax[0], spv);
       minMax[1] = Math.max(minMax[1], spv);
     }
@@ -242,7 +242,7 @@ export default class CoreUtils {
    * @return {*}
    */
   static worldToData(lps2IJK, worldCoordinates) {
-    let dataCoordinate = new Vector3().copy(worldCoordinates).applyMatrix4(lps2IJK);
+    const dataCoordinate = new Vector3().copy(worldCoordinates).applyMatrix4(lps2IJK);
 
     // same rounding in the shaders
     dataCoordinate.addScalar(0.5).floor();
@@ -252,7 +252,7 @@ export default class CoreUtils {
 
   static value(stack, coordinate) {
     window.console.warn('value is deprecated, please use getPixelData instead');
-    this.getPixelData(stack, coordinate);
+    CoreUtils.getPixelData(stack, coordinate);
   }
 
   /**
@@ -308,7 +308,7 @@ export default class CoreUtils {
    * @returns {Vector3} Center of mass from given points.
    */
   static centerOfMass(points) {
-    let centerOfMass = new Vector3(0, 0, 0);
+    const centerOfMass = new Vector3(0, 0, 0);
     for (let i = 0; i < points.length; i++) {
       centerOfMass.x += points[i].x;
       centerOfMass.y += points[i].y;
@@ -331,43 +331,41 @@ export default class CoreUtils {
    * @returns {Array<Object>} Set of object representing the ordered points.
    */
   static orderIntersections(points, direction) {
-    let reference = this.centerOfMass(points);
+    const reference = CoreUtils.centerOfMass(points);
     // direction from first point to reference
-    let referenceDirection = new Vector3(
+    const referenceDirection = new Vector3(
       points[0].x - reference.x,
       points[0].y - reference.y,
       points[0].z - reference.z
     ).normalize();
 
-    let base = new Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
+    const base = new Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
 
-    let orderedpoints = [];
+    const orderedpoints = [];
 
     // other lines // if inter, return location + angle
     for (let j = 0; j < points.length; j++) {
-      let point = new Vector3(points[j].x, points[j].y, points[j].z);
+      const point = new Vector3(points[j].x, points[j].y, points[j].z);
       point.direction = new Vector3(
         points[j].x - reference.x,
         points[j].y - reference.y,
         points[j].z - reference.z
       ).normalize();
 
-      let x = referenceDirection.dot(point.direction);
-      let y = base.dot(point.direction);
+      const x = referenceDirection.dot(point.direction);
+      const y = base.dot(point.direction);
       point.xy = { x, y };
 
-      let theta = Math.atan2(y, x) * (180 / Math.PI);
+      const theta = Math.atan2(y, x) * (180 / Math.PI);
       point.angle = theta;
 
       orderedpoints.push(point);
     }
 
-    orderedpoints.sort(function(a, b) {
-      return a.angle - b.angle;
-    });
+    orderedpoints.sort((a, b) => a.angle - b.angle);
 
-    let noDups = [orderedpoints[0]];
-    let epsilon = 0.0001;
+    const noDups = [orderedpoints[0]];
+    const epsilon = 0.0001;
     for (let i = 1; i < orderedpoints.length; i++) {
       if (Math.abs(orderedpoints[i - 1].angle - orderedpoints[i].angle) > epsilon) {
         noDups.push(orderedpoints[i]);
@@ -446,7 +444,7 @@ export default class CoreUtils {
       min: values.reduce((prev, val) => (prev < val ? prev : val)),
       max: values.reduce((prev, val) => (prev > val ? prev : val)),
       mean: avg,
-      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
+      sd: Math.sqrt(values.reduce((sum, val) => sum + (val - avg) ** 2, 0) / values.length),
     };
   }
 
@@ -496,7 +494,7 @@ export default class CoreUtils {
     // returns true is number is NaN
     if (number !== number) {
       const dots = (numberAsString.match(/\./g)||[]).length;
-      const commas = (numberAsString.match(/\,/g)||[]).length;
+      const commas = (numberAsString.match(/,/g)||[]).length;
 
       if (commas === 1 && dots < 2) {
         // convert 1,45 to 1.45

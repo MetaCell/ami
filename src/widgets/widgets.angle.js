@@ -325,7 +325,7 @@ const widgetsAngle = (three = window.THREE) => {
       // update angle and label
       this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-      let paddingNormVector = lineData.line
+      const paddingNormVector = lineData.line
         .clone()
         .add(line2Data.line)
         .normalize()

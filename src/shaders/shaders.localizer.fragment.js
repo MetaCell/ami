@@ -21,7 +21,7 @@ export default class {
     }
 
     let content = '';
-    for (let property in this._functions) {
+    for (const property in this._functions) {
       content += this._functions[property] + '\n';
     }
 
@@ -33,8 +33,8 @@ export default class {
    */
   uniforms() {
     let content = '';
-    for (let property in this._uniforms) {
-      let uniform = this._uniforms[property];
+    for (const property in this._uniforms) {
+      const uniform = this._uniforms[property];
       content += `uniform ${uniform.typeGLSL} ${property}`;
 
       if (uniform && uniform.length) {

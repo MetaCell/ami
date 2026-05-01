@@ -140,17 +140,17 @@ const widgetsVoxelprobe = (three = window.THREE) => {
       this._label.className = 'widgets-label';
 
       // measurements
-      let measurementsContainer = document.createElement('div');
+      const measurementsContainer = document.createElement('div');
       // LPS
-      let lpsContainer = document.createElement('div');
+      const lpsContainer = document.createElement('div');
       lpsContainer.className = 'lpsPosition';
       measurementsContainer.appendChild(lpsContainer);
       // IJK
-      let ijkContainer = document.createElement('div');
+      const ijkContainer = document.createElement('div');
       ijkContainer.className = 'ijkPosition';
       measurementsContainer.appendChild(ijkContainer);
       // Value
-      let valueContainer = document.createElement('div');
+      const valueContainer = document.createElement('div');
       valueContainer.className = 'value';
       measurementsContainer.appendChild(valueContainer);
 
@@ -177,7 +177,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
       this._voxel.dataCoordinates = CoreUtils.worldToData(this._stack.lps2IJK, this._worldPosition);
 
       // update value
-      let value = CoreUtils.getPixelData(this._stack, this._voxel.dataCoordinates);
+      const value = CoreUtils.getPixelData(this._stack, this._voxel.dataCoordinates);
 
       this._voxel.value =
         value === null || this._stack.numberOfChannels > 1

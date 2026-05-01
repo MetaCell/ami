@@ -54,19 +54,19 @@ const geometriesSlice = (three = window.THREE) => {
       //
       // prepare data for the shape!
       //
-      let aabb = {
+      const aabb = {
         halfDimensions,
         center,
         toAABB,
       };
 
-      let plane = {
+      const plane = {
         position,
         direction,
       };
 
       // BOOM!
-      let intersections = coreIntersections.aabbPlane(aabb, plane);
+      const intersections = coreIntersections.aabbPlane(aabb, plane);
 
       // can not exist before calling the constructor
       if (intersections.length < 3) {
@@ -82,10 +82,10 @@ const geometriesSlice = (three = window.THREE) => {
         throw err;
       }
 
-      let points = coreUtils.orderIntersections(intersections, direction);
+      const points = coreUtils.orderIntersections(intersections, direction);
 
       // create the shape
-      let shape = new three.Shape();
+      const shape = new three.Shape();
       // move to first point!
       shape.moveTo(points[0].xy.x, points[0].xy.y);
 

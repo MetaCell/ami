@@ -47,7 +47,7 @@ const widgetsPolygon = (three = window.THREE) => {
       this._handles = [];
       const WidgetsHandle = widgetsHandleFactory(three);
 
-      let handle = new WidgetsHandle(targetMesh, controls, params);
+      const handle = new WidgetsHandle(targetMesh, controls, params);
       this.add(handle);
       this._handles.push(handle);
 
@@ -138,7 +138,7 @@ const widgetsPolygon = (three = window.THREE) => {
           this._handles[this._handles.length - 1].tracking = false;
 
           const WidgetsHandle = widgetsHandleFactory(three);
-          let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+          const handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
 
           handle.hovered = true;
           handle.active = true;
@@ -176,7 +176,7 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     onEnd() {
-      let numHandles = this._handles.length;
+      const numHandles = this._handles.length;
       let active = false;
 
       if (
@@ -217,7 +217,7 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     onDoubleClick() {
-      let numHandles = this._handles.length;
+      const numHandles = this._handles.length;
 
       if (
         numHandles < 3 ||
@@ -263,15 +263,15 @@ const widgetsPolygon = (three = window.THREE) => {
       // measurements
       const measurementsContainer = document.createElement('div');
       // Mean / SD
-      let meanSDContainer = document.createElement('div');
+      const meanSDContainer = document.createElement('div');
       meanSDContainer.className = 'mean-sd';
       measurementsContainer.appendChild(meanSDContainer);
       // Max / Min
-      let maxMinContainer = document.createElement('div');
+      const maxMinContainer = document.createElement('div');
       maxMinContainer.className = 'max-min';
       measurementsContainer.appendChild(maxMinContainer);
       // Area
-      let areaContainer = document.createElement('div');
+      const areaContainer = document.createElement('div');
       areaContainer.className = 'area';
       measurementsContainer.appendChild(areaContainer);
 
@@ -326,28 +326,28 @@ const widgetsPolygon = (three = window.THREE) => {
         this.remove(this._mesh);
       }
 
-      let points = [];
+      const points = [];
 
       this._handles.forEach(elem => points.push(elem.worldPosition));
 
-      let center = CoreUtils.centerOfMass(points);
+      const center = CoreUtils.centerOfMass(points);
       // direction from first point to center
-      let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
-      let direction = new three.Vector3().crossVectors(
+      const referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+      const direction = new three.Vector3().crossVectors(
         new three.Vector3().subVectors(points[0], center), // side 1
         new three.Vector3().subVectors(points[1], center) // side 2
       );
-      let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
-      let orderedpoints = [];
+      const base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
+      const orderedpoints = [];
 
       // other lines // if inter, return location + angle
       for (let j = 0; j < points.length; j++) {
-        let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
+        const point = new three.Vector3(points[j].x, points[j].y, points[j].z);
 
         point.direction = new three.Vector3().subVectors(points[j], center).normalize();
 
-        let x = referenceDirection.dot(point.direction);
-        let y = base.dot(point.direction);
+        const x = referenceDirection.dot(point.direction);
+        const y = base.dot(point.direction);
 
         point.xy = { x, y };
         point.angle = Math.atan2(y, x) * (180 / Math.PI);
@@ -366,7 +366,7 @@ const widgetsPolygon = (three = window.THREE) => {
       }.bind(this);
 
       // create the shape
-      let shape = new three.Shape();
+      const shape = new three.Shape();
       // move to first point!
       shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
 
@@ -422,7 +422,7 @@ const widgetsPolygon = (three = window.THREE) => {
 
       this._area = CoreUtils.getGeometryArea(this._geometry); // this.getArea result is changed on dragging
       if (this._calibrationFactor) {
-        this._area *= Math.pow(this._calibrationFactor, 2);
+        this._area *= this._calibrationFactor ** 2;
       } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
         let same = true;
         let cRegion;
@@ -444,7 +444,7 @@ const widgetsPolygon = (three = window.THREE) => {
         });
 
         if (same) {
-          this._area *= Math.pow(regions[cRegion].deltaX, 2);
+          this._area *= regions[cRegion].deltaX ** 2;
           this._units = 'cm²';
         } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
           this._area /= 100;

@@ -109,8 +109,8 @@ const helpersVolumeRendering = (three = window.THREE) => {
     }
 
     _prepareGeometry() {
-      let worldBBox = this._stack.worldBoundingBox();
-      let centerLPS = this._stack.worldCenter();
+      const worldBBox = this._stack.worldBoundingBox();
+      const centerLPS = this._stack.worldCenter();
 
       this._geometry = new three.BoxGeometry(
         worldBBox[1] - worldBBox[0],

@@ -95,8 +95,8 @@ export default class LoadersBase extends EventEmitter {
             this._progressBar.update(this._loaded, this._totalLoaded, 'load', url);
           }
 
-          let buffer = request.response;
-          let response = {
+          const buffer = request.response;
+          const response = {
             url,
             buffer,
           };
@@ -211,7 +211,7 @@ export default class LoadersBase extends EventEmitter {
         this._data.push(data);
         return data;
       })
-      .catch(function(error) {
+      .catch((error) => {
         if (error === 'Aborted') {
           return;
         }
@@ -235,7 +235,7 @@ export default class LoadersBase extends EventEmitter {
         this._data.push(data);
         return data;
       })
-      .catch(function(error) {
+      .catch((error) => {
         if (error === 'Aborted') {
           return;
         }

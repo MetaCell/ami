@@ -53,13 +53,13 @@ const helpersLut = (three = window.THREE) => {
     }
 
     initCanvasContainer(dom) {
-      let canvasContainer = dom;
+      const canvasContainer = dom;
       canvasContainer.style.border = '1px solid #F9F9F9';
       return canvasContainer;
     }
 
     createCanvas() {
-      let canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
       canvas.height = 1;
       canvas.width = 256;
       canvas.style.width = '256px';
@@ -69,13 +69,13 @@ const helpersLut = (three = window.THREE) => {
 
     paintCanvas() {
       // setup context
-      let ctx = this._canvas.getContext('2d');
+      const ctx = this._canvas.getContext('2d');
       ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
       ctx.globalCompositeOperation = 'source-over';
 
       // apply color
       if (!this._discrete) {
-        let color = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
+        const color = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
         for (let i = 0; i < this._color.length; i++) {
           color.addColorStop(
             this._color[i][0],
@@ -92,7 +92,7 @@ const helpersLut = (three = window.THREE) => {
         ctx.globalCompositeOperation = 'destination-in';
 
         // apply opacity
-        let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
+        const opacity = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
         for (let i = 0; i < this._opacity.length; i++) {
           opacity.addColorStop(
             this._opacity[i][0],
@@ -105,7 +105,7 @@ const helpersLut = (three = window.THREE) => {
         ctx.lineWidth = 2 * this._canvas.height;
 
         for (let i = 0; i < this._color.length; i++) {
-          let currentPos = this._color[i][0];
+          const currentPos = this._color[i][0];
           let nextPos = 1;
           if (i < this._color.length - 1) {
             nextPos = this._color[i + 1][0];
@@ -115,10 +115,10 @@ const helpersLut = (three = window.THREE) => {
             previousPos = this._color[i - 1][0];
           }
 
-          let from = previousPos + (currentPos - previousPos) / 2;
-          let to = currentPos + (nextPos - currentPos) / 2;
-          let color = this._color[i];
-          let opacity = this._opacity[i] ? this._opacity[i][1] : 1;
+          const from = previousPos + (currentPos - previousPos) / 2;
+          const to = currentPos + (nextPos - currentPos) / 2;
+          const color = this._color[i];
+          const opacity = this._opacity[i] ? this._opacity[i][1] : 1;
 
           ctx.beginPath();
           ctx.strokeStyle = `rgba( ${Math.round(color[1] * 255)}, ${Math.round(
@@ -133,7 +133,7 @@ const helpersLut = (three = window.THREE) => {
     }
 
     get texture() {
-      let texture = new three.Texture(this._canvas);
+      const texture = new three.Texture(this._canvas);
       texture.mapping = three.UVMapping;
       texture.wrapS = texture.wrapT = three.ClampToEdgeWrapping;
       texture.magFilter = texture.minFilter = three.NearestFilter;
@@ -191,14 +191,14 @@ const helpersLut = (three = window.THREE) => {
     }
 
     lutsAvailable(type = 'color') {
-      let available = [];
+      const available = [];
       let luts = this._luts;
 
       if (type !== 'color') {
         luts = this._lutsO;
       }
 
-      for (let i in luts) {
+      for (const i in luts) {
         available.push(i);
       }
 

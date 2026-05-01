@@ -39,8 +39,8 @@ export default class HelpersProgressBar {
   init() {
     let progressContainer = this._domContainer();
 
-    for (let mode in this._modes) {
-      if (this._modes.hasOwnProperty(mode)) {
+    for (const mode in this._modes) {
+      if (Object.hasOwn(this._modes, mode)) {
         let bar = this._domBar(this._modes[mode]);
         progressContainer.appendChild(bar);
         bar = null;
@@ -75,9 +75,9 @@ export default class HelpersProgressBar {
 
     if (
       !(
-        this._modes.hasOwnProperty(this._mode) &&
-        this._modes[this._mode].hasOwnProperty('name') &&
-        this._modes[this._mode].hasOwnProperty('color')
+        Object.hasOwn(this._modes, this._mode) &&
+        Object.hasOwn(this._modes[this._mode], 'name') &&
+        Object.hasOwn(this._modes[this._mode], 'color')
       )
     ) {
       return false;
@@ -97,7 +97,7 @@ export default class HelpersProgressBar {
   }
 
   _domContainer() {
-    let container = document.createElement('div');
+    const container = document.createElement('div');
 
     // class it
     container.classList.add('progress');
@@ -115,14 +115,14 @@ export default class HelpersProgressBar {
   }
 
   _domBar(mode) {
-    if (!(mode.hasOwnProperty('name') && mode.hasOwnProperty('color'))) {
+    if (!(Object.hasOwn(mode, 'name') && Object.hasOwn(mode, 'color'))) {
       window.console.log('Invalid mode provided.');
       window.console.log(mode);
 
       return false;
     }
 
-    let bar = document.createElement('div');
+    const bar = document.createElement('div');
 
     // class it
     bar.classList.add(mode.name);

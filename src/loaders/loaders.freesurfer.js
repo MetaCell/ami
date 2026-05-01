@@ -2,18 +2,17 @@ import { BufferGeometry, EventDispatcher, Float32BufferAttribute } from 'three';
 
 class FreeSurferLoader extends EventDispatcher {
   load(url, onLoad, onProgress, onError) {
-    let scope = this;
-    let xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
 
     xhr.addEventListener(
       'load',
-      function(event) {
+      (event) => {
         if (event.target.status === 200 || event.target.status === 0) {
-          let geometry = scope.parse(event.target.response || event.target.responseText);
-          scope.dispatchEvent({ type: 'load', content: geometry });
+          const geometry = this.parse(event.target.response || event.target.responseText);
+          this.dispatchEvent({ type: 'load', content: geometry });
           if (onLoad) onLoad(geometry);
         } else {
-          scope.dispatchEvent({
+          this.dispatchEvent({
             type: 'error',
             message: "Couldn't load URL [" + url + ']',
             response: event.target.statusText,
@@ -25,16 +24,16 @@ class FreeSurferLoader extends EventDispatcher {
 
     xhr.addEventListener(
       'progress',
-      function(event) {
-        scope.dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
+      (event) => {
+        this.dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
       },
       false
     );
 
     xhr.addEventListener(
       'error',
-      function() {
-        scope.dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
+      () => {
+        this.dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
       },
       false
     );
@@ -49,20 +48,20 @@ class FreeSurferLoader extends EventDispatcher {
   }
 
   littleEndian() {
-    let buffer = new ArrayBuffer(2);
+    const buffer = new ArrayBuffer(2);
     new DataView(buffer).setInt16(0, 256, true);
     return new Int16Array(buffer)[0] === 256;
   }
 
   parse(data) {
     let littleEndian = this.littleEndian();
-    let reader = new DataView(data);
+    const reader = new DataView(data);
     let offset = 0;
 
     function readInt24(off, le = false) {
-      let b1 = reader.getUint8(off);
-      let b2 = reader.getUint8(off + 1);
-      let b3 = reader.getUint8(off + 2);
+      const b1 = reader.getUint8(off);
+      const b2 = reader.getUint8(off + 1);
+      const b3 = reader.getUint8(off + 2);
       return le ? (b3 << 16) + (b2 << 8) + b1 : (b1 << 16) + (b2 << 8) + b3;
     }
 

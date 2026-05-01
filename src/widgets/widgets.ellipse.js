@@ -223,15 +223,15 @@ const widgetsEllipse = (three = window.THREE) => {
       // measurements
       const measurementsContainer = document.createElement('div');
       // Mean / SD
-      let meanSDContainer = document.createElement('div');
+      const meanSDContainer = document.createElement('div');
       meanSDContainer.className = 'mean-sd';
       measurementsContainer.appendChild(meanSDContainer);
       // Max / Min
-      let maxMinContainer = document.createElement('div');
+      const maxMinContainer = document.createElement('div');
       maxMinContainer.className = 'max-min';
       measurementsContainer.appendChild(maxMinContainer);
       // Area
-      let areaContainer = document.createElement('div');
+      const areaContainer = document.createElement('div');
       areaContainer.className = 'area';
       measurementsContainer.appendChild(areaContainer);
 
@@ -337,7 +337,7 @@ const widgetsEllipse = (three = window.THREE) => {
 
       this._area = CoreUtils.getGeometryArea(this._geometry);
       if (this._calibrationFactor) {
-        this._area *= Math.pow(this._calibrationFactor, 2);
+        this._area *= this._calibrationFactor ** 2;
       } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
         const region0 = this.getRegionByXY(
           regions,
@@ -355,7 +355,7 @@ const widgetsEllipse = (three = window.THREE) => {
           regions[region0].unitsX === 'cm' &&
           regions[region0].unitsY === 'cm'
         ) {
-          this._area *= Math.pow(regions[region0].deltaX, 2);
+          this._area *= regions[region0].deltaX ** 2;
           this._units = 'cm²';
         } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
           this._area /= 100;

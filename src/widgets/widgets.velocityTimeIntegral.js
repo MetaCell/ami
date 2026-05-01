@@ -58,7 +58,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
       this._handles = [];
       const WidgetsHandle = widgetsHandleFactory(three);
 
-      let handle = new WidgetsHandle(targetMesh, controls, params);
+      const handle = new WidgetsHandle(targetMesh, controls, params);
       this.add(handle);
       this._handles.push(handle);
 
@@ -150,7 +150,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
           this._handles[this._handles.length - 1].tracking = false;
 
           const WidgetsHandle = widgetsHandleFactory(three);
-          let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+          const handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
 
           handle.hovered = true;
           handle.active = true;
@@ -294,10 +294,10 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
     }
 
     pushPopHandle() {
-      let handle0 = this._handles[this._handles.length - 3];
-      let handle1 = this._handles[this._handles.length - 2];
-      let newhandle = this._handles[this._handles.length - 1];
-      let isOnLine = this.isPointOnLine(
+      const handle0 = this._handles[this._handles.length - 3];
+      const handle1 = this._handles[this._handles.length - 2];
+      const newhandle = this._handles[this._handles.length - 1];
+      const isOnLine = this.isPointOnLine(
         handle0.worldPosition,
         handle1.worldPosition,
         newhandle.worldPosition
@@ -404,7 +404,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
           CoreUtils.worldToData(this._params.lps2IJK, elem._worldPosition)
         );
         const velocity = Math.abs(usPosition.y / 100);
-        const gradient = 4 * Math.pow(velocity, 2);
+        const gradient = 4 * velocity ** 2;
 
         if (this._vMax === null || velocity > this._vMax) {
           this._vMax = velocity;
@@ -428,7 +428,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
         this._usPoints.push(usPosition);
       });
 
-      this._gMax = 4 * Math.pow(this._vMax, 2);
+      this._gMax = 4 * this._vMax ** 2;
       this._vMean /= totalTime;
       this._gMean /= totalTime;
       this._envTi = totalTime * 1000;

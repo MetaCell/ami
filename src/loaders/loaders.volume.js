@@ -80,8 +80,8 @@ export default class LoadersVolumes extends LoadersBase {
               data = data[0];
             } else {
               // if raw/mhd pair
-              let mhdFile = data.filter(this._filterByExtension.bind(null, 'MHD'));
-              let rawFile = data.filter(this._filterByExtension.bind(null, 'RAW'));
+              const mhdFile = data.filter(this._filterByExtension.bind(null, 'MHD'));
+              const rawFile = data.filter(this._filterByExtension.bind(null, 'RAW'));
               if (data.length === 2 && mhdFile.length === 1 && rawFile.length === 1) {
                 data.url = mhdFile[0].url;
                 data.extension = mhdFile[0].extension;
@@ -90,7 +90,7 @@ export default class LoadersVolumes extends LoadersBase {
               }
             }
 
-            let Parser = this._parser(data.extension);
+            const Parser = this._parser(data.extension);
             if (!Parser) {
               // emit 'parse-error' event
               this.emit('parse-error', {
@@ -117,7 +117,7 @@ export default class LoadersVolumes extends LoadersBase {
             }
 
             // create a series
-            let series = new ModelsSeries();
+            const series = new ModelsSeries();
             series.rawHeader = volumeParser.rawHeader();
             // global information
             series.seriesInstanceUID = volumeParser.seriesInstanceUID();
@@ -148,7 +148,7 @@ export default class LoadersVolumes extends LoadersBase {
             series.patientSex = volumeParser.patientSex();
 
             // just create 1 dummy stack for now
-            let stack = new ModelsStack();
+            const stack = new ModelsStack();
             stack.numberOfChannels = volumeParser.numberOfChannels();
             stack.pixelRepresentation = volumeParser.pixelRepresentation();
             stack.pixelType = volumeParser.pixelType();
@@ -194,7 +194,7 @@ export default class LoadersVolumes extends LoadersBase {
    * @param {promise.reject} reject - promise reject args
    */
   async parseFrame(series, stack, url, i, dataParser, resolve, reject) {
-    let frame = new ModelsFrame();
+    const frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
@@ -343,7 +343,7 @@ export default class LoadersVolumes extends LoadersBase {
     }
 
     if (data.gzcompressed) {
-      let decompressedData = PAKO.inflate(data.buffer);
+      const decompressedData = PAKO.inflate(data.buffer);
       data.buffer = decompressedData.buffer;
     }
   }

@@ -18,8 +18,8 @@ const trackball = (three = window.THREE) => {
     constructor(object, domElement) {
       super();
 
-      let _this = this;
-      let STATE = {
+      const _this = this;
+      const STATE = {
         NONE: -1,
         ROTATE: 0,
         ZOOM: 1,
@@ -62,9 +62,9 @@ const trackball = (three = window.THREE) => {
 
       this.target = new three.Vector3();
 
-      let EPS = 0.000001;
+      const EPS = 0.000001;
 
-      let lastPosition = new three.Vector3();
+      const lastPosition = new three.Vector3();
 
       let _state = STATE.NONE,
         _prevState = STATE.NONE,
@@ -90,9 +90,9 @@ const trackball = (three = window.THREE) => {
 
       // events
 
-      let changeEvent = { type: 'change' };
-      let startEvent = { type: 'start' };
-      let endEvent = { type: 'end' };
+      const changeEvent = { type: 'change' };
+      const startEvent = { type: 'start' };
+      const endEvent = { type: 'end' };
 
       // methods
 
@@ -103,9 +103,9 @@ const trackball = (three = window.THREE) => {
           this.screen.width = window.innerWidth;
           this.screen.height = window.innerHeight;
         } else {
-          let box = this.domElement.getBoundingClientRect();
+          const box = this.domElement.getBoundingClientRect();
           // adjustments come from similar code in the jquery offset() function
-          let d = this.domElement.ownerDocument.documentElement;
+          const d = this.domElement.ownerDocument.documentElement;
           this.screen.left = box.left + window.pageXOffset - d.clientLeft;
           this.screen.top = box.top + window.pageYOffset - d.clientTop;
           this.screen.width = box.width;
@@ -119,10 +119,10 @@ const trackball = (three = window.THREE) => {
         }
       };
 
-      let getMouseOnScreen = (function() {
-        let vector = new three.Vector2();
+      const getMouseOnScreen = (() => {
+        const vector = new three.Vector2();
 
-        return function(pageX, pageY) {
+        return (pageX, pageY) => {
           vector.set(
             (pageX - _this.screen.left) / _this.screen.width,
             (pageY - _this.screen.top) / _this.screen.height
@@ -132,10 +132,10 @@ const trackball = (three = window.THREE) => {
         };
       })();
 
-      let getMouseOnCircle = (function() {
-        let vector = new three.Vector2();
+      const getMouseOnCircle = (() => {
+        const vector = new three.Vector2();
 
-        return function(pageX, pageY) {
+        return (pageX, pageY) => {
           vector.set(
             (pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5),
             (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width // screen.width intentional
@@ -145,7 +145,7 @@ const trackball = (three = window.THREE) => {
         };
       })();
 
-      this.rotateCamera = (function() {
+      this.rotateCamera = (() => {
         let axis = new three.Vector3(),
           quaternion = new three.Quaternion(),
           eyeDirection = new three.Vector3(),
@@ -154,7 +154,7 @@ const trackball = (three = window.THREE) => {
           moveDirection = new three.Vector3(),
           angle;
 
-        return function() {
+        return () => {
           moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
           angle = moveDirection.length();
 
@@ -214,12 +214,12 @@ const trackball = (three = window.THREE) => {
         }
       };
 
-      this.panCamera = (function() {
-        let mouseChange = new three.Vector2(),
+      this.panCamera = (() => {
+        const mouseChange = new three.Vector2(),
           objectUp = new three.Vector3(),
           pan = new three.Vector3();
 
-        return function() {
+        return () => {
           mouseChange.copy(_panEnd).sub(_panStart);
 
           if (mouseChange.lengthSq()) {
@@ -247,7 +247,7 @@ const trackball = (three = window.THREE) => {
         };
       })();
 
-      this.checkDistances = function() {
+      this.checkDistances = () => {
         if (!_this.noZoom || !_this.noPan) {
           if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
             _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
@@ -259,7 +259,7 @@ const trackball = (three = window.THREE) => {
         }
       };
 
-      this.update = function() {
+      this.update = () => {
         _eye.subVectors(_this.object.position, _this.target);
 
         if (!_this.noRotate) {
@@ -291,7 +291,7 @@ const trackball = (three = window.THREE) => {
         }
       };
 
-      this.reset = function() {
+      this.reset = () => {
         _state = STATE.NONE;
         _prevState = STATE.NONE;
 
@@ -308,13 +308,13 @@ const trackball = (three = window.THREE) => {
         lastPosition.copy(_this.object.position);
       };
 
-      this.setState = function(targetState) {
+      this.setState = (targetState) => {
         _this.forceState = targetState;
         _prevState = targetState;
         _state = targetState;
       };
 
-      this.custom = function(customStart, customEnd) {};
+      this.custom = (customStart, customEnd) => {};
 
       // listeners
 
@@ -448,7 +448,7 @@ const trackball = (three = window.THREE) => {
               _movePrev.copy(_moveCurr);
               break;
 
-            case 2:
+            case 2: {
               _state = STATE.TOUCH_ZOOM;
               var dx = event.touches[0].pageX - event.touches[1].pageX;
               var dy = event.touches[0].pageY - event.touches[1].pageY;
@@ -459,6 +459,7 @@ const trackball = (three = window.THREE) => {
               _panStart.copy(getMouseOnScreen(x, y));
               _panEnd.copy(_panStart);
               break;
+            }
 
             default:
               _state = STATE.NONE;
@@ -502,13 +503,14 @@ const trackball = (three = window.THREE) => {
               }
               break;
 
-            case 99:
+            case 99: {
               _state = STATE.CUSTOM;
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _customStart.copy(getMouseOnScreen(x, y));
               _customEnd.copy(_customStart);
               break;
+            }
 
             default:
               _state = STATE.NONE;
@@ -531,7 +533,7 @@ const trackball = (three = window.THREE) => {
               _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
               break;
 
-            case 2:
+            case 2: {
               var dx = event.touches[0].pageX - event.touches[1].pageX;
               var dy = event.touches[0].pageY - event.touches[1].pageY;
               _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
@@ -540,6 +542,7 @@ const trackball = (three = window.THREE) => {
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _panEnd.copy(getMouseOnScreen(x, y));
               break;
+            }
 
             default:
               _state = STATE.NONE;
@@ -560,27 +563,30 @@ const trackball = (three = window.THREE) => {
               _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
               break;
 
-            case 4:
+            case 4: {
               // 2 fingers!
               // TOUCH ZOOM
               var dx = event.touches[0].pageX - event.touches[1].pageX;
               var dy = event.touches[0].pageY - event.touches[1].pageY;
               _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
               break;
+            }
 
-            case 5:
+            case 5: {
               // 2 fingers
               // TOUCH_PAN
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _panEnd.copy(getMouseOnScreen(x, y));
               break;
+            }
 
-            case 99:
+            case 99: {
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _customEnd.copy(getMouseOnScreen(x, y));
               break;
+            }
 
             default:
               _state = STATE.NONE;
@@ -598,7 +604,7 @@ const trackball = (three = window.THREE) => {
               _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
               break;
 
-            case 2:
+            case 2: {
               _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
 
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
@@ -606,6 +612,7 @@ const trackball = (three = window.THREE) => {
               _panEnd.copy(getMouseOnScreen(x, y));
               _panStart.copy(_panEnd);
               break;
+            }
           }
 
           _state = STATE.NONE;
@@ -637,12 +644,13 @@ const trackball = (three = window.THREE) => {
               _state = STATE.PAN;
               break;
 
-            case 99:
+            case 99: {
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _customEnd.copy(getMouseOnScreen(x, y));
               _customStart.copy(_customEnd);
               break;
+            }
 
             default:
               _state = STATE.NONE;

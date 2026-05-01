@@ -339,7 +339,7 @@ const helpersSlice = (three = window.THREE) => {
         this._toAABB = new three.Matrix4();
       } else {
         // LPS
-        let aaBBox = this._stack.AABBox();
+        const aaBBox = this._stack.AABBox();
         this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
         this._center = this._stack.centerAABBox();
         this._toAABB = this._stack.lps2AABB;
@@ -548,13 +548,13 @@ const helpersSlice = (three = window.THREE) => {
         return new three.Vector4();
       }
 
-      let dataToWorld = this._stack.ijk2LPS;
-      let p1 = new three.Vector3().fromBufferAttribute(posAttr, 0).applyMatrix4(dataToWorld);
-      let p2 = new three.Vector3().fromBufferAttribute(posAttr, 1).applyMatrix4(dataToWorld);
-      let p3 = new three.Vector3().fromBufferAttribute(posAttr, 2).applyMatrix4(dataToWorld);
-      let v1 = new three.Vector3();
-      let v2 = new three.Vector3();
-      let normal = v1
+      const dataToWorld = this._stack.ijk2LPS;
+      const p1 = new three.Vector3().fromBufferAttribute(posAttr, 0).applyMatrix4(dataToWorld);
+      const p2 = new three.Vector3().fromBufferAttribute(posAttr, 1).applyMatrix4(dataToWorld);
+      const p3 = new three.Vector3().fromBufferAttribute(posAttr, 2).applyMatrix4(dataToWorld);
+      const v1 = new three.Vector3();
+      const v2 = new three.Vector3();
+      const normal = v1
         .subVectors(p3, p2)
         .cross(v2.subVectors(p1, p2))
         .normalize();

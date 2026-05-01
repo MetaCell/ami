@@ -70,8 +70,8 @@ const helpersLocalizer = (three = window.THREE) => {
         this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
         // generate material
-        let fs = new ShadersFragment(this._uniforms);
-        let vs = new ShadersVertex();
+        const fs = new ShadersFragment(this._uniforms);
+        const vs = new ShadersVertex();
         this._material = new three.ShaderMaterial({
           side: three.DoubleSide,
           uniforms: this._uniforms,

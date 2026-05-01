@@ -191,10 +191,10 @@ export default class ParsersVolume {
    * @return {*}
    */
   minMaxPixelData(pixelData = []) {
-    let minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-    let numPixels = pixelData.length;
+    const minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+    const numPixels = pixelData.length;
     for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
+      const spv = pixelData[index];
       minMax[0] = Math.min(minMax[0], spv);
       minMax[1] = Math.max(minMax[1], spv);
     }

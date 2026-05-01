@@ -98,7 +98,7 @@ export default class ModelsStack extends ModelsBase {
   prepareSegmentation() {
     // store frame and do special pre-processing
     this._frameSegment = this._frame;
-    let mergedFrames = [];
+    const mergedFrames = [];
 
     // order frames
     this.computeCosines();
@@ -135,12 +135,12 @@ export default class ModelsStack extends ModelsBase {
     }
 
     // get information about segments
-    let dict = {};
+    const dict = {};
     let max = 0;
     for (let i = 0; i < this._segmentationSegments.length; i++) {
       max = Math.max(max, parseInt(this._segmentationSegments[i].segmentNumber, 10));
 
-      let color = this._segmentationSegments[i].recommendedDisplayCIELab;
+      const color = this._segmentationSegments[i].recommendedDisplayCIELab;
       if (color === null) {
         dict[this._segmentationSegments[i].segmentNumber] = this._segmentationDefaultColor;
       } else {
@@ -150,10 +150,10 @@ export default class ModelsStack extends ModelsBase {
 
     // generate LUTs
     for (let i = 0; i <= max; i++) {
-      let index = i / max;
-      let opacity = i ? 1 : 0;
+      const index = i / max;
+      const opacity = i ? 1 : 0;
       let rgb = [0, 0, 0];
-      if (dict.hasOwnProperty(i.toString())) {
+      if (Object.hasOwn(dict, i.toString())) {
         rgb = dict[i.toString()];
       }
 
@@ -256,10 +256,10 @@ export default class ModelsStack extends ModelsBase {
 
   packEchos() {
     // 4 echo times...
-    let echos = 4;
-    let packedEcho = [];
+    const echos = 4;
+    const packedEcho = [];
     for (let i = 0; i < this._frame.length; i += echos) {
-      let frame = this._frame[i];
+      const frame = this._frame[i];
       for (let k = 0; k < this._rows * this._columns; k++) {
         for (let j = 1; j < echos; j++) {
           frame.pixelData[k] += this._frame[i + j].pixelData[k];
@@ -292,7 +292,7 @@ export default class ModelsStack extends ModelsBase {
   // frame.cosines - returns array [x, y, z]
   computeCosines() {
     if (this._frame && this._frame[0]) {
-      let cosines = this._frame[0].cosines();
+      const cosines = this._frame[0].cosines();
       this._xCosine = cosines[0];
       this._yCosine = cosines[1];
       this._zCosine = cosines[2];
@@ -382,7 +382,7 @@ export default class ModelsStack extends ModelsBase {
    */
   xySpacing() {
     if (this._frame && this._frame[0]) {
-      let spacingXY = this._frame[0].spacingXY();
+      const spacingXY = this._frame[0].spacingXY();
       this._spacing.x = spacingXY[0];
       this._spacing.y = spacingXY[1];
     }
@@ -397,12 +397,12 @@ export default class ModelsStack extends ModelsBase {
     // https://github.com/FNNDSC/ami/issues/185
     for (let i = 0; i < this._frame.length; i++) {
       // get min/max
-      let min = this._frame[i].minMax[0];
+      const min = this._frame[i].minMax[0];
       if (!Number.isNaN(min)) {
         this._minMax[0] = Math.min(this._minMax[0], min);
       }
 
-      let max = this._frame[i].minMax[1];
+      const max = this._frame[i].minMax[1];
       if (!Number.isNaN(max)) {
         this._minMax[1] = Math.max(this._minMax[1], max);
       }
@@ -544,14 +544,14 @@ export default class ModelsStack extends ModelsBase {
     const frameDimension = frame[0].rows * frame[0].columns;
 
     if ((bitsAllocated === 8 && channels === 1) || bitsAllocated === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
+      const data = new Uint8Array(textureSize * textureSize * 4);
       let coordinate = 0;
       let channelOffset = 0;
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % frameDimension;
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        const raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
           data[4 * coordinate + channelOffset] = raw;
         }
@@ -563,7 +563,7 @@ export default class ModelsStack extends ModelsBase {
       packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
+      const data = new Uint8Array(textureSize * textureSize * 4);
       let coordinate = 0;
       let channelOffset = 0;
 
@@ -571,7 +571,7 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % frameDimension;
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        const raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
           data[4 * coordinate + 2 * channelOffset] = raw & 0x00ff;
           data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00ff;
@@ -585,12 +585,12 @@ export default class ModelsStack extends ModelsBase {
       packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
+      const data = new Uint8Array(textureSize * textureSize * 4);
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % frameDimension;
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        const raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
           data[4 * packIndex] = raw & 0x000000ff;
           data[4 * packIndex + 1] = (raw >>> 8) & 0x000000ff;
@@ -603,16 +603,16 @@ export default class ModelsStack extends ModelsBase {
       packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
+      const data = new Uint8Array(textureSize * textureSize * 4);
 
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % frameDimension;
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        const raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
-          let bitString = binaryString(raw);
-          let bitStringArray = bitString.match(/.{1,8}/g);
+          const bitString = binaryString(raw);
+          const bitStringArray = bitString.match(/.{1,8}/g);
 
           data[4 * packIndex] = parseInt(bitStringArray[0], 2);
           data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
@@ -626,7 +626,7 @@ export default class ModelsStack extends ModelsBase {
       packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
-      let data = new Uint8Array(textureSize * textureSize * 3);
+      const data = new Uint8Array(textureSize * textureSize * 3);
 
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
@@ -651,7 +651,7 @@ export default class ModelsStack extends ModelsBase {
    *@return {*}
    */
   worldCenter() {
-    let center = this._halfDimensionsIJK
+    const center = this._halfDimensionsIJK
       .clone()
       .addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS);
@@ -677,7 +677,7 @@ export default class ModelsStack extends ModelsBase {
     for (let i = 0; i <= dims.x; i += dims.x) {
       for (let j = 0; j <= dims.y; j += dims.y) {
         for (let k = 0; k <= dims.z; k += dims.z) {
-          let world = new Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
+          const world = new Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
           bbox = [
             Math.min(bbox[0], world.x),
             Math.max(bbox[1], world.x), // x min/max
@@ -699,18 +699,18 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   AABBox() {
-    let world0 = new Vector3()
+    const world0 = new Vector3()
       .addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
-    let world7 = this._dimensionsIJK
+    const world7 = this._dimensionsIJK
       .clone()
       .addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
-    let minBBox = new Vector3(
+    const minBBox = new Vector3(
       Math.abs(world0.x - world7.x),
       Math.abs(world0.y - world7.y),
       Math.abs(world0.z - world7.z)
@@ -723,7 +723,7 @@ export default class ModelsStack extends ModelsBase {
    * Get AABB center in LPS space
    */
   centerAABBox() {
-    let centerBBox = this.worldCenter();
+    const centerBBox = this.worldCenter();
     centerBBox.applyMatrix4(this._lps2AABB);
     return centerBBox;
   }

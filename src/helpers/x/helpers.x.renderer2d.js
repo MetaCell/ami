@@ -95,21 +95,21 @@ export default class {
 
   _setupCamera(stack) {
     // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new Vector3(
+    const worldbb = stack.worldBoundingBox();
+    const lpsDims = new Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
     );
 
     // box: {halfDimensions, center}
-    let box = {
+    const box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
-    let canvas = {
+    const canvas = {
       width: this._container.clientWidth,
       height: this._container.clientHeight,
     };

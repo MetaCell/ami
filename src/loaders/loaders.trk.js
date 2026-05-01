@@ -200,7 +200,7 @@ export default class LoadersTrk extends EventDispatcher {
     const tracks = [];
 
     while (offset < reader.byteLength) {
-      let nbPoints = reader.getUint32(offset, littleEndian);
+      const nbPoints = reader.getUint32(offset, littleEndian);
       offset += 4;
 
       const _trackVertices = [];

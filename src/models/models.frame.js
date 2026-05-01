@@ -65,10 +65,10 @@ export default class ModelsFrame extends ModelsBase {
         super.validate(model) &&
         typeof model.cosines === 'function' &&
         typeof model.spacingXY === 'function' &&
-        model.hasOwnProperty('_sopInstanceUID') &&
-        model.hasOwnProperty('_dimensionIndexValues') &&
-        model.hasOwnProperty('_imageOrientation') &&
-        model.hasOwnProperty('_imagePosition')
+        Object.hasOwn(model, '_sopInstanceUID') &&
+        Object.hasOwn(model, '_dimensionIndexValues') &&
+        Object.hasOwn(model, '_imageOrientation') &&
+        Object.hasOwn(model, '_imagePosition')
       )
     ) {
       return false;
@@ -116,15 +116,15 @@ export default class ModelsFrame extends ModelsBase {
    * @returns {array} Array[3] containing cosinesX, Y and Z.
    */
   cosines() {
-    let cosines = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
+    const cosines = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
 
     if (this._imageOrientation && this._imageOrientation.length === 6) {
-      let xCos = new Vector3(
+      const xCos = new Vector3(
         this._imageOrientation[0],
         this._imageOrientation[1],
         this._imageOrientation[2]
       );
-      let yCos = new Vector3(
+      const yCos = new Vector3(
         this._imageOrientation[3],
         this._imageOrientation[4],
         this._imageOrientation[5]
@@ -154,7 +154,7 @@ export default class ModelsFrame extends ModelsBase {
    * @return {*}
    */
   spacingXY() {
-    let spacingXY = [1.0, 1.0];
+    const spacingXY = [1.0, 1.0];
 
     if (this.pixelSpacing) {
       spacingXY[0] = this.pixelSpacing[0];
@@ -227,7 +227,7 @@ export default class ModelsFrame extends ModelsBase {
       min: this._minMax[0],
       padding: this._pixelPaddingValue,
     };
-    let data = new Uint8Array(dimension * 4);
+    const data = new Uint8Array(dimension * 4);
 
     if (params.padding !== null) {
       // recalculation of min ignoring pixelPaddingValue

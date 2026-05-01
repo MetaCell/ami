@@ -330,8 +330,8 @@ const widgetsAnnotation = (three = window.THREE) => {
 
       // update dash line
       let minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint);
-      let lineCL = this.getLineData(lineData.center, paddingPoint);
-      let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
+      const lineCL = this.getLineData(lineData.center, paddingPoint);
+      const line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
       if (minLine.length > lineCL.length) {
         minLine = lineCL;

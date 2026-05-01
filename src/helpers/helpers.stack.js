@@ -131,7 +131,7 @@ const helpersStack = (three = window.THREE) => {
 
       // update the slice
       this._slice.index = index;
-      let halfDimensions = this._stack.halfDimensionsIJK;
+      const halfDimensions = this._stack.halfDimensionsIJK;
       this._slice.planePosition = this._prepareSlicePosition(halfDimensions, this._index);
 
       // also update the border
@@ -265,7 +265,7 @@ const helpersStack = (three = window.THREE) => {
     }
 
     _computeOrientationSpacing() {
-      let spacing = this._stack._spacing;
+      const spacing = this._stack._spacing;
       switch (this._orientation) {
         case 0:
           this._orientationSpacing = spacing.z;
@@ -283,7 +283,7 @@ const helpersStack = (three = window.THREE) => {
     }
 
     _computeOrientationMaxIndex() {
-      let dimensionsIJK = this._stack.dimensionsIJK;
+      const dimensionsIJK = this._stack.dimensionsIJK;
       this._orientationMaxIndex = 0;
       switch (this._orientation) {
         case 0:
@@ -365,13 +365,13 @@ const helpersStack = (three = window.THREE) => {
      * @private
      */
     _prepareSlice() {
-      let halfDimensionsIJK = this._stack.halfDimensionsIJK;
+      const halfDimensionsIJK = this._stack.halfDimensionsIJK;
       // compute initial index given orientation
       this._index = this._prepareSliceIndex(halfDimensionsIJK);
       // compute initial position given orientation and index
-      let position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
+      const position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
       // compute initial direction orientation
-      let direction = this._prepareDirection(this._orientation);
+      const direction = this._prepareDirection(this._orientation);
 
       const SliceHelperConstructor = helpersSlice(three);
       this._slice = new SliceHelperConstructor(this._stack, this._index, position, direction);

@@ -98,19 +98,11 @@ var OrbitControls = function ( object, domElement ) {
 	// public methods
 	//
 
-	this.getPolarAngle = function () {
+	this.getPolarAngle = () => spherical.phi;
 
-		return spherical.phi;
+	this.getAzimuthalAngle = () => spherical.theta;
 
-	};
-
-	this.getAzimuthalAngle = function () {
-
-		return spherical.theta;
-
-	};
-
-	this.saveState = function () {
+	this.saveState = () => {
 
 		scope.target0.copy( scope.target );
 		scope.position0.copy( scope.object.position );
@@ -118,7 +110,7 @@ var OrbitControls = function ( object, domElement ) {
 
 	};
 
-	this.reset = function () {
+	this.reset = () => {
 
 		scope.target.copy( scope.target0 );
 		scope.object.position.copy( scope.position0 );
@@ -134,12 +126,12 @@ var OrbitControls = function ( object, domElement ) {
     };
 
     // this method is there to match the Trackball API
-    this.handleResize = function () {
+    this.handleResize = () => {
 
     }
 
 	// this method is exposed, but perhaps it would be better if we can make it private...
-	this.update = function () {
+	this.update = (() => {
 
 		var offset = new three.Vector3();
 
@@ -236,9 +228,9 @@ var OrbitControls = function ( object, domElement ) {
 
 		};
 
-	}();
+	})();
 
-	this.dispose = function () {
+	this.dispose = () => {
 
 		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
 		scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
@@ -301,7 +293,7 @@ var OrbitControls = function ( object, domElement ) {
 
 	function getZoomScale() {
 
-		return Math.pow( 0.95, scope.zoomSpeed );
+		return  0.95 ** scope.zoomSpeed ;
 
 	}
 
@@ -317,7 +309,7 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
-	var panLeft = function () {
+	var panLeft = (() => {
 
 		var v = new three.Vector3();
 
@@ -330,9 +322,9 @@ var OrbitControls = function ( object, domElement ) {
 
 		};
 
-	}();
+	})();
 
-	var panUp = function () {
+	var panUp = (() => {
 
 		var v = new three.Vector3();
 
@@ -355,10 +347,10 @@ var OrbitControls = function ( object, domElement ) {
 
 		};
 
-	}();
+	})();
 
 	// deltaX and deltaY are in pixels; right and down are positive
-	var pan = function () {
+	var pan = (() => {
 
 		var offset = new three.Vector3();
 
@@ -396,7 +388,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		};
 
-	}();
+	})();
 
 	function dollyIn( dollyScale ) {
 
@@ -649,7 +641,7 @@ var OrbitControls = function ( object, domElement ) {
 
 			dollyEnd.set( 0, distance );
 
-			dollyDelta.set( 0, Math.pow( dollyEnd.y / dollyStart.y, scope.zoomSpeed ) );
+			dollyDelta.set( 0,  (dollyEnd.y / dollyStart.y) ** scope.zoomSpeed  );
 
 			dollyIn( dollyDelta.y );
 

@@ -289,13 +289,13 @@ export default class ParsersNifti extends ParsersVolume {
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX128   = 1792;
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
 
-    let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    const numberOfChannels = this.numberOfChannels();
+    const numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     // if( !this.rightHanded() ){
     //   frameIndex = this.numberOfFrames() - 1 - frameIndex;
     // }
     let frameOffset = frameIndex * numPixels;
-    let buffer = this._niftiImage;
+    const buffer = this._niftiImage;
 
     // use bits allocated && pixel reprensentation too
     if (!this._ordered && this._orderedData === null) {
@@ -340,11 +340,11 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   _reorderData() {
-    let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows() * this.columns() * numberOfChannels;
-    let buffer = this._niftiImage;
+    const numberOfChannels = this.numberOfChannels();
+    const numPixels = this.rows() * this.columns() * numberOfChannels;
+    const buffer = this._niftiImage;
 
-    let totalNumPixels = numPixels * this.numberOfFrames();
+    const totalNumPixels = numPixels * this.numberOfFrames();
     let tmp = null;
     this._orderedData = null;
 
@@ -368,7 +368,7 @@ export default class ParsersNifti extends ParsersVolume {
     }
 
     // re-order pixels...
-    let numPixels2 = tmp.length / 3;
+    const numPixels2 = tmp.length / 3;
     let rgbaIndex = 0;
     let rIndex = 0;
     let gIndex = numPixels2;

@@ -174,13 +174,13 @@ const widgetsPeakVelocity = (three = window.THREE) => {
       this._label.className = 'widgets-label';
 
       // Measurements
-      let measurementsContainer = document.createElement('div');
+      const measurementsContainer = document.createElement('div');
       // Peak Velocity
-      let pvContainer = document.createElement('div');
+      const pvContainer = document.createElement('div');
       pvContainer.className = 'peakVelocity';
       measurementsContainer.appendChild(pvContainer);
       // Gradient
-      let gradientContainer = document.createElement('div');
+      const gradientContainer = document.createElement('div');
       gradientContainer.className = 'gradient';
       measurementsContainer.appendChild(gradientContainer);
 
@@ -207,7 +207,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
       const usPosition = this.getPointInRegion(region, point);
 
       this._velocity = Math.abs(usPosition.y / 100);
-      this._gradient = 4 * Math.pow(this._velocity, 2);
+      this._gradient = 4 * this._velocity ** 2;
 
       // content
       this._label.querySelector('.peakVelocity').innerHTML = `${this._velocity.toFixed(2)} m/s`;

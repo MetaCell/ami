@@ -66,10 +66,10 @@ export default class ModelsSeries extends ModelsBase {
       !(
         super.validate(model) &&
         typeof model.mergeSeries === 'function' &&
-        model.hasOwnProperty('_seriesInstanceUID') &&
-        model.hasOwnProperty('_numberOfFrames') &&
-        model.hasOwnProperty('_numberOfChannels') &&
-        model.hasOwnProperty('_stack') &&
+        Object.hasOwn(model, '_seriesInstanceUID') &&
+        Object.hasOwn(model, '_numberOfFrames') &&
+        Object.hasOwn(model, '_numberOfChannels') &&
+        Object.hasOwn(model, '_stack') &&
         typeof model._stack !== 'undefined' &&
         Array === model._stack.constructor
       )
@@ -126,7 +126,7 @@ export default class ModelsSeries extends ModelsBase {
    * @return {Array.<ModelsSeries>} Array of series properly merged.
    */
   mergeSeries(target) {
-    let seriesContainer = [this];
+    const seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
     return seriesContainer;
   }

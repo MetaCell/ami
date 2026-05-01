@@ -35,7 +35,7 @@ export default class ParsersDicom extends ParsersVolume {
 
     this._arrayBuffer = data.buffer;
 
-    let byteArray = new Uint8Array(this._arrayBuffer);
+    const byteArray = new Uint8Array(this._arrayBuffer);
 
     // catch error
     // throw error if any!
@@ -98,19 +98,19 @@ export default class ParsersDicom extends ParsersVolume {
    * @return {*}
    */
   segmentationSegments() {
-    let segmentationSegments = [];
-    let segmentSequence = this._dataSet.elements.x00620002;
+    const segmentationSegments = [];
+    const segmentSequence = this._dataSet.elements.x00620002;
 
     if (!segmentSequence) {
       return segmentationSegments;
     }
 
     for (let i = 0; i < segmentSequence.items.length; i++) {
-      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
-      let segmentationCode = this._segmentationCode(segmentSequence.items[i]);
-      let segmentNumber = segmentSequence.items[i].dataSet.uint16('x00620004');
-      let segmentLabel = segmentSequence.items[i].dataSet.string('x00620005');
-      let segmentAlgorithmType = segmentSequence.items[i].dataSet.string('x00620008');
+      const recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
+      const segmentationCode = this._segmentationCode(segmentSequence.items[i]);
+      const segmentNumber = segmentSequence.items[i].dataSet.uint16('x00620004');
+      const segmentLabel = segmentSequence.items[i].dataSet.string('x00620005');
+      const segmentAlgorithmType = segmentSequence.items[i].dataSet.string('x00620008');
 
       segmentationSegments.push({
         recommendedDisplayCIELab,
@@ -140,7 +140,7 @@ export default class ParsersDicom extends ParsersVolume {
     let segmentationCodeDesignator = 'unknown';
     let segmentationCodeValue = 'unknown';
     let segmentationCodeMeaning = 'unknown';
-    let element = segment.dataSet.elements.x00082218;
+    const element = segment.dataSet.elements.x00082218;
 
     if (element && element.items && element.items.length > 0) {
       segmentationCodeDesignator = element.items[0].dataSet.string('x00080102');
@@ -167,17 +167,17 @@ export default class ParsersDicom extends ParsersVolume {
       return null;
     }
 
-    let offset = segment.dataSet.elements.x0062000d.dataOffset;
-    let length = segment.dataSet.elements.x0062000d.length;
-    let byteArray = segment.dataSet.byteArray.slice(offset, offset + length);
+    const offset = segment.dataSet.elements.x0062000d.dataOffset;
+    const length = segment.dataSet.elements.x0062000d.length;
+    const byteArray = segment.dataSet.byteArray.slice(offset, offset + length);
 
     // https://www.dabsoft.ch/dicom/3/C.10.7.1.1/
-    let CIELabScaled = new Uint16Array(length / 2);
+    const CIELabScaled = new Uint16Array(length / 2);
     for (let i = 0; i < length / 2; i++) {
       CIELabScaled[i] = (byteArray[2 * i + 1] << 8) + byteArray[2 * i];
     }
 
-    let CIELabNormalized = [
+    const CIELabNormalized = [
       (CIELabScaled[0] / 65535) * 100,
       (CIELabScaled[1] / 65535) * 255 - 128,
       (CIELabScaled[2] / 65535) * 255 - 128,
@@ -203,7 +203,7 @@ export default class ParsersDicom extends ParsersVolume {
    * @return {*}
    */
   sopInstanceUID(frameIndex = 0) {
-    let sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
+    const sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
     return sopInstanceUID;
   }
 
@@ -333,7 +333,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   numberOfChannels() {
     let numberOfChannels = 1;
-    let photometricInterpretation = this.photometricInterpretation();
+    const photometricInterpretation = this.photometricInterpretation();
 
     if (
       !(
@@ -354,7 +354,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   invert() {
-    let photometricInterpretation = this.photometricInterpretation();
+    const photometricInterpretation = this.photometricInterpretation();
 
     return photometricInterpretation === 'MONOCHROME1' ? true : false;
   }
@@ -375,7 +375,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   referencedSegmentNumber(frameIndex = 0) {
     let referencedSegmentNumber = -1;
-    let referencedSegmentNumberElement = this._findInGroupSequence(
+    const referencedSegmentNumberElement = this._findInGroupSequence(
       'x52009230',
       'x0062000a',
       frameIndex
@@ -419,11 +419,11 @@ export default class ParsersDicom extends ParsersVolume {
     let instanceNumber = null;
     // first look for frame!
     // per frame functionnal group sequence
-    let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
+    const perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       if (perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f) {
-        let planeOrientationSequence =
+        const planeOrientationSequence =
           perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f.items[0]
             .dataSet;
         instanceNumber = planeOrientationSequence.intString('x00200013');
@@ -501,7 +501,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   frameTime(frameIndex = 0) {
     let frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
-    let frameRate = this._dataSet.intString('x00082144');
+    const frameRate = this._dataSet.intString('x00082144');
     let frameTime;
 
     if (typeof frameIncrementPointer === 'number') {
@@ -549,7 +549,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   pixelRepresentation(frameIndex = 0) {
-    let pixelRepresentation = this._dataSet.uint16('x00280103');
+    const pixelRepresentation = this._dataSet.uint16('x00280103');
     return pixelRepresentation;
   }
 
@@ -565,13 +565,13 @@ export default class ParsersDicom extends ParsersVolume {
 
   bitsAllocated(frameIndex = 0) {
     // expect frame index to start at 0!
-    let bitsAllocated = this._dataSet.uint16('x00280100');
+    const bitsAllocated = this._dataSet.uint16('x00280100');
     return bitsAllocated;
   }
 
   highBit(frameIndex = 0) {
     // expect frame index to start at 0!
-    let highBit = this._dataSet.uint16('x00280102');
+    const highBit = this._dataSet.uint16('x00280102');
     return highBit;
   }
 
@@ -610,17 +610,17 @@ export default class ParsersDicom extends ParsersVolume {
 
     // try to get it from enhanced MR images
     // per-frame functionnal group sequence
-    let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
+    const perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       let frameContentSequence =
         perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111;
       if (frameContentSequence !== undefined && frameContentSequence !== null) {
         frameContentSequence = frameContentSequence.items[0].dataSet;
-        let dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
+        const dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
         if (dimensionIndexValuesElt !== undefined && dimensionIndexValuesElt !== null) {
           // /4 because UL
-          let nbValues = dimensionIndexValuesElt.length / 4;
+          const nbValues = dimensionIndexValuesElt.length / 4;
           dimensionIndexValues = [];
 
           for (let i = 0; i < nbValues; i++) {
@@ -638,11 +638,11 @@ export default class ParsersDicom extends ParsersVolume {
 
     // try to get it from enhanced MR images
     // per-frame functionnal group sequence
-    let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
+    const perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
-      let philipsPrivateSequence =
+      const philipsPrivateSequence =
         perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0]
           .dataSet;
       inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
@@ -658,11 +658,11 @@ export default class ParsersDicom extends ParsersVolume {
 
     // try to get it from enhanced MR images
     // per-frame functionnal group sequence
-    let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
+    const perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
-      let philipsPrivateSequence =
+      const philipsPrivateSequence =
         perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0]
           .dataSet;
       stackID = philipsPrivateSequence.intString('x00209056');
@@ -689,10 +689,10 @@ export default class ParsersDicom extends ParsersVolume {
   //
 
   _findInGroupSequence(sequence, subsequence, index) {
-    let functionalGroupSequence = this._dataSet.elements[sequence];
+    const functionalGroupSequence = this._dataSet.elements[sequence];
 
     if (typeof functionalGroupSequence !== 'undefined') {
-      let inSequence = functionalGroupSequence.items[index].dataSet.elements[subsequence];
+      const inSequence = functionalGroupSequence.items[index].dataSet.elements[subsequence];
 
       if (typeof inSequence !== 'undefined') {
         return inSequence.items[0].dataSet;
@@ -704,7 +704,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findStringInGroupSequence(sequence, subsequence, tag, index) {
     // index = 0 if shared!!!
-    let dataSet = this._findInGroupSequence(sequence, subsequence, index);
+    const dataSet = this._findInGroupSequence(sequence, subsequence, index);
 
     if (dataSet !== null) {
       return dataSet.string(tag);
@@ -779,7 +779,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   async _decodePixelData(frameIndex = 0) {
     // if compressed..?
-    let transferSyntaxUID = this.transferSyntaxUID();
+    const transferSyntaxUID = this.transferSyntaxUID();
 
     // find compression scheme
     if (
@@ -817,7 +817,7 @@ export default class ParsersDicom extends ParsersVolume {
       return this._decodeUncompressed(frameIndex);
     } else if (transferSyntaxUID === '1.2.840.10008.1.2.2') {
       // Explicit VR Big Endian
-      let frame = this._decodeUncompressed(frameIndex);
+      const frame = this._decodeUncompressed(frameIndex);
       // and sawp it!
       return this._swapFrame(frame);
     } else {
@@ -946,12 +946,12 @@ export default class ParsersDicom extends ParsersVolume {
 
   // from cornerstone
   _decodeJPEGLossless(frameIndex = 0) {
-    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
-    let pixelRepresentation = this.pixelRepresentation(frameIndex);
-    let bitsAllocated = this.bitsAllocated(frameIndex);
-    let byteOutput = bitsAllocated <= 8 ? 1 : 2;
-    let decoder = new JpegLosslessDecoder();
-    let decompressedData = decoder.decode(
+    const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
+    const pixelRepresentation = this.pixelRepresentation(frameIndex);
+    const bitsAllocated = this.bitsAllocated(frameIndex);
+    const byteOutput = bitsAllocated <= 8 ? 1 : 2;
+    const decoder = new JpegLosslessDecoder();
+    const decompressedData = decoder.decode(
       encodedPixelData.buffer,
       encodedPixelData.byteOffset,
       encodedPixelData.length,
@@ -971,11 +971,11 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _decodeJPEGBaseline(frameIndex = 0) {
-    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
-    let rows = this.rows(frameIndex);
-    let columns = this.columns(frameIndex);
-    let bitsAllocated = this.bitsAllocated(frameIndex);
-    let jpegBaseline = new JpegBaseline();
+    const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
+    const rows = this.rows(frameIndex);
+    const columns = this.columns(frameIndex);
+    const bitsAllocated = this.bitsAllocated(frameIndex);
+    const jpegBaseline = new JpegBaseline();
     jpegBaseline.parse(encodedPixelData);
 
     if (bitsAllocated === 8) {
@@ -986,14 +986,14 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _decodeUncompressed(frameIndex = 0) {
-    let pixelRepresentation = this.pixelRepresentation(frameIndex);
-    let bitsAllocated = this.bitsAllocated(frameIndex);
-    let pixelDataElement = this._dataSet.elements.x7fe00010;
-    let pixelDataOffset = pixelDataElement.dataOffset;
-    let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    const pixelRepresentation = this.pixelRepresentation(frameIndex);
+    const bitsAllocated = this.bitsAllocated(frameIndex);
+    const pixelDataElement = this._dataSet.elements.x7fe00010;
+    const pixelDataOffset = pixelDataElement.dataOffset;
+    const numberOfChannels = this.numberOfChannels();
+    const numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     let frameOffset = 0;
-    let buffer = this._dataSet.byteArray.buffer;
+    const buffer = this._dataSet.byteArray.buffer;
 
     if (pixelRepresentation === 0 && bitsAllocated === 8) {
       // unsigned 8 bit
@@ -1012,20 +1012,20 @@ export default class ParsersDicom extends ParsersVolume {
       frameOffset = pixelDataOffset + frameIndex * numPixels * 4;
       return new Uint32Array(buffer, frameOffset, numPixels);
     } else if (pixelRepresentation === 0 && bitsAllocated === 1) {
-      let newBuffer = new ArrayBuffer(numPixels);
-      let newArray = new Uint8Array(newBuffer);
+      const newBuffer = new ArrayBuffer(numPixels);
+      const newArray = new Uint8Array(newBuffer);
 
       frameOffset = pixelDataOffset + frameIndex * numPixels;
       let index = 0;
 
-      let bitStart = frameIndex * numPixels;
-      let bitEnd = frameIndex * numPixels + numPixels;
+      const bitStart = frameIndex * numPixels;
+      const bitEnd = frameIndex * numPixels + numPixels;
 
-      let byteStart = Math.floor(bitStart / 8);
+      const byteStart = Math.floor(bitStart / 8);
       let bitStartOffset = bitStart - byteStart * 8;
-      let byteEnd = Math.ceil(bitEnd / 8);
+      const byteEnd = Math.ceil(bitEnd / 8);
 
-      let targetBuffer = new Uint8Array(buffer, pixelDataOffset);
+      const targetBuffer = new Uint8Array(buffer, pixelDataOffset);
 
       for (let i = byteStart; i <= byteEnd; i++) {
         while (bitStartOffset < 8) {
@@ -1078,7 +1078,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   _convertColorSpace(uncompressedData) {
     let rgbData = null;
-    let photometricInterpretation = this.photometricInterpretation();
+    const photometricInterpretation = this.photometricInterpretation();
     let planarConfiguration = this.planarConfiguration();
     if  (planarConfiguration === null) {
       planarConfiguration = 0;
@@ -1105,7 +1105,7 @@ export default class ParsersDicom extends ParsersVolume {
         throw error;
       }
 
-      let numPixels = uncompressedData.length / 3;
+      const numPixels = uncompressedData.length / 3;
       let rgbaIndex = 0;
       let rIndex = 0;
       let gIndex = numPixels;
@@ -1130,13 +1130,13 @@ export default class ParsersDicom extends ParsersVolume {
       }
 
       // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decodeYBRFull.js
-      let nPixels = uncompressedData.length / 3;
+      const nPixels = uncompressedData.length / 3;
       let ybrIndex = 0;
       let rgbaIndex = 0;
       for (let i = 0; i < nPixels; i++) {
-        let y = uncompressedData[ybrIndex++];
-        let cb = uncompressedData[ybrIndex++];
-        let cr = uncompressedData[ybrIndex++];
+        const y = uncompressedData[ybrIndex++];
+        const cb = uncompressedData[ybrIndex++];
+        const cr = uncompressedData[ybrIndex++];
         rgbData[rgbaIndex++] = y + 1.402 * (cr - 128); // red
         rgbData[rgbaIndex++] = y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128); // green
         rgbData[rgbaIndex++] = y + 1.772 * (cb - 128); // blue
@@ -1157,7 +1157,7 @@ export default class ParsersDicom extends ParsersVolume {
    */
   _swapFrame(frame) {
     // swap bytes ( if 8bits (1byte), nothing to swap)
-    let bitsAllocated = this.bitsAllocated();
+    const bitsAllocated = this.bitsAllocated();
 
     if (bitsAllocated === 16) {
       for (let i = 0; i < frame.length; i++) {
@@ -1189,6 +1189,6 @@ export default class ParsersDicom extends ParsersVolume {
       12: 'degrees',
     };
 
-    return units.hasOwnProperty(value) ? units[value] : 'none';
+    return  Object.hasOwn(units, value) ? units[value] : 'none';
   }
 }

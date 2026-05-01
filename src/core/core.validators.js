@@ -23,7 +23,7 @@ export default class Validators {
       !(
         objectToTest !== null &&
         typeof objectToTest !== 'undefined' &&
-        objectToTest.hasOwnProperty('elements') &&
+        Object.hasOwn(objectToTest, 'elements') &&
         objectToTest.elements.length === 16 &&
         typeof objectToTest.identity === 'function' &&
         typeof objectToTest.copy === 'function' &&
@@ -46,10 +46,10 @@ export default class Validators {
       !(
         objectToTest !== null &&
         typeof objectToTest !== 'undefined' &&
-        objectToTest.hasOwnProperty('x') &&
-        objectToTest.hasOwnProperty('y') &&
-        objectToTest.hasOwnProperty('z') &&
-        !objectToTest.hasOwnProperty('w')
+        Object.hasOwn(objectToTest, 'x') &&
+        Object.hasOwn(objectToTest, 'y') &&
+        Object.hasOwn(objectToTest, 'z') &&
+        !Object.hasOwn(objectToTest, 'w')
       )
     ) {
       return false;
@@ -76,10 +76,10 @@ export default class Validators {
       !(
         objectToTest !== null &&
         typeof objectToTest !== 'undefined' &&
-        objectToTest.hasOwnProperty('center') &&
-        this.vector3(objectToTest.center) &&
-        objectToTest.hasOwnProperty('halfDimensions') &&
-        this.vector3(objectToTest.halfDimensions) &&
+        Object.hasOwn(objectToTest, 'center') &&
+        Validators.vector3(objectToTest.center) &&
+        Object.hasOwn(objectToTest, 'halfDimensions') &&
+        Validators.vector3(objectToTest.halfDimensions) &&
         objectToTest.halfDimensions.x >= 0 &&
         objectToTest.halfDimensions.y >= 0 &&
         objectToTest.halfDimensions.z >= 0
@@ -109,10 +109,10 @@ export default class Validators {
       !(
         objectToTest !== null &&
         typeof objectToTest !== 'undefined' &&
-        objectToTest.hasOwnProperty('position') &&
-        this.vector3(objectToTest.position) &&
-        objectToTest.hasOwnProperty('direction') &&
-        this.vector3(objectToTest.direction)
+        Object.hasOwn(objectToTest, 'position') &&
+        Validators.vector3(objectToTest.position) &&
+        Object.hasOwn(objectToTest, 'direction') &&
+        Validators.vector3(objectToTest.direction)
       )
     ) {
       return false;

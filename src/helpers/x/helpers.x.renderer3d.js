@@ -102,12 +102,12 @@ export default class {
     this._scene.add(new THREE.AmbientLight(0x353535));
 
     // directional 1
-    let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(200, 200, 1000).normalize();
     this._scene.add(directionalLight);
 
     // directional 2
-    let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight2.position.set(-200, -200, -1000).normalize();
     this._scene.add(directionalLight2);
   }

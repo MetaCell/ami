@@ -32,20 +32,20 @@ export default class Colors {
     let x = a / 500 + y;
     let z = y - b / 200;
 
-    if (Math.pow(y, 3) > 0.008856) {
-      y = Math.pow(y, 3);
+    if (y ** 3 > 0.008856) {
+      y = y ** 3;
     } else {
       y = (y - 16 / 116) / 7.787;
     }
 
-    if (Math.pow(x, 3) > 0.008856) {
-      x = Math.pow(x, 3);
+    if (x ** 3 > 0.008856) {
+      x = x ** 3;
     } else {
       x = (x - 16 / 116) / 7.787;
     }
 
-    if (Math.pow(z, 3) > 0.008856) {
-      z = Math.pow(z, 3);
+    if (z ** 3 > 0.008856) {
+      z = z ** 3;
     } else {
       z = (z - 16 / 116) / 7.787;
     }
@@ -70,19 +70,19 @@ export default class Colors {
     let b = x * 0.0557 + y * -0.204 + z * 1.057;
 
     if (r > 0.0031308) {
-      r = 1.055 * Math.pow(r, 1 / 2.4) - 0.055;
+      r = 1.055 * r ** (1 / 2.4) - 0.055;
     } else {
       r = 12.92 * r;
     }
 
     if (g > 0.0031308) {
-      g = 1.055 * Math.pow(g, 1 / 2.4) - 0.055;
+      g = 1.055 * g ** (1 / 2.4) - 0.055;
     } else {
       g = 12.92 * g;
     }
 
     if (b > 0.0031308) {
-      b = 1.055 * Math.pow(b, 1 / 2.4) - 0.055;
+      b = 1.055 * b ** (1 / 2.4) - 0.055;
     } else {
       b = 12.92 * b;
     }
@@ -108,7 +108,7 @@ export default class Colors {
       return null;
     }
 
-    const [x, y, z] = this.cielab2XYZ(l, a, b);
-    return this.xyz2RGB(x, y, z);
+    const [x, y, z] = Colors.cielab2XYZ(l, a, b);
+    return Colors.xyz2RGB(x, y, z);
   }
 }

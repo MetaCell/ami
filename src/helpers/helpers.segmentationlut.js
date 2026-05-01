@@ -1,6 +1,6 @@
 import CoreUtils from '../core/core.utils';
 
-let defaultSegmentation = {
+const defaultSegmentation = {
   0: { color: [0, 0, 0], opacity: 0, label: 'background' },
   1: { color: [255, 0, 0], opacity: 1, label: 'white matter' },
 };
@@ -38,7 +38,7 @@ export default class HelpersSegmentationLut {
   }
 
   initCanvasContainer(dom) {
-    let canvasContainer = dom;
+    const canvasContainer = dom;
     canvasContainer.style.width = '256 px';
     canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';
@@ -46,7 +46,7 @@ export default class HelpersSegmentationLut {
   }
 
   createCanvas() {
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.height = 128;
     canvas.width = 256;
     return canvas;
@@ -54,20 +54,20 @@ export default class HelpersSegmentationLut {
 
   paintCanvas() {
     // setup context
-    let ctx = this._canvas.getContext('2d');
+    const ctx = this._canvas.getContext('2d');
     ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineWidth = 1;
 
-    for (let i in this._segmentation) {
+    for (const i in this._segmentation) {
       // i is the label number and specifies the coordinates inside the canvas
-      let xCoord = i % this._canvas.width;
-      let yCoord = Math.floor(i / this._canvas.width);
-      let opacity =
+      const xCoord = i % this._canvas.width;
+      const yCoord = Math.floor(i / this._canvas.width);
+      const opacity =
         typeof this._segmentation[i]['opacity'] != 'undefined'
           ? this._segmentation[i]['opacity']
           : 1;
-      let color = this._segmentation[i]['color'];
+      const color = this._segmentation[i]['color'];
 
       ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(
         color[2]
@@ -77,7 +77,7 @@ export default class HelpersSegmentationLut {
   }
 
   get texture() {
-    let texture = new THREE.Texture(this._canvas);
+    const texture = new THREE.Texture(this._canvas);
     texture.mapping = THREE.UVMapping;
     texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.magFilter = texture.minFilter = THREE.NearestFilter;

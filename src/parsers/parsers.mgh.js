@@ -77,8 +77,8 @@ export default class ParsersMgh extends ParsersVolume {
     this._Cras = this._readFloat(3);
 
     this._bufferPos = 284;
-    let dataSize = this._width * this._height * this._depth * this._nframes;
-    let vSize = this._width * this._height * this._depth;
+    const dataSize = this._width * this._height * this._depth * this._nframes;
+    const vSize = this._width * this._height * this._depth;
 
     switch (this._type) {
       case ParsersMgh.MRI_UCHAR:
@@ -103,12 +103,12 @@ export default class ParsersMgh extends ParsersVolume {
     this._ti = this._readFloat(1);
     this._fov = this._readFloat(1);
 
-    let enc = new TextDecoder();
+    const enc = new TextDecoder();
     let t = this._tagReadStart();
     while (t[0] != undefined) {
-      let tagType = t[0];
-      let tagLen = t[1];
-      let tagValue = undefined;
+      const tagType = t[0];
+      const tagLen = t[1];
+      let tagValue ;
 
       switch (tagType) {
         case ParsersMgh.TAG_OLD_MGH_XFORM:
@@ -146,9 +146,9 @@ export default class ParsersMgh extends ParsersVolume {
     ];
 
     // Calculate origin
-    let fcx = this._width / 2.0;
-    let fcy = this._height / 2.0;
-    let fcz = this._depth / 2.0;
+    const fcx = this._width / 2.0;
+    const fcy = this._height / 2.0;
+    const fcz = this._depth / 2.0;
 
     for (let ui = 0; ui < 3; ++ui) {
       this._origin[ui] =
@@ -225,15 +225,15 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   extractPixelData(frameIndex = 0) {
-    let sliceSize = this._width * this._height;
+    const sliceSize = this._width * this._height;
     return this._pixelData.slice(frameIndex * sliceSize, (frameIndex + 1) * sliceSize);
   }
 
   // signed int32
   _readInt(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
     this._bufferPos += len * 4;
-    let v = undefined;
+    let v ;
     if (len == 1) {
       v = tempBuff.getInt32(0, this._swapEndian);
     } else {
@@ -247,9 +247,9 @@ export default class ParsersMgh extends ParsersVolume {
 
   // signed int16
   _readShort(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 2));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 2));
     this._bufferPos += len * 2;
-    let v = undefined;
+    let v ;
     if (len == 1) {
       v = tempBuff.getInt16(0, this._swapEndian);
     } else {
@@ -263,9 +263,9 @@ export default class ParsersMgh extends ParsersVolume {
 
   // signed int64
   _readLong(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 8));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 8));
     this._bufferPos += len * 8;
-    let v = new Uint16Array(len);
+    const v = new Uint16Array(len);
     for (let i = 0; i < len; i++) {
       /* DataView doesn't have Int64.
        * This work around based off Scalajs
@@ -279,7 +279,7 @@ export default class ParsersMgh extends ParsersVolume {
       } else {
         shiftLow = 4;
       }
-      let high = tempBuff.getInt32(i * 8 + shiftHigh, this._swapEndian);
+      const high = tempBuff.getInt32(i * 8 + shiftHigh, this._swapEndian);
       let low = tempBuff.getInt32(i * 8 + shiftLow, this._swapEndian);
       if (high != 0) {
         console.log('Unable to read Int64 with high word: ' + high + 'low word: ' + low);
@@ -298,9 +298,9 @@ export default class ParsersMgh extends ParsersVolume {
 
   // signed int8
   _readChar(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
     this._bufferPos += len;
-    let v = undefined;
+    let v ;
     if (len == 1) {
       v = tempBuff.getInt8(0, this._swapEndian);
     } else {
@@ -314,9 +314,9 @@ export default class ParsersMgh extends ParsersVolume {
 
   // unsigned int8
   _readUChar(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
     this._bufferPos += len;
-    let v = undefined;
+    let v ;
     if (len == 1) {
       v = tempBuff.getUint8(0, this._swapEndian);
     } else {
@@ -330,9 +330,9 @@ export default class ParsersMgh extends ParsersVolume {
 
   // float32
   _readFloat(len = 1) {
-    let tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
+    const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
     this._bufferPos += len * 4;
-    let v = undefined;
+    let v ;
     if (len == 1) {
       v = tempBuff.getFloat32(0, this._swapEndian);
     } else {
@@ -349,7 +349,7 @@ export default class ParsersMgh extends ParsersVolume {
       return [undefined, undefined];
     }
     let tagType = this._readInt();
-    let tagLen = undefined;
+    let tagLen ;
     switch (tagType) {
       case ParsersMgh.TAG_OLD_MGH_XFORM:
         tagLen = this._readInt();

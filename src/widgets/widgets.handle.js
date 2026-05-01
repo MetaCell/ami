@@ -95,7 +95,7 @@ const widgetsHandle = (three = window.THREE) => {
 
     hoverMesh() {
       // check raycast intersection, do we want to hover on mesh or just css?
-      let intersectsHandle = this._raycaster.intersectObject(this._mesh);
+      const intersectsHandle = this._raycaster.intersectObject(this._mesh);
       this._meshHovered = intersectsHandle.length > 0;
     }
 
@@ -116,14 +116,14 @@ const widgetsHandle = (three = window.THREE) => {
         this._controls.enabled = false;
 
         if (this._targetMesh) {
-          let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          const intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
           if (intersectsTarget.length > 0) {
             this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
           }
         } else {
           this._plane.position.copy(this._worldPosition);
           this._plane.direction.copy(this._camera.getWorldDirection());
-          let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+          const intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
           if (intersection !== null) {
             this._offset.copy(intersection).sub(this._plane.position);
           }
@@ -150,7 +150,7 @@ const widgetsHandle = (three = window.THREE) => {
         this._dragged = true;
 
         if (this._targetMesh !== null) {
-          let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          const intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
           if (intersectsTarget.length > 0) {
             this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
           }
@@ -161,7 +161,7 @@ const widgetsHandle = (three = window.THREE) => {
             this._plane.direction.copy(this._camera.getWorldDirection());
           }
 
-          let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+          const intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
           if (intersection !== null) {
             this._worldPosition.copy(intersection.sub(this._offset));
           }

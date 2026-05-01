@@ -307,7 +307,7 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
       const vMaxTime = this._vMax === velocity0 ? time0 : time1;
 
       this._vMax = Math.max(velocity0, velocity1);
-      this._gMax = 4 * Math.pow(this._vMax, 2);
+      this._gMax = 4 * this._vMax ** 2;
 
       const phtVelocity = this._vMax / Math.sqrt(2);
       const phtKoeff = (velocity0 - phtVelocity) / (velocity1 - phtVelocity);

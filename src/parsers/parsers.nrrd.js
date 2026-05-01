@@ -199,17 +199,17 @@ export default class ParsersNifti extends ParsersVolume {
    * @return {*}
    */
   imageOrientation(frameIndex = 0) {
-    let invertX = this._dataSet.space.match(/right/) ? -1 : 1;
-    let invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
+    const invertX = this._dataSet.space.match(/right/) ? -1 : 1;
+    const invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
 
-    let x = new Vector3(
+    const x = new Vector3(
       this._dataSet.spaceDirections[0][0] * invertX,
       this._dataSet.spaceDirections[0][1] * invertY,
       this._dataSet.spaceDirections[0][2]
     );
     x.normalize();
 
-    let y = new Vector3(
+    const y = new Vector3(
       this._dataSet.spaceDirections[1][0] * invertX,
       this._dataSet.spaceDirections[1][1] * invertY,
       this._dataSet.spaceDirections[1][2]
@@ -263,7 +263,7 @@ export default class ParsersNifti extends ParsersVolume {
 
     // unpack data if needed
     if (this._unpackedData === null && this._dataSet.encoding === 'gzip') {
-      let unpackedData = pako.inflate(this._dataSet.buffer);
+      const unpackedData = pako.inflate(this._dataSet.buffer);
       this._unpackedData = unpackedData.buffer;
       buffer = this._unpackedData;
     } else if (this._dataSet.encoding === 'gzip') {

@@ -92,12 +92,12 @@ const camerasOrthographic = (three = window.THREE) => {
       this._box = box;
       this._canvas = canvas;
 
-      let ray = {
+      const ray = {
         position: this._box.center,
         direction: this._direction,
       };
 
-      let intersections = this._orderIntersections(
+      const intersections = this._orderIntersections(
         Intersections.rayBox(ray, this._box),
         this._direction
       );
@@ -142,12 +142,12 @@ const camerasOrthographic = (three = window.THREE) => {
         this._up = this._directions[1];
         this._direction = this._directions[2];
       } else {
-        let leftIndex = this.leftDirection();
-        let leftDirection = this._directions[leftIndex];
-        let posteriorIndex = this.posteriorDirection();
-        let posteriorDirection = this._directions[posteriorIndex];
-        let superiorIndex = this.superiorDirection();
-        let superiorDirection = this._directions[superiorIndex];
+        const leftIndex = this.leftDirection();
+        const leftDirection = this._directions[leftIndex];
+        const posteriorIndex = this.posteriorDirection();
+        const posteriorDirection = this._directions[posteriorIndex];
+        const superiorIndex = this.superiorDirection();
+        const superiorDirection = this._directions[superiorIndex];
 
         if (this._convention === 'radio') {
           switch (this._orientation) {
@@ -277,12 +277,12 @@ const camerasOrthographic = (three = window.THREE) => {
       }
 
       // that is what determines left/right
-      let ray = {
+      const ray = {
         position: this._box.center,
         direction: this._direction,
       };
 
-      let intersections = this._orderIntersections(
+      const intersections = this._orderIntersections(
         Intersections.rayBox(ray, this._box),
         this._direction
       );
@@ -332,7 +332,7 @@ const camerasOrthographic = (three = window.THREE) => {
     invertColumns() {
       this.center();
       // rotate 180 degrees around the up vector...
-      let oppositePosition = this._oppositePosition(this.position);
+      const oppositePosition = this._oppositePosition(this.position);
 
       // update posistion and target
       // clone is needed because this.position is overwritten in method
@@ -381,7 +381,7 @@ const camerasOrthographic = (three = window.THREE) => {
       this._angle %= 360;
 
       // Rotate the up vector around the "zCosine"
-      let rotation = new three.Matrix4().makeRotationAxis(
+      const rotation = new three.Matrix4().makeRotationAxis(
         this._direction,
         (rotationToApply * Math.PI) / 180
       );
@@ -470,7 +470,7 @@ const camerasOrthographic = (three = window.THREE) => {
 
     _findMaxIndex(directions, target) {
       // get index of the most superior direction
-      let maxIndices = this._getMaxIndices(directions);
+      const maxIndices = this._getMaxIndices(directions);
 
       for (let i = 0; i < maxIndices.length; i++) {
         if (maxIndices[i] === target) {
@@ -480,7 +480,7 @@ const camerasOrthographic = (three = window.THREE) => {
     }
 
     _getMaxIndices(directions) {
-      let indices = [];
+      const indices = [];
       indices.push(this._getMaxIndex(directions[0]));
       indices.push(this._getMaxIndex(directions[1]));
       indices.push(this._getMaxIndex(directions[2]));
@@ -499,7 +499,7 @@ const camerasOrthographic = (three = window.THREE) => {
     }
 
     _updateCanvas() {
-      let camFactor = 2;
+      const camFactor = 2;
       this.left = -this._canvas.width / camFactor;
       this.right = this._canvas.width / camFactor;
       this.top = this._canvas.height / camFactor;
@@ -510,11 +510,11 @@ const camerasOrthographic = (three = window.THREE) => {
     }
 
     _oppositePosition(position) {
-      let oppositePosition = position.clone();
+      const oppositePosition = position.clone();
       // center world postion around box center
       oppositePosition.sub(this._box.center);
       // rotate
-      let rotation = new three.Matrix4().makeRotationAxis(this.up, Math.PI);
+      const rotation = new three.Matrix4().makeRotationAxis(this.up, Math.PI);
 
       oppositePosition.applyMatrix4(rotation);
       // translate back to world position
@@ -530,12 +530,12 @@ const camerasOrthographic = (three = window.THREE) => {
       }
 
       // ray
-      let ray = {
+      const ray = {
         position: this._box.center.clone(),
         direction: direction,
       };
 
-      let intersections = Intersections.rayBox(ray, this._box);
+      const intersections = Intersections.rayBox(ray, this._box);
       if (intersections.length < 2) {
         window.console.log('Can not adjust the camera ( < 2 intersections).');
         window.console.log(ray);
@@ -617,8 +617,8 @@ const camerasOrthographic = (three = window.THREE) => {
       this._up = this.up.clone();
 
       // direction
-      let pLocal = new three.Vector3(0, 0, -1);
-      let pWorld = pLocal.applyMatrix4(this.matrixWorld);
+      const pLocal = new three.Vector3(0, 0, -1);
+      const pWorld = pLocal.applyMatrix4(this.matrixWorld);
       this._direction = pWorld.sub(this.position).normalize();
 
       // right
@@ -716,7 +716,7 @@ const camerasOrthographic = (three = window.THREE) => {
       if (this._orientation === 'default') {
         this._stackOrientation = 0;
       } else {
-        let maxIndex = this._getMaxIndex(this._direction);
+        const maxIndex = this._getMaxIndex(this._direction);
 
         if (maxIndex === this._getMaxIndex(this._directions[2])) {
           this._stackOrientation = 0;

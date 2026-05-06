@@ -60,6 +60,27 @@ const helpersMaterialMixin = (three = window.THREE) => {
         tex.flipY = false;
         this._textures.push(tex);
       }
+      // The shader declares uTextureContainer[7] (or [14] for large volumes) and
+      // samples every slot. WebGL2 (Three.js r163+) faults on unbound sampler array
+      // entries, so pad with 1x1 placeholder textures to fill all declared slots.
+      const targetLength = this._stack.textureUnits > 8 ? 14 : 7;
+      while (this._textures.length < targetLength) {
+        const dummy = new three.DataTexture(
+          new Uint8Array(4),
+          1,
+          1,
+          three.RGBAFormat,
+          three.UnsignedByteType,
+          three.UVMapping,
+          three.ClampToEdgeWrapping,
+          three.ClampToEdgeWrapping,
+          three.NearestFilter,
+          three.NearestFilter
+        );
+        dummy.generateMipmaps = false;
+        dummy.needsUpdate = true;
+        this._textures.push(dummy);
+      }
     }
   };
 };

@@ -389,7 +389,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       rtTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
-        format: THREE.RGBFormat,
+        format: THREE.RGBAFormat,
       });
 
       sceneT.add(baseMesh);
@@ -411,6 +411,25 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
         tex.needsUpdate = true;
         tex.flipY = false;
         _textures.push(tex);
+      }
+      // Pad with empty placeholder textures so all 7 sampler slots are bound
+      // (WebGL2 / Three.js r163+ faults on unbound sampler array entries)
+      while (_textures.length < 7) {
+        const dummy = new THREE.DataTexture(
+          new Uint8Array(4),
+          1,
+          1,
+          THREE.RGBAFormat,
+          THREE.UnsignedByteType,
+          THREE.UVMapping,
+          THREE.ClampToEdgeWrapping,
+          THREE.ClampToEdgeWrapping,
+          THREE.NearestFilter,
+          THREE.NearestFilter
+        );
+        dummy.generateMipmaps = false;
+        dummy.needsUpdate = true;
+        _textures.push(dummy);
       }
 
       uniformsSecondPass = VRUniforms.uniforms();

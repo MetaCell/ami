@@ -21,7 +21,7 @@ interface WidgetParameter {
   worldPosition: Vector3;
 }
 
-interface USRegion {
+export interface USRegion {
   x0: number;
   x1: number;
   y0: number;

@@ -171,7 +171,9 @@ const helpersLocalizer = (three = window.THREE) => {
 
     set color1(color1) {
       this._color1 = color1;
-      this._uniforms.uPlaneColor1.value = this._color1;
+      // Three.js r180: vec3 uniforms require [r,g,b] arrays, not THREE.Color or raw hex numbers.
+      const _c1 = new three.Color(color1);
+      this._uniforms.uPlaneColor1.value = [_c1.r, _c1.g, _c1.b];
     }
 
     get plane2() {
@@ -189,7 +191,8 @@ const helpersLocalizer = (three = window.THREE) => {
 
     set color2(color2) {
       this._color2 = color2;
-      this._uniforms.uPlaneColor2.value = this._color2;
+      const _c2 = new three.Color(color2);
+      this._uniforms.uPlaneColor2.value = [_c2.r, _c2.g, _c2.b];
     }
 
     get plane3() {
@@ -207,7 +210,8 @@ const helpersLocalizer = (three = window.THREE) => {
 
     set color3(color3) {
       this._color3 = color3;
-      this._uniforms.uPlaneColor3.value = this._color3;
+      const _c3 = new three.Color(color3);
+      this._uniforms.uPlaneColor3.value = [_c3.r, _c3.g, _c3.b];
     }
 
     get canvasWidth() {

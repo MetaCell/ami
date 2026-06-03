@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   resolve: {
@@ -30,4 +31,19 @@ export default defineConfig({
       },
     },
   },
+
+  plugins: [
+    dts({
+      // Emit relative to src/ so src/ami.ts → build/ami.d.ts, matching the
+      // "types" field in package.json.
+      entryRoot: 'src',
+      // The helper files use an anonymous class factory pattern (TS4094) and
+      // vendored external scripts have unresolvable private names (TS9005).
+      // Skip diagnostics so declarations are emitted despite those pre-existing
+      // errors — they don't affect the usable public API surface.
+      skipDiagnostics: true,
+      // Exclude vendored scripts and non-library trees
+      exclude: ['external/**', 'specs/**', 'examples/**'],
+    }),
+  ],
 });

@@ -317,7 +317,11 @@ const helpersSlice = (three = window.THREE) => {
 
     set borderColor(borderColor) {
       this._borderColor = borderColor;
-      this._uniforms.uBorderColor.value = new three.Color(borderColor);
+      // Three.js r180 setValueV3f no longer accepts THREE.Color (r/g/b) for vec3 uniforms —
+      // it checks v.x !== undefined and falls through to uniform3fv with a non-array.
+      // Convert to [r, g, b] array which works across all Three.js versions.
+      const _c = new three.Color(borderColor);
+      this._uniforms.uBorderColor.value = [_c.r, _c.g, _c.b];
     }
 
     get borderColor() {

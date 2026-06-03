@@ -87,10 +87,13 @@ void main(void) {
 
         vec4 projInter1 = (vProjectionViewMatrix * vec4(projection1, 1.));
         vec3 ndc1 = projInter1.xyz / projInter1.w;
-        vec2 screenSpace1 = (ndc1.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight);
+        // uViewportOffset is the viewport's lower-left corner in full-canvas device
+        // pixels so that screenSpace aligns with gl_FragCoord (also device pixels).
+        vec2 screenSpace1 = (ndc1.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight) + uViewportOffset;
 
         float d1 = distance(gl_FragCoord.xy, screenSpace1.xy);
-        c1 = vec4(uPlaneColor1, 1. - smoothstep(.5, .7, d1));
+        // 0.5–1.5 device-pixel threshold → ~0.5 CSS pixel — thin, crisp localizer line
+        c1 = vec4(uPlaneColor1, 1. - smoothstep(0.5, 1.5, d1));
       }
 
       // localizer #2
@@ -104,10 +107,10 @@ void main(void) {
 
         vec4 projInter2 = (vProjectionViewMatrix * vec4(projection2, 1.));
         vec3 ndc2 = projInter2.xyz / projInter2.w;
-        vec2 screenSpace2 = (ndc2.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight);
+        vec2 screenSpace2 = (ndc2.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight) + uViewportOffset;
 
         float d2 = distance(gl_FragCoord.xy, screenSpace2.xy);
-        c2 = vec4(uPlaneColor2, 1. - smoothstep(.5, .7, d2));
+        c2 = vec4(uPlaneColor2, 1. - smoothstep(0.5, 1.5, d2));
       }
 
       // localizer #3
@@ -121,10 +124,10 @@ void main(void) {
 
         vec4 projInter3 = (vProjectionViewMatrix * vec4(projection3, 1.));
         vec3 ndc3 = projInter3.xyz / projInter3.w;
-        vec2 screenSpace3 = (ndc3.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight);
+        vec2 screenSpace3 = (ndc3.xy * .5 + .5) * vec2(uCanvasWidth, uCanvasHeight) + uViewportOffset;
 
         float d3 = distance(gl_FragCoord.xy, screenSpace3.xy);
-        c3 = vec4(uPlaneColor3, 1. - smoothstep(.5, .7, d3));
+        c3 = vec4(uPlaneColor3, 1. - smoothstep(0.5, 1.5, d3));
       }
 
       // float uBorderDashLength = 10.0;
@@ -133,7 +136,8 @@ void main(void) {
       // float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);
       // if( valueX < uBorderDashLength || valueY < uBorderDashLength ){
         vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
-        gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
+        // Full opacity — previously *0.5 made lines hard to see, especially on Retina displays
+        gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w));
         return;
       // }
       

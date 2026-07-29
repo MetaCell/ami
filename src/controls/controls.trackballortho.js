@@ -13,7 +13,7 @@ const trackballOrtho = (three = window.THREE) => {
   }
 
   const Constructor = three.EventDispatcher;
-  return class extends Constructor {
+  return class ControlsTrackballOrtho extends Constructor {
     constructor(
       object,
       domElement,
@@ -91,30 +91,6 @@ const trackballOrtho = (three = window.THREE) => {
       const endEvent = { type: 'end' };
 
       // methods
-
-      this.handleResize = function() {
-        if (this.domElement === document) {
-          this.screen.left = 0;
-          this.screen.top = 0;
-          this.screen.width = window.innerWidth;
-          this.screen.height = window.innerHeight;
-        } else {
-          const box = this.domElement.getBoundingClientRect();
-          // adjustments come from similar code in the jquery offset() function
-          const d = this.domElement.ownerDocument.documentElement;
-          this.screen.left = box.left + window.pageXOffset - d.clientLeft;
-          this.screen.top = box.top + window.pageYOffset - d.clientTop;
-          this.screen.width = box.width;
-          this.screen.height = box.height;
-        }
-
-        this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
-
-        this.left0 = this.object.left;
-        this.right0 = this.object.right;
-        this.top0 = this.object.top;
-        this.bottom0 = this.object.bottom;
-      };
 
       this.handleEvent = function(event) {
         if (typeof this[event.type] == 'function') {
@@ -457,6 +433,30 @@ const trackballOrtho = (three = window.THREE) => {
 
       // force an update at start
       this.update();
+    }
+
+    handleResize() {
+      if (this.domElement === document) {
+        this.screen.left = 0;
+        this.screen.top = 0;
+        this.screen.width = window.innerWidth;
+        this.screen.height = window.innerHeight;
+      } else {
+        const box = this.domElement.getBoundingClientRect();
+        // adjustments come from similar code in the jquery offset() function
+        const d = this.domElement.ownerDocument.documentElement;
+        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
+        this.screen.top = box.top + window.pageYOffset - d.clientTop;
+        this.screen.width = box.width;
+        this.screen.height = box.height;
+      }
+
+      this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
+
+      this.left0 = this.object.left;
+      this.right0 = this.object.right;
+      this.top0 = this.object.top;
+      this.bottom0 = this.object.bottom;
     }
   };
 };

@@ -41,7 +41,7 @@ const helpersStack = (three = window.THREE) => {
   }
 
   const Constructor = three.Object3D;
-  return class extends Constructor {
+  return class HelpersStack extends Constructor {
     constructor(stack) {
       //
       super();
@@ -246,8 +246,6 @@ const helpersStack = (three = window.THREE) => {
     /**
      * Initial setup, including stack prepare, bbox prepare, slice prepare and
      * border prepare.
-     *
-     * @private
      */
     _create() {
       if (this._stack) {
@@ -303,8 +301,6 @@ const helpersStack = (three = window.THREE) => {
 
     /**
      * Given orientation, check if index is in/out of bounds.
-     *
-     * @private
      */
     _isIndexOutOfBounds() {
       this._computeOrientationMaxIndex();
@@ -318,8 +314,6 @@ const helpersStack = (three = window.THREE) => {
     /**
      * Prepare a stack for visualization. (image to world transform, frames order,
      * pack data into 8 bits textures, etc.)
-     *
-     * @private
      */
     _prepareStack() {
       // make sure there is something, if not throw an error
@@ -337,8 +331,6 @@ const helpersStack = (three = window.THREE) => {
     /**
      * Setup bounding box helper given prepared stack and add bounding box helper
      * to stack helper.
-     *
-     * @private
      */
     _prepareBBox() {
       const HelpersBoundingBoxConstructor = helpersBoundingBox(three);
@@ -349,8 +341,6 @@ const helpersStack = (three = window.THREE) => {
     /**
      * Setup border helper given slice helper and add border helper
      * to stack helper.
-     *
-     * @private
      */
     _prepareBorder() {
       const HelpersBorderContructor = helpersBorder(three);
@@ -361,8 +351,6 @@ const helpersStack = (three = window.THREE) => {
     /**
      * Setup slice helper given prepared stack helper and add slice helper
      * to stack helper.
-     *
-     * @private
      */
     _prepareSlice() {
       const halfDimensionsIJK = this._stack.halfDimensionsIJK;
@@ -384,8 +372,6 @@ const helpersStack = (three = window.THREE) => {
      * @param {Vector3} indices - Indices in each direction.
      *
      * @returns {number} Slice index according to current orientation.
-     *
-     * @private
      */
     _prepareSliceIndex(indices) {
       let index = 0;
@@ -414,8 +400,6 @@ const helpersStack = (three = window.THREE) => {
      * @param {number} index - Current index.
      *
      * @returns {number} Slice index according to current orientation.
-     *
-     * @private
      */
     _prepareSlicePosition(rPosition, index) {
       let position = new three.Vector3(0, 0, 0);
@@ -442,8 +426,6 @@ const helpersStack = (three = window.THREE) => {
      * @param {number} orientation - Slice orientation.
      *
      * @returns {Vector3} Slice direction
-     *
-     * @private
      */
     _prepareDirection(orientation) {
       let direction = new three.Vector3(0, 0, 1);

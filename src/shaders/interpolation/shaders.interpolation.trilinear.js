@@ -54,9 +54,23 @@ void trilinearInterpolation(
 
 void ${this._name}(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){
 
+  // currentVoxel is a continuous IJK position from an arbitrary (possibly rotated) world-to-data
+  // transform - it commonly falls outside this volume's own extent (e.g. a reslice plane sized to a
+  // different, larger base volume). Texture3d's atlas index (dataCoordinates.x + y*dims.x + z*dims.y*dims.x)
+  // has no bounds checking of its own: an out-of-range coordinate silently aliases into whatever
+  // texel the overflowed flat index lands on - a different slice, or unrelated data - rather than
+  // reading "nothing here". Discarding here instead matches dipy's server-side resampling, which
+  // zero-fills genuinely out-of-bounds samples, keeping the live preview equivalent to the saved result.
+  vec3 dataDimensionsF = vec3(uDataDimensions);
+  if (any(lessThan(currentVoxel, vec3(0.))) || any(greaterThan(currentVoxel, dataDimensionsF - vec3(1.)))) {
+    dataValue = vec4(0.);
+    gradient = vec3(1.);
+    discard;
+  }
+
   vec3 lower_bound = floor(currentVoxel);
   lower_bound = max(vec3(0.), lower_bound);
-  
+
   vec3 higher_bound = lower_bound + vec3(1.);
 
   vec3 normalizedPosition = (currentVoxel - lower_bound);

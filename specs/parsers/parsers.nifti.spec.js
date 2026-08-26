@@ -185,6 +185,50 @@ describe('imageOrientation sform branch', () => {
       expect(component).toBeCloseTo(orientationHalfMm[i], 10);
     });
   });
+
+  it('matches the qform branch exactly for the same real-world transform', () => {
+    // Regression test for two bugs found together: the sform branch used to read affine
+    // ROWS (srow_x/y/z, the coefficients that combine to produce world-X/Y/Z) instead of
+    // COLUMNS (how world position changes as one voxel index increases - the actual
+    // orientation-vector contract), and never derived handedness from the sform at all
+    // (only the qform branch, via pixDims[0]/qfac, ever set _rightHanded). For a symmetric
+    // affine both bugs are invisible; for a real coregistration transform (values taken
+    // directly from a study that reproduced a blank/mispositioned CT in the app) they are
+    // not, and this exact case - a genuinely left-handed transform (qfac=-1, det<0) with a
+    // non-symmetric rotation - is what exposed both.
+    const qformDataSet = {
+      qform_code: 2,
+      sform_code: 2,
+      pixDims: [-1, 1, 1, 1],
+      quatern_b: 0.0,
+      quatern_c: -0.70710677,
+      quatern_d: 0.70710677,
+    };
+    const sformOnlyDataSet = {
+      qform_code: 0,
+      sform_code: 2,
+      pixDims: [-1, 1, 1, 1],
+      affine: [
+        [-1, -0, -0, 116.43010711669922],
+        [-0, -0, 1, -116.72384643554688],
+        [0, -1, 0, 67.44244384765625],
+      ],
+    };
+
+    const qformParser = makeParser(qformDataSet);
+    const sformParser = makeParser(sformOnlyDataSet);
+
+    const qformOrientation = qformParser.imageOrientation(0);
+    const sformOrientation = sformParser.imageOrientation(0);
+
+    qformOrientation.forEach((component, i) => {
+      expect(sformOrientation[i]).toBeCloseTo(component, 5);
+    });
+
+    // qfac=-1 / det<0 both encode the same left-handed transform - both branches must agree
+    expect(qformParser._rightHanded).toBe(false);
+    expect(sformParser._rightHanded).toBe(false);
+  });
 });
 
 // test dataset that does not work anymore..

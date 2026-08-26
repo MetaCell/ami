@@ -210,26 +210,49 @@ export default class ParsersNifti extends ParsersVolume {
       // The srow_* vectors are in the NIFTI_1 header.  Note that no use is
       // made of pixdim[] in this method.
       //
-      // affine[row] itself is [R * pixdim, offset] (see METHOD 2's R above): its first
-      // three components already carry the voxel spacing, so they are NOT unit-length -
-      // unlike METHOD 2's quaternion-derived vectors, which are. imageOrientation()'s
-      // contract (matching DICOM's ImageOrientationPatient, and what CoreUtils.ijk2LPS
-      // multiplies against pixelSpacing() downstream) requires unit vectors, so normalize
-      // each row here rather than returning the affine's raw, spacing-scaled rows.
+      // imageOrientation()'s contract (matching DICOM's ImageOrientationPatient, and what
+      // CoreUtils.ijk2LPS multiplies against pixelSpacing() downstream) is "as voxel index i
+      // increases by one, how does the world position change" - i.e. COLUMN 0 of the affine
+      // (affine[0][0], affine[1][0], affine[2][0]), and likewise column 1 for j. srow_x/y/z
+      // above are ROWS of the affine: srow_x gives the coefficients that combine to produce
+      // world-X from (i,j,k), which is a different vector entirely unless the affine happens
+      // to be symmetric. Using rows here previously returned the wrong direction (and even
+      // the wrong handedness - affine[0]/affine[1] taken as rows vs columns can disagree in
+      // sign) for any rotation whose matrix isn't symmetric, which is the common case.
+      // Columns are also already scaled by voxel spacing like the rows were, so still need
+      // normalizing.
       const normalize = (v) => {
         const length = Math.hypot(v[0], v[1], v[2]);
         return length > 0 ? v.map((component) => component / length) : v;
       };
       const rowX = normalize([
         -this._dataSet.affine[0][0],
-        -this._dataSet.affine[0][1],
-        this._dataSet.affine[0][2],
+        -this._dataSet.affine[1][0],
+        this._dataSet.affine[2][0],
       ]);
       const rowY = normalize([
-        -this._dataSet.affine[1][0],
+        -this._dataSet.affine[0][1],
         -this._dataSet.affine[1][1],
-        this._dataSet.affine[1][2],
+        this._dataSet.affine[2][1],
       ]);
+
+      // METHOD 2 derives handedness from pixDims[0] (qfac): a negative qfac means the voxel
+      // grid is a left-handed triple, and it flips the normal computed from these two vectors
+      // downstream (see ModelsFrame.cosines()). The sform has no qfac - it's a full general
+      // affine - so handedness has to come from the sign of its own determinant instead: a
+      // negative determinant means the same thing (an improper/reflected transform). Without
+      // this, a left-handed sform-only file silently reports right-handed, and cosines()
+      // never negates the normal it should - visible here as the reconstructed volume's
+      // slice axis running in the wrong direction.
+      const a = this._dataSet.affine;
+      const determinant =
+        a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1]) -
+        a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0]) +
+        a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
+      if (determinant < 0.0) {
+        this._rightHanded = false;
+      }
+
       return [...rowX, ...rowY];
     } else if (this._dataSet.qform_code === 0) {
       // METHOD 1 (the "old" way, used only when qform_code = 0):

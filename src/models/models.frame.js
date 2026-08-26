@@ -131,8 +131,14 @@ export default class ModelsFrame extends ModelsBase {
       );
 
       if (xCos.length() > 0 && yCos.length() > 0) {
-        cosines[0] = xCos;
-        cosines[1] = yCos;
+        // imageOrientation() is expected to return unit-length direction vectors (the
+        // convention DICOM's ImageOrientationPatient follows, and what pixelSpacing/spacing
+        // gets multiplied against downstream in CoreUtils.ijk2LPS). Not every parser
+        // guarantees that on every code path (e.g. a NIfTI file read via its sform, which
+        // returns the affine's rows scaled by voxel spacing rather than unit vectors) - so
+        // normalize defensively here rather than trust each parser to have done it already.
+        cosines[0] = xCos.normalize();
+        cosines[1] = yCos.normalize();
         cosines[2] = new Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
       }
     } else {

@@ -209,16 +209,27 @@ export default class ParsersNifti extends ParsersVolume {
 
       // The srow_* vectors are in the NIFTI_1 header.  Note that no use is
       // made of pixdim[] in this method.
-      const rowX = [
+      //
+      // affine[row] itself is [R * pixdim, offset] (see METHOD 2's R above): its first
+      // three components already carry the voxel spacing, so they are NOT unit-length -
+      // unlike METHOD 2's quaternion-derived vectors, which are. imageOrientation()'s
+      // contract (matching DICOM's ImageOrientationPatient, and what CoreUtils.ijk2LPS
+      // multiplies against pixelSpacing() downstream) requires unit vectors, so normalize
+      // each row here rather than returning the affine's raw, spacing-scaled rows.
+      const normalize = (v) => {
+        const length = Math.hypot(v[0], v[1], v[2]);
+        return length > 0 ? v.map((component) => component / length) : v;
+      };
+      const rowX = normalize([
         -this._dataSet.affine[0][0],
         -this._dataSet.affine[0][1],
         this._dataSet.affine[0][2],
-      ];
-      const rowY = [
+      ]);
+      const rowY = normalize([
         -this._dataSet.affine[1][0],
         -this._dataSet.affine[1][1],
         this._dataSet.affine[1][2],
-      ];
+      ]);
       return [...rowX, ...rowY];
     } else if (this._dataSet.qform_code === 0) {
       // METHOD 1 (the "old" way, used only when qform_code = 0):

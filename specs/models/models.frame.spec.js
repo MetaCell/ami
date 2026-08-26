@@ -59,6 +59,25 @@ describe('Models.frame', () => {
       validFrame._imageOrientation = [0, 1, 0, 0, 0, 1];
       expect(validFrame.cosines()).toEqual(defaultCosines);
     });
+
+    it('should normalize non-unit-length orientation vectors', () => {
+      // Regression test: a parser can return direction vectors that are not unit-length
+      // (e.g. NIfTI's sform branch returns affine rows already scaled by voxel spacing,
+      // unlike its qform branch which returns unit vectors from the rotation matrix).
+      // CoreUtils.ijk2LPS multiplies these cosines by spacing again downstream, so a
+      // non-unit-length cosine here silently double-scales every axis of the reconstructed
+      // volume - cosines() must always return unit vectors regardless of what the parser
+      // handed it.
+      const defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
+
+      // same directions as the previous test, but scaled by a voxel spacing of 0.5mm
+      validFrame._imageOrientation = [0, 0.5, 0, 0, 0, 0.5];
+      const cosines = validFrame.cosines();
+
+      expect(cosines[0].length()).toBeCloseTo(1, 10);
+      expect(cosines[1].length()).toBeCloseTo(1, 10);
+      expect(cosines).toEqual(defaultCosines);
+    });
   });
 
   // describe('spacingXY', function() {

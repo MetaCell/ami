@@ -117,6 +117,76 @@ describe('Orientation', () => {
   //   test( nrrdDataset );
 });
 
+describe('imageOrientation sform branch', () => {
+  // Regression test: this branch (taken when qform_code === 0 and sform_code > 0) used to
+  // return the sform affine's rows directly, which are scaled by voxel spacing rather than
+  // unit-length - unlike the qform branch (qform_code > 0) right above it, which returns unit
+  // vectors from the rotation matrix. The 'Orientation' suite above never exercises this branch:
+  // its fixture has qform_code=2, so it only ever takes the qform path. Bypasses the constructor
+  // (which requires a real NIfTI buffer) to unit-test imageOrientation() directly against a
+  // minimal, controlled _dataSet.
+  function makeParser(dataSet) {
+    const parser = Object.create(ParsersNifti.prototype);
+    parser._dataSet = dataSet;
+    return parser;
+  }
+
+  function length(v) {
+    return Math.hypot(v[0], v[1], v[2]);
+  }
+
+  it('returns unit-length vectors for a voxel-spacing-scaled sform affine', () => {
+    const spacing = 0.5;
+    const parser = makeParser({
+      qform_code: 0,
+      sform_code: 1,
+      pixDims: [1, spacing, spacing, spacing],
+      affine: [
+        [0, spacing, 0, 10],
+        [0, 0, spacing, -5],
+        [spacing, 0, 0, 20],
+      ],
+    });
+
+    const orientation = parser.imageOrientation(0);
+    const rowX = orientation.slice(0, 3);
+    const rowY = orientation.slice(3, 6);
+
+    expect(length(rowX)).toBeCloseTo(1, 10);
+    expect(length(rowY)).toBeCloseTo(1, 10);
+  });
+
+  it('preserves direction while normalizing magnitude', () => {
+    const parser1mm = makeParser({
+      qform_code: 0,
+      sform_code: 1,
+      pixDims: [1, 1, 1, 1],
+      affine: [
+        [0, 1, 0, 10],
+        [0, 0, 1, -5],
+        [1, 0, 0, 20],
+      ],
+    });
+    const parserHalfMm = makeParser({
+      qform_code: 0,
+      sform_code: 1,
+      pixDims: [1, 0.5, 0.5, 0.5],
+      affine: [
+        [0, 0.5, 0, 10],
+        [0, 0, 0.5, -5],
+        [0.5, 0, 0, 20],
+      ],
+    });
+
+    const orientation1mm = parser1mm.imageOrientation(0);
+    const orientationHalfMm = parserHalfMm.imageOrientation(0);
+
+    orientation1mm.forEach((component, i) => {
+      expect(component).toBeCloseTo(orientationHalfMm[i], 10);
+    });
+  });
+});
+
 // test dataset that does not work anymore..
 // does current visualization make sense?
 

@@ -105,6 +105,16 @@ void main(void) {
   } else {
     vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);
     vec3 currentVoxel = dataCoordinates.xyz;
+    // This fragment maps outside the volume entirely - drop it so the layer stays transparent
+    // there rather than painting a zero-valued (black) sample over whatever is behind it. Safe in
+    // this branch precisely because it is a single sample: the slab loop above must NOT discard,
+    // since one out-of-range step would take every already-accumulated in-bounds sample with it.
+    // The interpolation chunks zero-fill out-of-bounds rather than discarding for that reason, so
+    // the test has to live here. Covers nearest/identity sampling too, which has no guard of its own.
+    vec3 dataDimensionsF = vec3(uDataDimensions);
+    if (any(lessThan(currentVoxel, vec3(0.))) || any(greaterThan(currentVoxel, dataDimensionsF - vec3(1.)))) {
+      discard;
+    }
     ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
   }
 

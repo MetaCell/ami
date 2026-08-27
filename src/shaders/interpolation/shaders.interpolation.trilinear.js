@@ -59,19 +59,28 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){
   // different, larger base volume). Texture3d's atlas index (dataCoordinates.x + y*dims.x + z*dims.y*dims.x)
   // has no bounds checking of its own: an out-of-range coordinate silently aliases into whatever
   // texel the overflowed flat index lands on - a different slice, or unrelated data - rather than
-  // reading "nothing here". Discarding here instead matches dipy's server-side resampling, which
+  // reading "nothing here". Zero-filling instead matches dipy's server-side resampling, which
   // zero-fills genuinely out-of-bounds samples, keeping the live preview equivalent to the saved result.
+  // Returns rather than discards: this function is also called from the thickness/slab loop in
+  // shaders.data.fragment.js, where discard would throw away the whole fragment - including every
+  // in-bounds sample already accumulated - and punch a hole through any slab that merely grazes the
+  // volume edge. Callers that want the fragment dropped entirely test the bounds themselves (see the
+  // single-sample branch there, which still discards so out-of-volume stays transparent, not black).
   vec3 dataDimensionsF = vec3(uDataDimensions);
   if (any(lessThan(currentVoxel, vec3(0.))) || any(greaterThan(currentVoxel, dataDimensionsF - vec3(1.)))) {
     dataValue = vec4(0.);
     gradient = vec3(1.);
-    discard;
+    return;
   }
 
   vec3 lower_bound = floor(currentVoxel);
   lower_bound = max(vec3(0.), lower_bound);
 
-  vec3 higher_bound = lower_bound + vec3(1.);
+  // Clamped to the last valid voxel, not lower_bound + 1: the guard above admits currentVoxel
+  // exactly equal to dims-1, where an unclamped +1 indexes dims and overflows the flat atlas index
+  // into a neighbouring slice - the very aliasing the guard exists to prevent. Clamping makes that
+  // edge sample interpolate the last voxel against itself, which returns its exact value.
+  vec3 higher_bound = min(lower_bound + vec3(1.), dataDimensionsF - vec3(1.));
 
   vec3 normalizedPosition = (currentVoxel - lower_bound);
   normalizedPosition =  max(vec3(0.), normalizedPosition);

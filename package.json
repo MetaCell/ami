@@ -1,6 +1,9 @@
 {
-  "name": "ami.js",
+  "name": "@metacell/ami",
   "version": "0.34.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./build/ami.cjs",
   "module": "./build/ami.js",
@@ -37,7 +40,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://fnndsc.github.io/ami"
+    "url": "git@github.com:Metacell/ami.git"
   },
   "sideEffects": false,
   "peerDependencies": {

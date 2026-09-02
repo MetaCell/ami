@@ -37,6 +37,12 @@
     "email": "nicolas@eunate.ch",
     "url": "https://eunate.ch"
   },
+  "contributors": [
+    {
+      "name": "MetaCell",
+      "url": "https://metacell.us"
+    }
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

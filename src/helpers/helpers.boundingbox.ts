@@ -1,0 +1,125 @@
+import * as THREE from 'three';
+
+/**
+ * @module helpers/boundingbox
+ */
+
+const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  const Constructor = three.Object3D;
+  return class HelpersBoundingBox extends Constructor {
+    _stack: any;
+    _visible: boolean;
+    _color: number;
+    _material: THREE.Material | null;
+    _geometry: THREE.BufferGeometry | null;
+    _mesh: THREE.BoxHelper | null;
+    _meshStack: THREE.Mesh | null;
+
+    constructor(stack: any) {
+      //
+      super();
+
+      // private vars
+      this._stack = stack;
+      this._visible = true;
+      this._color = 0xffffff;
+      this._material = null;
+      this._geometry = null;
+      this._mesh = null;
+      this._meshStack = null;
+
+      // create object
+      this._create();
+    }
+
+    // getters/setters
+    // @ts-expect-error THREE.Object3D declares `visible` as a plain property; we
+    // intentionally override it as an accessor to sync mesh visibility on write.
+    set visible(visible: boolean) {
+      this._visible = visible;
+      if (this._mesh) {
+        this._mesh.visible = this._visible;
+      }
+    }
+
+    get visible() {
+      return this._visible;
+    }
+
+    set color(color: number) {
+      this._color = color;
+      if (this._material) {
+        (this._material as any).color.set(this._color);
+      }
+    }
+
+    get color() {
+      return this._color;
+    }
+
+    // private methods
+    _create() {
+      // Convenience vars
+      const dimensions = this._stack.dimensionsIJK;
+      const halfDimensions = this._stack.halfDimensionsIJK;
+      const offset = new three.Vector3(-0.5, -0.5, -0.5);
+
+      // Geometry
+      const geometry = new three.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+      geometry.applyMatrix4(
+        new three.Matrix4().makeTranslation(
+          halfDimensions.x + offset.x,
+          halfDimensions.y + offset.y,
+          halfDimensions.z + offset.z
+        )
+      );
+      this._geometry = geometry;
+
+      // Material
+      this._material = new three.MeshBasicMaterial({
+        wireframe: true,
+      });
+
+      const mesh = new three.Mesh(this._geometry, undefined);
+      mesh.applyMatrix4(this._stack.ijk2LPS);
+      mesh.visible = this._visible;
+      this._meshStack = mesh;
+
+      this._mesh = new three.BoxHelper(this._meshStack, this._color);
+      this._material = this._mesh.material as THREE.Material;
+
+      this.add(this._mesh);
+    }
+
+    _update() {
+      if (this._mesh) {
+        this.remove(this._mesh);
+        this._mesh.geometry.dispose();
+        (this._mesh as any).geometry = null;
+        (this._mesh.material as THREE.Material).dispose();
+        (this._mesh as any).material = null;
+        this._mesh = null;
+      }
+
+      this._create();
+    }
+
+    dispose() {
+      (this._mesh!.material as THREE.Material).dispose();
+      (this._mesh as any).material = null;
+      this._geometry!.dispose();
+      this._geometry = null;
+      this._material!.dispose();
+      this._material = null;
+    }
+  };
+};
+
+// export factory
+export { helpersBoundingBox };
+// default export too
+export default helpersBoundingBox(THREE);

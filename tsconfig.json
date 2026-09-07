@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
+    "checkJs": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

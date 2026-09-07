@@ -9,16 +9,16 @@ interface WidgetControls {
 }
 
 interface WidgetParameter {
-  calibrationFactor: number;
-  frameIndex: number;
-  hideMesh: boolean;
-  hideHandleMesh: boolean;
-  ijk2LPS: Matrix4;
-  lps2IJK: Matrix4;
-  pixelSpacing: number;
-  stack: {};
-  ultrasoundRegions: Array<{}>;
-  worldPosition: Vector3;
+  calibrationFactor?: number;
+  frameIndex?: number;
+  hideMesh?: boolean;
+  hideHandleMesh?: boolean;
+  ijk2LPS?: Matrix4;
+  lps2IJK?: Matrix4;
+  pixelSpacing?: number;
+  stack?: {};
+  ultrasoundRegions?: Array<{}>;
+  worldPosition?: Vector3;
 }
 
 export interface USRegion {

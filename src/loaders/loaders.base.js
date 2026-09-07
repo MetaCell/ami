@@ -250,7 +250,7 @@ export default class LoadersBase extends EventEmitter {
    * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
-  load(url, requests) {
+  load(url, requests = undefined) {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];

@@ -921,7 +921,7 @@ export default class ParsersDicom extends ParsersVolume {
     const planarConfiguration = this.planarConfiguration();
     const columns = this.columns();
     const rows = this.rows();
-    const samplesPerPixel = this.samplesPerPixel(frameIndex);
+    const samplesPerPixel = this.samplesPerPixel();
     const pixelRepresentation = this.pixelRepresentation(frameIndex);
 
     // format data for the RLE decoder

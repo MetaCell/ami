@@ -116,9 +116,9 @@ export default class ParsersMHD extends ParsersVolume {
    * @param {*} frameIndex
    */
   pixelSpacing(frameIndex = 0) {
-    const x = parseFloat(this._header.ElementSpacing[1], 10);
-    const y = parseFloat(this._header.ElementSpacing[0], 10);
-    const z = parseFloat(this._header.ElementSpacing[2], 10);
+    const x = parseFloat(this._header.ElementSpacing[1]);
+    const y = parseFloat(this._header.ElementSpacing[0]);
+    const z = parseFloat(this._header.ElementSpacing[2]);
     return [x, y, z];
   }
 

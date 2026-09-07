@@ -309,7 +309,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      * @param {Vector3}     point  label's center coordinates (default)
      * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
      */
-    public adjustLabelTransform(label: HTMLDivElement, point: Vector3, corner: boolean) {
+    public adjustLabelTransform(label: HTMLDivElement, point: Vector3, corner: boolean = false) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
       let y =
         Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;

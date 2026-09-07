@@ -302,11 +302,11 @@ export default class ParsersMgh extends ParsersVolume {
     this._bufferPos += len;
     let v ;
     if (len == 1) {
-      v = tempBuff.getInt8(0, this._swapEndian);
+      v = tempBuff.getInt8(0);
     } else {
       v = new Int8Array(len);
       for (let i = 0; i < len; i++) {
-        v[i] = tempBuff.getInt8(i, this._swapEndian);
+        v[i] = tempBuff.getInt8(i);
       }
     }
     return v;
@@ -318,11 +318,11 @@ export default class ParsersMgh extends ParsersVolume {
     this._bufferPos += len;
     let v ;
     if (len == 1) {
-      v = tempBuff.getUint8(0, this._swapEndian);
+      v = tempBuff.getUint8(0);
     } else {
       v = new Uint8Array(len);
       for (let i = 0; i < len; i++) {
-        v[i] = tempBuff.getUint8(i, this._swapEndian);
+        v[i] = tempBuff.getUint8(i);
       }
     }
     return v;

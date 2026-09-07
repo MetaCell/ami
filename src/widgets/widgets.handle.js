@@ -137,7 +137,7 @@ const widgetsHandle = (three = window.THREE) => {
      * @param {Object} evt - Browser event
      * @param {Boolean} forced - true to move inactive handles
      */
-    onMove(evt, forced) {
+    onMove(evt, forced = false) {
       const offsets = this.getMouseOffsets(evt, this._container);
       this._mouse.set(offsets.x, offsets.y);
 

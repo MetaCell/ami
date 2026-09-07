@@ -5,6 +5,22 @@ We may want to also add it to the Gtihub release information.
 
 Note: We need this file so we can log new features while we are developing instead of having to do it all at once when release happens.
 
+## 1.0.0
+
+### Big changes
+- [[migration]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) Full JS → TS migration: the entire `src/` tree (99 files) is now TypeScript, with real `three.js` types via the `@types/three` devDependency (`three` itself ships no bundled declarations). Generated `.d.ts` output now carries real types instead of `any`-typed anonymous objects.
+- **BREAKING**: [[controls]](https://github.com/Metacell/ami/commit/64936787872b5a1e858f03c297e81ec239409933) Removed `OrbitControl`/`orbitControlFactory`. It was a vendored copy of an old three.js example (see `controls.orbit.js`'s own header), broken since at least the `three >= 0.180` peer dependency bump (`Quaternion.inverse()` was renamed to `.invert()` upstream years ago — construction threw unconditionally), and confirmed to have zero consumers across this repo, `geppetto-meta`, and `natus`. `TrackballControl`/`TrackballOrthoControl` are unaffected and remain the maintained orbit-style controls.
+
+### Fixed
+Real bugs surfaced by real types replacing `any` during the migration:
+- [[core: intersections]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) `aabbPlane`/`rayBox` can return `false` on invalid input; their only callers (`geometries.slice.js`, `rayBox`'s own use inside `core.intersections.js`) dereferenced the result unguarded — a real crash risk on invalid geometry, not just a type nit.
+- [[models: voxel]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) `ModelsVoxel.value` was mistyped as `number`; it's only ever assigned a formatted string (`'NA'` or `.toFixed()`).
+- [[widgets]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) Several widget/handle methods (`onMove`, `adjustLabelTransform`, `updateRoI`, `updateDOMContent`) were called both with and without their last argument across call sites, silently relying on `undefined` coercing to falsy — given explicit defaults at the one shared declaration instead of leaving it implicit.
+- [[parsers]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) Dropped a stray radix argument passed to `parseFloat` (`parsers.mhd.js` — `parseFloat` has no radix param, that's `parseInt`-only), an unused endian argument on single-byte `DataView` reads (`parsers.mgh.js` — a single byte has no endianness), and an unused `frameIndex` argument on a series-level DICOM tag read (`parsers.dicom.js`).
+
+### Changed
+- [[core]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) Deleted dead code found during the migration: `core.pack.js` and `helpers.dummy.js` (both unreferenced anywhere; `helpers.dummy.js` also referenced an unimported global `THREE` and would have thrown if ever instantiated).
+
 ## 0.34.0
 
 MetaCell fork, published as `@metacell/ami` on npm.

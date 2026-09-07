@@ -455,8 +455,8 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
         stack.dimensionsIJK.y,
         stack.dimensionsIJK.z,
       ];
+      uniformsSecondPass.uPackedPerPixel.value = stack.packedPerPixel;
       uniformsSecondPass.uSteps.value = myStack.steps;
-      console.log(uniformsSecondPass);
 
       // Geometry
       const scale = 4;

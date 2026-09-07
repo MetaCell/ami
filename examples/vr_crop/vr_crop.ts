@@ -11,28 +11,33 @@ import VRUniforms from 'base/shaders/shaders.vr.secondpass.uniform';
 import VRFragment from 'base/shaders/shaders.vr.secondpass.fragment';
 import VRVertex from 'base/shaders/shaders.vr.secondpass.vertex';
 
+// ThreeBSP (CSG) was never actually loaded by this example (no script tag,
+// no import) - the points.length === 10 branch below has always been dead
+// code. Declared only so this file type-checks; preserved as-is.
+declare const ThreeBSP: any;
+
 // standard global letiables
-let controls;
-let threeD;
-let renderer;
-let stats;
-let camera;
-let scene;
-let sceneT;
-let vrHelper;
-let lut;
+let controls: any;
+let threeD: HTMLElement;
+let renderer: THREE.WebGLRenderer;
+let stats: any;
+let camera: THREE.PerspectiveCamera;
+let scene: THREE.Scene;
+let sceneT: THREE.Scene;
+let vrHelper: any;
+let lut: any;
 let ready = false;
 let modified = false;
-let wheel = null;
-let wheelTO = null;
-let points = [];
-let baseMesh = null;
-let boxMeshSecondPass = null;
-let containerMesh = null;
-let materialFirstPass = null;
-let uniformsSecondPass = null;
-let materialSecondPass = null;
-let rtTexture = null;
+let wheel: number | null = null;
+let wheelTO: any = null;
+let points: THREE.Vector3[] = [];
+let baseMesh: THREE.Mesh | null = null;
+let boxMeshSecondPass: THREE.Mesh | null = null;
+let containerMesh: THREE.Mesh | null = null;
+let materialFirstPass: THREE.ShaderMaterial | null = null;
+let uniformsSecondPass: any = null;
+let materialSecondPass: THREE.ShaderMaterial | null = null;
+let rtTexture: THREE.WebGLRenderTarget | null = null;
 
 const myStack = {
   lut: 'random',
@@ -47,7 +52,7 @@ const myStack = {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-function onMouseMove(event) {
+function onMouseMove(event: MouseEvent) {
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
@@ -57,7 +62,7 @@ function onMouseMove(event) {
 
 window.addEventListener('mousemove', onMouseMove, false);
 
-function onStart(event) {
+function onStart(event: any) {
   // compute intersections
   // update the picking ray with the camera and mouse position
   console.log(mouse);
@@ -65,7 +70,7 @@ function onStart(event) {
   raycaster.setFromCamera(mouse, camera);
 
   // calculate objects intersecting the picking ray
-  let intersects = raycaster.intersectObject(containerMesh, false);
+  let intersects = raycaster.intersectObject(containerMesh!, false);
   console.log(intersects);
 
   for (let i = 0; i < intersects.length; i++) {
@@ -82,7 +87,7 @@ function onStart(event) {
 
   // smae in othre direction
   raycaster.ray.direction.multiplyScalar(-1);
-  intersects = raycaster.intersectObject(containerMesh, false);
+  intersects = raycaster.intersectObject(containerMesh!, false);
   console.log(intersects);
 
   for (let i = 0; i < intersects.length; i++) {
@@ -113,14 +118,14 @@ function onStart(event) {
     // baseMesh = result;
     // sceneT.add(result);
 
-    scene.remove(boxMeshSecondPass);
+    scene.remove(boxMeshSecondPass!);
     const currentMesh2 = boxMeshSecondPass;
     const base_bsp2 = new ThreeBSP(currentMesh2);
     const subtract_bsp2 = base_bsp2.subtract(sphere_bsp);
     const result2 = subtract_bsp2.toMesh(materialSecondPass);
     result2.geometry.computeVertexNormals();
 
-    scene.remove(currentMesh2);
+    scene.remove(currentMesh2!);
     boxMeshSecondPass = result2;
     scene.add(result2);
 
@@ -136,7 +141,7 @@ function onStart(event) {
   }
 }
 
-function onEnd(event) {
+function onEnd(event: any) {
   if (vrHelper && uniformsSecondPass && !wheel) {
     uniformsSecondPass.uSteps.value = myStack.steps;
     vrHelper.interpolation = myStack.interpolation;
@@ -179,12 +184,12 @@ function buildGUI() {
     autoPlace: false,
   });
 
-  const customContainer = document.getElementById('my-gui-container');
+  const customContainer = document.getElementById('my-gui-container')!;
   customContainer.appendChild(gui.domElement);
 
   const stackFolder = gui.addFolder('Settings');
   const lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
-  lutUpdate.onChange((value) => {
+  lutUpdate.onChange((value: string) => {
     lut.lut = value;
     uniformsSecondPass.uTextureLUT.value.dispose();
     uniformsSecondPass.uTextureLUT.value = lut.texture;
@@ -196,7 +201,7 @@ function buildGUI() {
   uniformsSecondPass.uTextureLUT.value = lut.texture;
 
   const opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
-  opacityUpdate.onChange((value) => {
+  opacityUpdate.onChange((value: string) => {
     lut.lutO = value;
     uniformsSecondPass.uTextureLUT.value.dispose();
     uniformsSecondPass.uTextureLUT.value = lut.texture;
@@ -204,7 +209,7 @@ function buildGUI() {
   });
 
   const stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
-  stepsUpdate.onChange((value) => {
+  stepsUpdate.onChange((value: number) => {
     if (uniformsSecondPass) {
       uniformsSecondPass.uSteps.value = value;
       modified = true;
@@ -212,7 +217,7 @@ function buildGUI() {
   });
 
   const alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
-  alphaCorrrectionUpdate.onChange((value) => {
+  alphaCorrrectionUpdate.onChange((value: number) => {
     if (uniformsSecondPass) {
       uniformsSecondPass.uAlphaCorrection.value = value;
       modified = true;
@@ -220,7 +225,7 @@ function buildGUI() {
   });
 
   const interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
-  interpolationUpdate.onChange((value) => {
+  interpolationUpdate.onChange((value: number) => {
     if (uniformsSecondPass) {
       modified = true;
     }
@@ -253,7 +258,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
@@ -276,7 +281,7 @@ function init() {
   camera.up.set(-0.42, 0.86, 0.26);
 
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 5.5;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -302,7 +307,7 @@ window.onload = () => {
 
   // load sequence for each file
   // instantiate the loader
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
   loader
     .load(filename)
     .then(() => {
@@ -311,9 +316,9 @@ window.onload = () => {
       loader = null;
       // get first stack from series
       const stack = series.stack[0];
-      const stackHelper = new HelpersStack(stack);
+      const stackHelper = new (HelpersStack!)(stack);
 
-      vrHelper = new HelpersVR(stack);
+      vrHelper = new (HelpersVR!)(stack);
       // scene
       console.log(stackHelper._bBox._meshStack);
       // Convenience vars
@@ -337,7 +342,7 @@ window.onload = () => {
       });
       material.side = THREE.DoubleSide;
 
-      const uniformsFirstPass = {
+      const uniformsFirstPass: any = {
         uWorldBBox: {
           type: 'fv1',
           value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -347,7 +352,7 @@ window.onload = () => {
       materialFirstPass = new THREE.ShaderMaterial({
         uniforms: uniformsFirstPass,
         side: THREE.BackSide,
-        vertexShader: ` 
+        vertexShader: `
 varying vec4 vPos;
 
 //
@@ -394,7 +399,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
 
       sceneT.add(baseMesh);
 
-      const _textures = [];
+      const _textures: THREE.DataTexture[] = [];
       for (let m = 0; m < stack._rawData.length; m++) {
         const tex = new THREE.DataTexture(
           stack.rawData[m],
@@ -480,9 +485,9 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       scene.add(containerMesh);
 
       // CREATE LUT
-      lut = new HelpersLut('my-lut-canvases');
-      lut.luts = HelpersLut.presetLuts();
-      lut.lutsO = HelpersLut.presetLutsO();
+      lut = new (HelpersLut!)('my-lut-canvases');
+      lut.luts = (HelpersLut as any).presetLuts();
+      lut.lutsO = (HelpersLut as any).presetLutsO();
       // update related uniforms
       uniformsSecondPass.uTextureLUT.value = lut.texture;
       uniformsSecondPass.uLut.value = 1;
@@ -517,7 +522,7 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       buildGUI();
 
       // screenshot experiment
-      const screenshotElt = document.getElementById('screenshot');
+      const screenshotElt = document.getElementById('screenshot')! as HTMLAnchorElement;
       screenshotElt.addEventListener('click', () => {
         controls.update();
 
@@ -534,5 +539,5 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       ready = true;
       modified = true;
     })
-    .catch(error => window.console.log(error));
+    .catch((error: any) => window.console.log(error));
 };

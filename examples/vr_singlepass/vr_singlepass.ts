@@ -7,18 +7,18 @@ import HelpersVR from 'base/helpers/helpers.volumerendering';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
-let controls;
-let threeD;
-let renderer;
-let stats;
-let camera;
-let scene;
-let vrHelper;
-let lut;
+let controls: any;
+let threeD: HTMLElement;
+let renderer: THREE.WebGLRenderer;
+let stats: any;
+let camera: THREE.PerspectiveCamera;
+let scene: THREE.Scene;
+let vrHelper: any;
+let lut: any;
 let ready = false;
 let modified = false;
-let wheel = null;
-let wheelTO = null;
+let wheel: number | null = null;
+let wheelTO: ReturnType<typeof setTimeout> | null = null;
 
 const myStack = {
   algorithm: 'ray marching',
@@ -31,7 +31,7 @@ const myStack = {
   interpolation: 1,
 };
 
-function onStart(event) {
+function onStart(event?: any) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
     renderer.setPixelRatio(0.1 * window.devicePixelRatio);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -39,7 +39,7 @@ function onStart(event) {
   }
 }
 
-function onEnd(event) {
+function onEnd(event?: any) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
     renderer.setPixelRatio(0.5 * window.devicePixelRatio);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -61,7 +61,7 @@ function onWheel() {
   }
 
   if (Date.now() - wheel < 300) {
-    clearTimeout(wheelTO);
+    clearTimeout(wheelTO!);
     wheelTO = setTimeout(() => {
       renderer.setPixelRatio(0.5 * window.devicePixelRatio);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -94,18 +94,18 @@ function buildGUI() {
     autoPlace: false,
   });
 
-  const customContainer = document.getElementById('my-gui-container');
+  const customContainer = document.getElementById('my-gui-container')!;
   customContainer.appendChild(gui.domElement);
 
   const stackFolder = gui.addFolder('Settings');
   const algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
-  algorithmUpdate.onChange((value) => {
+  algorithmUpdate.onChange((value: string) => {
     vrHelper.algorithm = value === 'mip' ? 1 : 0;
     modified = true;
   });
 
   const lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
-  lutUpdate.onChange((value) => {
+  lutUpdate.onChange((value: string) => {
     lut.lut = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
@@ -117,7 +117,7 @@ function buildGUI() {
   vrHelper.uniforms.uTextureLUT.value = lut.texture;
 
   const opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
-  opacityUpdate.onChange((value) => {
+  opacityUpdate.onChange((value: string) => {
     lut.lutO = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
@@ -125,7 +125,7 @@ function buildGUI() {
   });
 
   const stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
-  stepsUpdate.onChange((value) => {
+  stepsUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uSteps.value = value;
       modified = true;
@@ -133,7 +133,7 @@ function buildGUI() {
   });
 
   const alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
-  alphaCorrrectionUpdate.onChange((value) => {
+  alphaCorrrectionUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uAlphaCorrection.value = value;
       modified = true;
@@ -141,21 +141,21 @@ function buildGUI() {
   });
 
   const interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
-  interpolationUpdate.onChange((value) => {
+  interpolationUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
   });
 
   const shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
-  shadingUpdate.onChange((value) => {
+  shadingUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
   });
 
   const shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(0.1);
-  shininessUpdate.onChange((value) => {
+  shininessUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       modified = true;
     }
@@ -188,7 +188,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
@@ -211,7 +211,7 @@ function init() {
   camera.up.set(-0.42, 0.86, 0.26);
 
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 5.5;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -238,7 +238,7 @@ window.onload = () => {
 
   // load sequence for each file
   // instantiate the loader
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
   loader
     .load(files)
     .then(() => {
@@ -248,14 +248,14 @@ window.onload = () => {
       // get first stack from series
       const stack = series.stack[0];
 
-      vrHelper = new HelpersVR(stack);
+      vrHelper = new (HelpersVR!)(stack);
       // scene
       scene.add(vrHelper);
 
       // CREATE LUT
-      lut = new HelpersLut('my-lut-canvases');
-      lut.luts = HelpersLut.presetLuts();
-      lut.lutsO = HelpersLut.presetLutsO();
+      lut = new (HelpersLut!)('my-lut-canvases');
+      lut.luts = (HelpersLut as any).presetLuts();
+      lut.lutsO = (HelpersLut as any).presetLutsO();
       // update related uniforms
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
       vrHelper.uniforms.uLut.value = 1;
@@ -270,7 +270,7 @@ window.onload = () => {
       buildGUI();
 
       // screenshot experiment
-      const screenshotElt = document.getElementById('screenshot');
+      const screenshotElt = document.getElementById('screenshot') as HTMLAnchorElement;
       screenshotElt.addEventListener('click', () => {
         controls.update();
 
@@ -294,5 +294,5 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(error => window.console.log(error));
+    .catch((error: any) => window.console.log(error));
 };

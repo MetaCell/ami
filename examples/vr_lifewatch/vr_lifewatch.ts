@@ -7,11 +7,11 @@ import HelpersVR from 'base/helpers/helpers.volumerendering';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
-let controls, threeD, renderer, stats, camera, scene;
-let vrHelper;
-let lut;
+let controls: any, threeD: HTMLElement, renderer: THREE.WebGLRenderer, stats: any, camera: THREE.PerspectiveCamera, scene: THREE.Scene;
+let vrHelper: any;
+let lut: any;
 let ready = false;
-let interpolationState;
+let interpolationState: number;
 
 const myStack = {
   lut: 'walking_dead',
@@ -53,12 +53,12 @@ function buildGUI() {
     autoPlace: false,
   });
 
-  const customContainer = document.getElementById('my-gui-container');
+  const customContainer = document.getElementById('my-gui-container')!;
   customContainer.appendChild(gui.domElement);
 
   const stackFolder = gui.addFolder('Settings');
   const lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
-  lutUpdate.onChange((value) => {
+  lutUpdate.onChange((value: string) => {
     lut.lut = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
@@ -69,35 +69,35 @@ function buildGUI() {
   vrHelper.uniforms.uTextureLUT.value = lut.texture;
 
   const opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
-  opacityUpdate.onChange((value) => {
+  opacityUpdate.onChange((value: string) => {
     lut.lutO = value;
     vrHelper.uniforms.uTextureLUT.value.dispose();
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
   });
 
   const stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
-  stepsUpdate.onChange((value) => {
+  stepsUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uSteps.value = value;
     }
   });
 
   const alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
-  alphaCorrrectionUpdate.onChange((value) => {
+  alphaCorrrectionUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uAlphaCorrection.value = value;
     }
   });
 
   const frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
-  frequenceUpdate.onChange((value) => {
+  frequenceUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uFrequence.value = value;
     }
   });
 
   const amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
-  amplitudeUpdate.onChange((value) => {
+  amplitudeUpdate.onChange((value: number) => {
     if (vrHelper.uniforms) {
       vrHelper.uniforms.uAmplitude.value = value;
     }
@@ -130,7 +130,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
@@ -149,7 +149,7 @@ function init() {
   camera.up.set(-0.42, 0.86, 0.26);
 
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 5.5;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -187,19 +187,19 @@ window.onload = () => {
   // instantiate the loader
   // it loads and parses the dicom image
   // hookup a progress bar....
-  let loader = new LoadersVolume(threeD);
-  const seriesContainer = [];
-  const loadSequence = [];
-  files.forEach(url => {
+  let loader: any = new LoadersVolume(threeD);
+  const seriesContainer: any[] = [];
+  const loadSequence: Promise<any>[] = [];
+  files.forEach((url) => {
     loadSequence.push(
       Promise.resolve()
         // fetch the file
         .then(() => loader.fetch(url))
-        .then(data => loader.parse(data))
-        .then(series => {
+        .then((data: any) => loader.parse(data))
+        .then((series: any) => {
           seriesContainer.push(series);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           window.console.log('oops... something went wrong...');
           window.console.log(error);
         })
@@ -216,15 +216,15 @@ window.onload = () => {
       // get first stack from series
       const stack = series.stack[0];
 
-      vrHelper = new HelpersVR(stack);
+      vrHelper = new (HelpersVR!)(stack);
       // scene
       scene = new THREE.Scene();
       scene.add(vrHelper);
 
       // CREATE LUT
-      lut = new HelpersLut('my-lut-canvases');
-      lut.luts = HelpersLut.presetLuts();
-      lut.lutsO = HelpersLut.presetLutsO();
+      lut = new (HelpersLut!)('my-lut-canvases');
+      lut.luts = (HelpersLut as any).presetLuts();
+      lut.lutsO = (HelpersLut as any).presetLutsO();
       // update related uniforms
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
       vrHelper.uniforms.uLut.value = 1;
@@ -239,7 +239,7 @@ window.onload = () => {
       buildGUI();
 
       // screenshot experiment
-      const screenshotElt = document.getElementById('screenshot');
+      const screenshotElt = document.getElementById('screenshot') as HTMLAnchorElement;
       screenshotElt.addEventListener('click', () => {
         controls.update();
 
@@ -262,5 +262,5 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(error => window.console.log(error));
+    .catch((error: any) => window.console.log(error));
 };

@@ -13,15 +13,15 @@ import LoadersVolume from 'base/loaders/loaders.volume';
 import FreeSurferLoader from 'base/loaders/loaders.freesurfer';
 
 // standard global variables
-let stats;
+let stats: any;
 let ready = false;
 
-let redContourHelper = null;
-let redTextureTarget = null;
-let redContourScene = null;
+let redContourHelper: any = null;
+let redTextureTarget: THREE.WebGLRenderTarget | null = null;
+let redContourScene: THREE.Scene | null = null;
 
 // 3d renderer
-const r0 = {
+const r0: any = {
   domId: 'r0',
   domElement: null,
   renderer: null,
@@ -34,7 +34,7 @@ const r0 = {
 };
 
 // 2d axial renderer
-const r1 = {
+const r1: any = {
   domId: 'r1',
   domElement: null,
   renderer: null,
@@ -52,7 +52,7 @@ const r1 = {
 };
 
 // 2d sagittal renderer
-const r2 = {
+const r2: any = {
   domId: 'r2',
   domElement: null,
   renderer: null,
@@ -70,7 +70,7 @@ const r2 = {
 };
 
 // 2d coronal renderer
-const r3 = {
+const r3: any = {
   domId: 'r3',
   domElement: null,
   renderer: null,
@@ -88,7 +88,7 @@ const r3 = {
 };
 
 // data to be loaded
-const dataInfo = [
+const dataInfo: [string, any][] = [
   [
     'adi1',
     {
@@ -123,7 +123,7 @@ const dataInfo = [
   ],
 ];
 
-const data = new Map(dataInfo);
+const data = new Map<string, any>(dataInfo);
 
 // extra variables to show mesh plane intersections in 2D renderers
 const sceneClip = new THREE.Scene();
@@ -131,7 +131,7 @@ const clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 const clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 const clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 
-function initRenderer3D(renderObj) {
+function initRenderer3D(renderObj: any) {
   // renderer
   renderObj.domElement = document.getElementById(renderObj.domId);
   renderObj.renderer = new THREE.WebGLRenderer({
@@ -154,7 +154,7 @@ function initRenderer3D(renderObj) {
   renderObj.camera.position.z = 250;
 
   // controls
-  renderObj.controls = new ControlsTrackball(renderObj.camera, renderObj.domElement);
+  renderObj.controls = new (ControlsTrackball!)(renderObj.camera, renderObj.domElement);
   renderObj.controls.rotateSpeed = 5.5;
   renderObj.controls.zoomSpeed = 1.2;
   renderObj.controls.panSpeed = 0.8;
@@ -174,7 +174,7 @@ function initRenderer3D(renderObj) {
   renderObj.domElement.appendChild(stats.domElement);
 }
 
-function initRenderer2D(rendererObj) {
+function initRenderer2D(rendererObj: any) {
   // renderer
   rendererObj.domElement = document.getElementById(rendererObj.domId);
   rendererObj.renderer = new THREE.WebGLRenderer({
@@ -191,7 +191,7 @@ function initRenderer2D(rendererObj) {
   rendererObj.domElement.appendChild(rendererObj.renderer.domElement);
 
   // camera
-  rendererObj.camera = new CamerasOrthographic(
+  rendererObj.camera = new (CamerasOrthographic!)(
     rendererObj.domElement.clientWidth / -2,
     rendererObj.domElement.clientWidth / 2,
     rendererObj.domElement.clientHeight / 2,
@@ -201,7 +201,7 @@ function initRenderer2D(rendererObj) {
   );
 
   // controls
-  rendererObj.controls = new ControlsOrthographic(rendererObj.camera, rendererObj.domElement);
+  rendererObj.controls = new (ControlsOrthographic!)(rendererObj.camera, rendererObj.domElement);
   rendererObj.controls.staticMoving = true;
   rendererObj.controls.noRotate = true;
   rendererObj.camera.controls = rendererObj.controls;
@@ -210,8 +210,8 @@ function initRenderer2D(rendererObj) {
   rendererObj.scene = new THREE.Scene();
 }
 
-function initHelpersStack(rendererObj, stack) {
-  rendererObj.stackHelper = new HelpersStack(stack);
+function initHelpersStack(rendererObj: any, stack: any) {
+  rendererObj.stackHelper = new (HelpersStack!)(stack);
   rendererObj.stackHelper.bbox.visible = false;
   rendererObj.stackHelper.borderColor = rendererObj.sliceColor;
   rendererObj.stackHelper.slice.canvasWidth = rendererObj.domElement.clientWidth;
@@ -249,8 +249,8 @@ function initHelpersStack(rendererObj, stack) {
   rendererObj.scene.add(rendererObj.stackHelper);
 }
 
-function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
-  rendererObj.localizerHelper = new HelpersLocalizer(
+function initHelpersLocalizer(rendererObj: any, stack: any, referencePlane: any, localizers: any[]) {
+  rendererObj.localizerHelper = new (HelpersLocalizer!)(
     stack,
     rendererObj.stackHelper.slice.geometry,
     referencePlane
@@ -370,7 +370,7 @@ window.onload = () => {
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume();
+  let loader: any = new LoadersVolume();
   loader
     .load(files)
     .then(() => {
@@ -388,7 +388,7 @@ window.onload = () => {
       r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
       // bouding box
-      const boxHelper = new HelpersBoundingBox(stack);
+      const boxHelper = new (HelpersBoundingBox!)(stack);
       r0.scene.add(boxHelper);
 
       // red slice
@@ -405,7 +405,7 @@ window.onload = () => {
         }
       );
 
-      redContourHelper = new HelpersContour(stack, r1.stackHelper.slice.geometry);
+      redContourHelper = new (HelpersContour!)(stack, r1.stackHelper.slice.geometry, null);
       redContourHelper.canvasWidth = redTextureTarget.width;
       redContourHelper.canvasHeight = redTextureTarget.height;
       redContourHelper.textureToFilter = redTextureTarget.texture;
@@ -447,7 +447,7 @@ window.onload = () => {
         autoPlace: false,
       });
 
-      const customContainer = document.getElementById('my-gui-container');
+      const customContainer = document.getElementById('my-gui-container')!;
       customContainer.appendChild(gui.domElement);
 
       // Red
@@ -486,7 +486,7 @@ window.onload = () => {
       /**
        * Update Layer Mix
        */
-      function updateLocalizer(refObj, targetLocalizersHelpers) {
+      function updateLocalizer(refObj: any, targetLocalizersHelpers: any[]) {
         const refHelper = refObj.stackHelper;
         const localizerHelper = refObj.localizerHelper;
         const plane = refHelper.slice.cartesianEquation();
@@ -511,7 +511,7 @@ window.onload = () => {
         localizerHelper.geometry = refHelper.slice.geometry;
       }
 
-      function updateClipPlane(refObj, clipPlane) {
+      function updateClipPlane(refObj: any, clipPlane: THREE.Plane) {
         const stackHelper = refObj.stackHelper;
         const camera = refObj.camera;
         const vertices = stackHelper.slice.geometry.vertices;
@@ -560,17 +560,17 @@ window.onload = () => {
 
       greenChanged.onChange(onGreenChanged);
 
-      function onDoubleClick(event) {
+      function onDoubleClick(event: any) {
         const canvas = event.target.parentElement;
         const id = event.target.id;
-        const mouse = {
-          x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
-          y: -((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1,
-        };
+        const mouse = new THREE.Vector2(
+          ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
+          -((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1
+        );
         //
-        let camera = null;
-        let stackHelper = null;
-        let scene = null;
+        let camera: any = null;
+        let stackHelper: any = null;
+        let scene: any = null;
         switch (id) {
           case '0':
             camera = r0.camera;
@@ -617,17 +617,17 @@ window.onload = () => {
       r2.domElement.addEventListener('dblclick', onDoubleClick);
       r3.domElement.addEventListener('dblclick', onDoubleClick);
 
-      function onClick(event) {
+      function onClick(event: any) {
         const canvas = event.target.parentElement;
         const id = event.target.id;
-        const mouse = {
-          x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
-          y: -((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1,
-        };
+        const mouse = new THREE.Vector2(
+          ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
+          -((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1
+        );
         //
-        let camera = null;
-        let stackHelper = null;
-        let scene = null;
+        let camera: any = null;
+        let stackHelper: any = null;
+        let scene: any = null;
         switch (id) {
           case '0':
             camera = r0.camera;
@@ -656,8 +656,8 @@ window.onload = () => {
 
         const intersects = raycaster.intersectObjects(scene.children, true);
         if (intersects.length > 0) {
-          if (intersects[0].object && intersects[0].object.objRef) {
-            const refObject = intersects[0].object.objRef;
+          if (intersects[0].object && (intersects[0].object as any).objRef) {
+            const refObject = (intersects[0].object as any).objRef;
             refObject.selected = !refObject.selected;
 
             let color = refObject.color;
@@ -674,9 +674,9 @@ window.onload = () => {
       }
       r0.domElement.addEventListener('click', onClick);
 
-      function onScroll(event) {
+      function onScroll(event: any) {
         const id = event.target.domElement.id;
-        let stackHelper = null;
+        let stackHelper: any = null;
         switch (id) {
           case 'r1':
             stackHelper = r1.stackHelper;
@@ -711,7 +711,7 @@ window.onload = () => {
       r2.controls.addEventListener('OnScroll', onScroll);
       r3.controls.addEventListener('OnScroll', onScroll);
 
-      function windowResize2D(rendererObj) {
+      function windowResize2D(rendererObj: any) {
         rendererObj.camera.canvas = {
           width: rendererObj.domElement.clientWidth,
           height: rendererObj.domElement.clientHeight,
@@ -745,9 +745,9 @@ window.onload = () => {
 
       // load meshes on the stack is all set
       let meshesLoaded = 0;
-      function loadSTLObject(object) {
+      function loadSTLObject(object: any) {
         const stlLoader = new FreeSurferLoader();
-        stlLoader.load(object.location, (geometry) => {
+        stlLoader.load(object.location, (geometry: any) => {
           geometry.computeVertexNormals();
           // 3D mesh
           object.material = new THREE.MeshLambertMaterial({
@@ -838,7 +838,7 @@ window.onload = () => {
         loadSTLObject(object);
       });
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

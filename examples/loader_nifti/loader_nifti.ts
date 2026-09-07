@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { VTKLoader } from 'three/examples/jsm/loaders/VTKLoader.js';
 /* globals Stats*/
 
 import ControlsTrackball from 'base/controls/controls.trackball';
@@ -6,23 +7,16 @@ import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global variables
-let controls;
-let renderer;
-let stats;
-let scene;
-let camera;
-let stackHelper;
-let threeD;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let stats: any;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
+let stackHelper: any;
+let threeD: HTMLElement;
+let brain: THREE.Mesh;
 
 function render() {
-  if (stackHelper) {
-    stackHelper.index += 1;
-    if (stackHelper.outOfBounds === true) {
-      stackHelper.orientation = (stackHelper.orientation + 1) % 3;
-      stackHelper.index = 0;
-    }
-  }
-
   controls.update();
   renderer.render(scene, camera);
   stats.update();
@@ -40,7 +34,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -62,8 +56,13 @@ function init() {
   camera.position.y = 250;
   camera.position.z = 250;
 
+  scene.add(new THREE.AmbientLight(0x353535));
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(200, 200, 1000).normalize();
+  scene.add(directionalLight);
+
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -75,81 +74,69 @@ window.onload = () => {
   // init threeJS...
   init();
 
+  // load vtk file
+  const loader1 = new VTKLoader();
+  loader1.load(
+    'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/fetalatlas_brain/cortex.vtk',
+    (geometry: any) => {
+      geometry.computeVertexNormals();
+      const material = new THREE.MeshLambertMaterial({
+        color: 0x009688,
+        side: THREE.DoubleSide,
+      });
+      brain = new THREE.Mesh(geometry, material);
+      const toLPS = new THREE.Matrix4();
+      toLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+      brain.applyMatrix4(toLPS);
+      scene.add(brain);
+    }
+  );
+
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
 
-  const t2 = [
-    '36444280',
-    '36444294',
-    '36444308',
-    // '36444322',
-    // '36444336',
-    // '36444350',
-    // '36444364',
-    // '36444378',
-    // '36444392',
-    // '36444406',
-    // '36748256',
-    // '36444434',
-    // '36444448',
-    // '36444462',
-    // '36444476',
-    // '36444490',
-    // '36444504',
-    // '36444518',
-    // '36444532',
-    // '36746856',
-    // '36746870',
-    // '36746884',
-    // '36746898',
-    // '36746912',
-    // '36746926',
-    // '36746940',
-    // '36746954',
-    // '36746968',
-    // '36746982',
-    // '36746996',
-    // '36747010',
-    // '36747024',
-    // '36748200',
-    // '36748214',
-    // '36748228',
-    // '36748270',
-    // '36748284',
-    // '36748298',
-    // '36748312',
-    // '36748326',
-    // '36748340',
-    // '36748354',
-    // '36748368',
-    // '36748382',
-    // '36748396',
-    // '36748410',
-    // '36748424',
-    // '36748438',
-    // '36748452',
-    // '36748466',
-    // '36748480',
-    // '36748494',
-    // '36748508',
-    // '36748522',
-    // '36748242',
-  ];
+  const t2 = ['template_T2.nii.gz'];
 
-  const files = t2.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/' + v);
+  const files = t2.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/fetalatlas_brain/t2/' + v);
+
+  // load sequence for each file
+  const loadSequence: any[] = [];
+  files.forEach((url) => {
+    loadSequence.push(loader.load(url));
+  });
 
   // load sequence for all files
-  loader
-    .load(files)
+  Promise.all(loadSequence)
     .then(() => {
       // make a proper function for this guy...
       const series = loader.data[0].mergeSeries(loader.data)[0];
       const stack = series.stack[0];
-      stackHelper = new HelpersStack(stack);
+      stackHelper = new (HelpersStack!)(stack);
       stackHelper.bbox.color = 0xf9f9f9;
       stackHelper.border.color = 0xf9f9f9;
       scene.add(stackHelper);
+
+      // fill second renderer
+      const stackHelper1 = new (HelpersStack!)(stack);
+      stackHelper1.orientation = 2;
+      stackHelper1.bbox.visible = false;
+      stackHelper1.border.color = 0xff1744;
+      scene.add(stackHelper1);
+
+      // fill second renderer
+      const stackHelper2 = new (HelpersStack!)(stack);
+      stackHelper2.orientation = 1;
+      stackHelper2.bbox.visible = false;
+      stackHelper2.border.color = 0xff1744;
+      scene.add(stackHelper2);
+
+      // /
+      const geometry = new (THREE as any).SphereBufferGeometry(5, 32, 32);
+      const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
+      scene.add(sphere);
 
       // update camrea's and control's target
       const centerLPS = stackHelper.stack.worldCenter();
@@ -176,7 +163,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

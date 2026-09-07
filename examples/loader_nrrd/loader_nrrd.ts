@@ -7,13 +7,13 @@ import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global variables
-let controls;
-let renderer;
-let stats;
-let scene;
-let camera;
-let stackHelper;
-let threeD;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let stats: any;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
+let stackHelper: any;
+let threeD: HTMLElement;
 
 function render() {
   controls.update();
@@ -33,7 +33,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -65,7 +65,7 @@ function init() {
   scene.add(directionalLight2);
 
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -80,14 +80,14 @@ window.onload = () => {
   // load vtk file
   const loader1 = new VTKLoader();
   loader1.load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/vtk/marc_avf/avf.vtk', (
-    geometry
+    geometry: any
   ) => {
     geometry.computeVertexNormals();
     const material = new THREE.MeshLambertMaterial({
-      shading: THREE.SmoothShading,
+      shading: (THREE as any).SmoothShading,
       color: 0xe91e63,
       side: THREE.DoubleSide,
-    });
+    } as any);
     const mesh = new THREE.Mesh(geometry, material);
     const RASToLPS = new THREE.Matrix4();
     RASToLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -97,14 +97,14 @@ window.onload = () => {
 
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
   loader
     .load('https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/marc_avf/avf_float_32.nii.gz')
     .then(() => {
       // make a proper function for this guy...
       const series = loader.data[0].mergeSeries(loader.data)[0];
       const stack = series.stack[0];
-      stackHelper = new HelpersStack(stack);
+      stackHelper = new (HelpersStack!)(stack);
       stackHelper.bbox.color = 0xf9f9f9;
       stackHelper.border.color = 0xf9f9f9;
       scene.add(stackHelper);
@@ -134,7 +134,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

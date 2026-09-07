@@ -15,18 +15,18 @@ import ShadersVertex from 'base/shaders/shaders.data.vertex';
 import ShadersFragment from 'base/shaders/shaders.data.fragment';
 
 // standard global letiables
-let controls;
-let renderer;
-let camera;
-let statsyay;
-let threeD;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let camera: any;
+let statsyay: any;
+let threeD: HTMLElement;
 //
 const mouse = {
   x: 0,
   y: 0,
 };
 
-function onMouseMove(event) {
+function onMouseMove(event: MouseEvent) {
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
@@ -38,25 +38,25 @@ function onMouseMove(event) {
 }
 
 //
-let sceneLayer0TextureTarget;
-let sceneLayer1TextureTarget;
+let sceneLayer0TextureTarget: any;
+let sceneLayer1TextureTarget: any;
 //
-let sceneLayer0;
+let sceneLayer0: THREE.Scene;
 //
-let lutLayer0;
-let sceneLayer1;
-let meshLayer1;
-let uniformsLayer1;
-let materialLayer1;
-let lutLayer1;
-let sceneLayerMix;
-let meshLayerMix;
-let uniformsLayerMix;
-let materialLayerMix;
+let lutLayer0: any;
+let sceneLayer1: THREE.Scene;
+let meshLayer1: any;
+let uniformsLayer1: any;
+let materialLayer1: any;
+let lutLayer1: any;
+let sceneLayerMix: THREE.Scene;
+let meshLayerMix: any;
+let uniformsLayerMix: any;
+let materialLayerMix: any;
 
 const layer1 = {
   opacity: 1.0,
-  lut: null,
+  lut: null as any,
   interpolation: 1,
 };
 
@@ -98,7 +98,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
@@ -131,7 +131,7 @@ function init() {
   });
 
   // camera
-  camera = new CamerasOrthographic(
+  camera = new (CamerasOrthographic!)(
     threeD.clientWidth / -2,
     threeD.clientWidth / 2,
     threeD.clientHeight / 2,
@@ -141,7 +141,7 @@ function init() {
   );
 
   // controls
-  controls = new ControlsOrthographic(camera, threeD);
+  controls = new (ControlsOrthographic!)(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
   camera.controls = controls;
@@ -160,7 +160,7 @@ window.onload = () => {
 
   const files = data.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/slicer_brain/' + v);
 
-  function buildGUI(stackHelper) {
+  function buildGUI(stackHelper: any) {
     function updateLayer1() {
       // update layer1 geometry...
       if (meshLayer1) {
@@ -193,7 +193,7 @@ window.onload = () => {
       autoPlace: false,
     });
 
-    const customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container')!;
     customContainer.appendChild(gui.domElement);
 
     //
@@ -212,7 +212,7 @@ window.onload = () => {
     layer0Folder.add(stackHelper.slice, 'invert');
 
     const lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
-    lutUpdate.onChange((value) => {
+    lutUpdate.onChange((value: string) => {
       lutLayer0.lut = value;
       stackHelper.slice.lutTexture = lutLayer0.texture;
     });
@@ -241,7 +241,7 @@ window.onload = () => {
       .add(layer1, 'interpolation', 0, 1)
       .step(1)
       .listen();
-    interpolationLayer1.onChange((value) => {
+    interpolationLayer1.onChange((value: number) => {
       uniformsLayer1.uInterpolation.value = value;
       // re-compute shaders
       const fs = new ShadersFragment(uniformsLayer1);
@@ -249,7 +249,7 @@ window.onload = () => {
       materialLayer1.needsUpdate = true;
     });
     const layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
-    layer1LutUpdate.onChange((value) => {
+    layer1LutUpdate.onChange((value: string) => {
       lutLayer1.lut = value;
       // propagate to shaders
       uniformsLayer1.uLut.value = 1;
@@ -266,12 +266,12 @@ window.onload = () => {
       .add(layerMix, 'opacity1', 0, 1)
       .step(0.01)
       .listen();
-    opacityLayerMix.onChange((value) => {
+    opacityLayerMix.onChange((value: number) => {
       uniformsLayerMix.uOpacity1.value = value;
     });
 
     const layerMixTrackMouseUpdate = layerMixFolder.add(layerMix, 'trackMouse');
-    layerMixTrackMouseUpdate.onChange((value) => {
+    layerMixTrackMouseUpdate.onChange((value: boolean) => {
       if (value) {
         uniformsLayerMix.uTrackMouse.value = 1;
       } else {
@@ -282,7 +282,7 @@ window.onload = () => {
     layerMixFolder.open();
 
     // hook up callbacks
-    controls.addEventListener('OnScroll', (e) => {
+    controls.addEventListener('OnScroll', (e: any) => {
       if (e.delta > 0) {
         if (stackHelper.index >= stack.dimensionsIJK.z - 1) {
           return false;
@@ -303,7 +303,7 @@ window.onload = () => {
     updateLayerMix();
 
     function onWindowResize() {
-      const threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d')!;
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -322,7 +322,7 @@ window.onload = () => {
     window.addEventListener('mousemove', onMouseMove, false);
   }
 
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
   function handleSeries() {
     //
     // first stack of first series
@@ -347,7 +347,7 @@ window.onload = () => {
     stack = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
 
-    const stackHelper = new HelpersStack(stack);
+    const stackHelper = new (HelpersStack!)(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
 
@@ -470,23 +470,23 @@ window.onload = () => {
     camera.fitBox(2);
 
     // CREATE LUT
-    lutLayer0 = new HelpersLut(
+    lutLayer0 = new (HelpersLut!)(
       'my-lut-canvases-l0',
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
       [[0, 1], [1, 1]]
     );
-    lutLayer0.luts = HelpersLut.presetLuts();
+    lutLayer0.luts = (HelpersLut as any).presetLuts();
 
-    lutLayer1 = new HelpersLut(
+    lutLayer1 = new (HelpersLut!)(
       'my-lut-canvases-l1',
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
       [[0, 1], [1, 1]]
     );
-    lutLayer1.luts = HelpersLut.presetLuts();
+    lutLayer1.luts = (HelpersLut as any).presetLuts();
     layer1.lut = lutLayer1;
 
     buildGUI(stackHelper);
@@ -504,7 +504,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

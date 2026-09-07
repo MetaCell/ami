@@ -17,14 +17,14 @@ import WidgetsRuler from 'base/widgets/widgets.ruler';
 import WidgetsVoxelProbe from 'base/widgets/widgets.voxelProbe';
 
 // standard global variables
-let controls;
-let renderer;
-let threeD;
-let stats;
-let scene;
-let camera;
-let offsets;
-const widgets = [];
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let threeD: HTMLElement;
+let stats: any;
+let scene: THREE.Scene;
+let camera: any;
+let offsets: { top: number; left: number };
+const widgets: any[] = [];
 const widgetsAvailable = [
   'Handle',
   'VoxelProbe',
@@ -61,7 +61,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -83,7 +83,7 @@ function init() {
   camera.position.y = 50;
   camera.position.z = 50;
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -100,12 +100,12 @@ window.onload = () => {
 
   const file = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dicom/adi_brain/36749894';
 
-  const loader = new LoadersVolume(threeD);
+  const loader: any = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
-  loader.load(file).then(series => {
+  loader.load(file).then((series: any) => {
     const stack = series[0]._stack[0];
     loader.free();
-    const stackHelper = new HelpersStack(stack);
+    const stackHelper = new (HelpersStack!)(stack);
 
     scene.add(stackHelper);
 
@@ -119,7 +119,7 @@ window.onload = () => {
       }
     });
 
-    threeD.addEventListener('mousemove', (evt) => {
+    threeD.addEventListener('mousemove', (evt: any) => {
       // if something hovered, exit
       let cursor = 'default';
       for (const widget of widgets) {
@@ -132,7 +132,7 @@ window.onload = () => {
       threeD.style.cursor = cursor;
     });
 
-    threeD.addEventListener('mousedown', (evt) => {
+    threeD.addEventListener('mousedown', (evt: any) => {
       // if something hovered, exit
       for (const widget of widgets) {
         if (widget.hovered) {
@@ -144,10 +144,10 @@ window.onload = () => {
       threeD.style.cursor = 'default';
 
       // mouse position
-      const mouse = {
-        x: ((evt.clientX - offsets.left) / threeD.offsetWidth) * 2 - 1,
-        y: -((evt.clientY - offsets.top) / threeD.offsetHeight) * 2 + 1,
-      };
+      const mouse = new THREE.Vector2(
+        ((evt.clientX - offsets.left) / threeD.offsetWidth) * 2 - 1,
+        -((evt.clientY - offsets.top) / threeD.offsetHeight) * 2 + 1
+      );
 
       // update the raycaster
       const raycaster = new THREE.Raycaster();
@@ -158,16 +158,16 @@ window.onload = () => {
         return;
       }
 
-      let widget = null;
+      let widget: any = null;
       switch (guiObjects.type) {
         case 'VoxelProbe':
-          widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsVoxelProbe!)(stackHelper.slice.mesh, controls, {
             stack: stack,
             worldPosition: intersects[0].point,
           });
           break;
         case 'Ruler':
-          widget = new WidgetsRuler(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsRuler!)(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
             ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
@@ -175,14 +175,14 @@ window.onload = () => {
           });
           break;
         case 'CrossRuler':
-          widget = new WidgetsCrossRuler(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsCrossRuler!)(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
             ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
           });
           break;
         case 'BiRuler':
-          widget = new WidgetsBiRuler(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsBiRuler!)(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
             ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
@@ -190,46 +190,46 @@ window.onload = () => {
           });
           break;
         case 'Angle':
-          widget = new WidgetsAngle(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsAngle!)(stackHelper.slice.mesh, controls, {
             worldPosition: intersects[0].point,
           });
           break;
         case 'Rectangle':
-          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsRectangle!)(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
             worldPosition: intersects[0].point,
           });
           break;
         case 'Ellipse':
-          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsEllipse!)(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
             worldPosition: intersects[0].point,
           });
           break;
         case 'Polygon':
-          widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsPolygon!)(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
             worldPosition: intersects[0].point,
           });
           break;
         case 'Freehand':
-          widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsFreehand!)(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
             worldPosition: intersects[0].point,
           });
           break;
         case 'Annotation':
-          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsAnnotation!)(stackHelper.slice.mesh, controls, {
             worldPosition: intersects[0].point,
           });
           break;
         case 'Handle':
         default:
-          widget = new WidgetsHandle(stackHelper.slice.mesh, controls, {
+          widget = new (WidgetsHandle!)(stackHelper.slice.mesh, controls, {
             worldPosition: intersects[0].point,
           });
       }
@@ -286,7 +286,7 @@ window.onload = () => {
     widgetFolder.add(guiObjects, 'type', widgetsAvailable);
     widgetFolder.open();
 
-    const customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container')!;
     customContainer.appendChild(gui.domElement);
 
     // force first render

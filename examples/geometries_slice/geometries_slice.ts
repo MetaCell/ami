@@ -6,15 +6,15 @@ import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
-let controls;
-let renderer;
-let stats;
-let scene;
-let camera;
-let stackHelper;
-let particleLight;
-let line;
-let threeD;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let stats: any;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
+let stackHelper: any;
+let particleLight: THREE.Mesh;
+let line: THREE.Line;
+let threeD: HTMLElement;
 
 /**
  * Convert number to hex
@@ -23,7 +23,7 @@ let threeD;
  *
  * @return {*}
  */
-function componentToHex(c) {
+function componentToHex(c: number) {
   const hex = c.toString(16);
   return hex.length === 1 ? '0' + hex : hex;
 }
@@ -36,7 +36,7 @@ function componentToHex(c) {
  *
  * @return {*}
  */
-function rgbToHex(r, g, b) {
+function rgbToHex(r: number, g: number, b: number) {
   return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
@@ -53,7 +53,7 @@ function updateGeometries() {
     particleLight.position.z = Math.cos(timer * 3) * 90;
 
     // re-draw the line
-    line.geometry.setFromPoints([stackHelper.slice.planePosition, particleLight.position]);
+    (line.geometry as any).setFromPoints([stackHelper.slice.planePosition, particleLight.position]);
 
     // update plane direction...
     const dirLPS = new THREE.Vector3(
@@ -76,8 +76,8 @@ function updateGeometries() {
     );
     stackHelper.bbox.color = color;
     stackHelper.border.color = color;
-    particleLight.material.color.set(color);
-    line.material.color.set(color);
+    (particleLight.material as any).color.set(color);
+    (line.material as any).color.set(color);
   }
 }
 
@@ -105,7 +105,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -133,7 +133,7 @@ function init() {
   camera.position.z = 100;
 
   // controls
-  controls = new ControlsTrackball(camera, threeD);
+  controls = new (ControlsTrackball!)(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -156,7 +156,7 @@ window.onload = () => {
 
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
 
   const t2 = [
     '36444280',
@@ -223,7 +223,7 @@ window.onload = () => {
     .then(() => {
       const series = loader.data[0].mergeSeries(loader.data)[0];
       const stack = series.stack[0];
-      stackHelper = new HelpersStack(stack);
+      stackHelper = new (HelpersStack!)(stack);
       const centerLPS = stackHelper.stack.worldCenter();
       stackHelper.slice.aabbSpace = 'LPS';
       stackHelper.slice.planePosition.x = centerLPS.x;
@@ -253,8 +253,8 @@ window.onload = () => {
         autoPlace: false,
       });
 
-      let customContainer = document.getElementById('my-gui-container');
-      customContainer.appendChild(gui.domElement);
+      let customContainer: HTMLElement | null = document.getElementById('my-gui-container');
+      customContainer!.appendChild(gui.domElement);
       customContainer = null;
 
       const positionFolder = gui.addFolder('Plane position');
@@ -311,7 +311,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

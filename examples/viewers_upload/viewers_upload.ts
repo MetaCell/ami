@@ -8,15 +8,15 @@ import CamerasOrthographic from 'base/cameras/cameras.orthographic';
 import ControlsOrthographic from 'base/controls/controls.trackballortho';
 
 // standard global variables
-let controls;
-let renderer;
-let scene;
-let camera;
-let threeD;
-let lut;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let scene: THREE.Scene;
+let camera: any;
+let threeD: HTMLElement;
+let lut: any;
 
 let ctrlDown = false;
-const drag = {
+const drag: { start: { x: number | null; y: number | null } } = {
   start: {
     x: null,
     y: null,
@@ -51,7 +51,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -63,7 +63,7 @@ function init() {
   // scene
   scene = new THREE.Scene();
   // camera
-  camera = new CamerasOrthographic(
+  camera = new (CamerasOrthographic!)(
     threeD.clientWidth / -2,
     threeD.clientWidth / 2,
     threeD.clientHeight / 2,
@@ -73,7 +73,7 @@ function init() {
   );
 
   // controls
-  controls = new ControlsOrthographic(camera, threeD);
+  controls = new (ControlsOrthographic!)(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
   camera.controls = controls;
@@ -88,37 +88,37 @@ window.onload = () => {
   document.body.appendChild(puppetDiv);
 
   // hookup load button
-  document.getElementById('buttoninput').onclick = () => {
-    document.getElementById('filesinput').click();
+  (document.getElementById('buttoninput') as HTMLElement).onclick = () => {
+    document.getElementById('filesinput')!.click();
   };
 
   // init threeJS...
   init();
 
-  function updateLabels(labels, modality) {
+  function updateLabels(labels: string[], modality: string) {
     if (modality === 'CR' || modality === 'DX') return;
 
-    const top = document.getElementById('top');
+    const top = document.getElementById('top')!;
     top.innerHTML = labels[0];
 
-    const bottom = document.getElementById('bottom');
+    const bottom = document.getElementById('bottom')!;
     bottom.innerHTML = labels[1];
 
-    const right = document.getElementById('right');
+    const right = document.getElementById('right')!;
     right.innerHTML = labels[2];
 
-    const left = document.getElementById('left');
+    const left = document.getElementById('left')!;
     left.innerHTML = labels[3];
   }
 
-  function buildGUI(stackHelper) {
+  function buildGUI(stackHelper: any) {
     const stack = stackHelper._stack;
 
     const gui = new dat.GUI({
       autoPlace: false,
     });
 
-    const customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container')!;
     customContainer.appendChild(gui.domElement);
 
     const stackFolder = gui.addFolder('Stack');
@@ -146,22 +146,22 @@ window.onload = () => {
       .listen();
 
     // CREATE LUT
-    lut = new HelpersLut(
+    lut = new (HelpersLut!)(
       'my-lut-canvases',
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
       [[0, 1], [1, 1]]
     );
-    lut.luts = HelpersLut.presetLuts();
+    lut.luts = (HelpersLut as any).presetLuts();
 
     const lutUpdate = stackFolder.add(stackHelper.slice, 'lut', lut.lutsAvailable());
-    lutUpdate.onChange((value) => {
+    lutUpdate.onChange((value: string) => {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
     const lutDiscrete = stackFolder.add(lut, 'discrete', false);
-    lutDiscrete.onChange((value) => {
+    lutDiscrete.onChange((value: boolean) => {
       lut.discrete = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
@@ -206,7 +206,7 @@ window.onload = () => {
       'coronal',
       'sagittal',
     ]);
-    orientationUpdate.onChange((value) => {
+    orientationUpdate.onChange((value: string) => {
       camera.orientation = value;
       camera.update();
       camera.fitBox(2);
@@ -218,7 +218,7 @@ window.onload = () => {
     });
 
     const conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
-    conventionUpdate.onChange((value) => {
+    conventionUpdate.onChange((value: string) => {
       camera.convention = value;
       camera.update();
       camera.fitBox(2);
@@ -229,10 +229,10 @@ window.onload = () => {
   /**
    * Connect all callbevent observesrs
    */
-  function hookCallbacks(stackHelper) {
+  function hookCallbacks(stackHelper: any) {
     const stack = stackHelper._stack;
     // hook up callbacks
-    controls.addEventListener('OnScroll', (e) => {
+    controls.addEventListener('OnScroll', (e: any) => {
       if (e.delta > 0) {
         if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
           return false;
@@ -250,7 +250,7 @@ window.onload = () => {
      * On window resize callback
      */
     function onWindowResize() {
-      const threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d')!;
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -270,7 +270,7 @@ window.onload = () => {
     /**
      * On key pressed callback
      */
-    function onWindowKeyPressed(event) {
+    function onWindowKeyPressed(event: KeyboardEvent) {
       ctrlDown = event.ctrlKey;
       if (!ctrlDown) {
         drag.start.x = null;
@@ -283,7 +283,7 @@ window.onload = () => {
     /**
      * On mouse move callback
      */
-    function onMouseMove(event) {
+    function onMouseMove(event: MouseEvent) {
       if (ctrlDown) {
         if (drag.start.x === null) {
           drag.start.x = event.clientX;
@@ -296,15 +296,15 @@ window.onload = () => {
         let dynamicRange = stack.minMax[1] - stack.minMax[0];
         dynamicRange /= threeD.clientWidth;
 
-        if (Math.abs(event.clientX - drag.start.x) > threshold) {
+        if (Math.abs(event.clientX - drag.start.x!) > threshold) {
           // window width
-          stackHelper.slice.windowWidth += dynamicRange * (event.clientX - drag.start.x);
+          stackHelper.slice.windowWidth += dynamicRange * (event.clientX - drag.start.x!);
           drag.start.x = event.clientX;
         }
 
-        if (Math.abs(event.clientY - drag.start.y) > threshold) {
+        if (Math.abs(event.clientY - drag.start.y!) > threshold) {
           // window center
-          stackHelper.slice.windowCenter -= dynamicRange * (event.clientY - drag.start.y);
+          stackHelper.slice.windowCenter -= dynamicRange * (event.clientY - drag.start.y!);
           drag.start.y = event.clientY;
         }
       }
@@ -315,7 +315,7 @@ window.onload = () => {
   /**
    * Visulaize incoming data
    */
-  function handleSeries(seriesContainer) {
+  function handleSeries(seriesContainer: any[]) {
     // cleanup the loader and its progress bar
     loader.free();
     loader = null;
@@ -323,7 +323,7 @@ window.onload = () => {
     // first stack of first series
     const stack = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
 
-    const stackHelper = new HelpersStack(stack);
+    const stackHelper = new (HelpersStack!)(stack);
     stackHelper.bbox.visible = false;
     stackHelper.borderColor = '#2196F3';
     stackHelper.border.visible = false;
@@ -360,8 +360,8 @@ window.onload = () => {
     hookCallbacks(stackHelper);
   }
 
-  let loader = new LoadersVolume(threeD);
-  const seriesContainer = [];
+  let loader: any = new LoadersVolume(threeD);
+  const seriesContainer: any[] = [];
 
   /**
    * Filter array of data by extension
@@ -369,7 +369,7 @@ window.onload = () => {
    * item {Object}
    * @return {Boolean}
    */
-  function _filterByExtension(extension, item) {
+  function _filterByExtension(extension: string, item: any): boolean {
     if (item.extension.toUpperCase() === extension.toUpperCase()) {
       return true;
     }
@@ -379,32 +379,32 @@ window.onload = () => {
   /**
    * Parse incoming files
    */
-  function readMultipleFiles(evt) {
+  function readMultipleFiles(evt: any) {
     // hide the upload button
     if (evt.target.files.length) {
-      document.getElementById('home-container').style.display = 'none';
+      (document.getElementById('home-container') as HTMLElement).style.display = 'none';
     }
 
     /**
      * Load sequence
      */
-    function loadSequence(index, files) {
+    function loadSequence(index: number, files: any[]) {
       return (
         Promise.resolve()
           // load the file
           .then(() => new Promise((resolve, reject) => {
               const myReader = new FileReader();
               // should handle errors too...
-              myReader.addEventListener('load', (e) => {
+              myReader.addEventListener('load', (e: any) => {
                 resolve(e.target.result);
               });
               myReader.readAsArrayBuffer(files[index]);
             }))
           .then((buffer) => loader.parse({ url: files[index].name, buffer }))
-          .then((series) => {
+          .then((series: any) => {
             seriesContainer.push(series);
           })
-          .catch((error) => {
+          .catch((error: any) => {
             window.console.log('oops... something went wrong...');
             window.console.log(error);
           })
@@ -414,7 +414,7 @@ window.onload = () => {
     /**
      * Load group sequence
      */
-    function loadSequenceGroup(files) {
+    function loadSequenceGroup(files: any[]) {
       const fetchSequence = [];
 
       for (let i = 0; i < files.length; i++) {
@@ -422,7 +422,7 @@ window.onload = () => {
           new Promise((resolve, reject) => {
             const myReader = new FileReader();
             // should handle errors too...
-            myReader.addEventListener('load', (e) => {
+            myReader.addEventListener('load', (e: any) => {
               resolve(e.target.result);
             });
             myReader.readAsArrayBuffer(files[i].file);
@@ -431,22 +431,22 @@ window.onload = () => {
       }
 
       return Promise.all(fetchSequence)
-        .then(rawdata => {
+        .then((rawdata) => {
           return loader.parse(rawdata);
         })
-        .then((series) => {
+        .then((series: any) => {
           seriesContainer.push(series);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           window.console.log('oops... something went wrong...');
           window.console.log(error);
         });
     }
 
-    const loadSequenceContainer = [];
+    const loadSequenceContainer: Promise<any>[] = [];
 
-    const data = [];
-    const dataGroups = [];
+    const data: any[] = [];
+    const dataGroups: any[] = [];
     // convert object into array
     for (let i = 0; i < evt.target.files.length; i++) {
       const dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
@@ -486,11 +486,11 @@ window.onload = () => {
       .then(() => {
         handleSeries(seriesContainer);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
   }
   // hook up file input listener
-  document.getElementById('filesinput').addEventListener('change', readMultipleFiles, false);
+  document.getElementById('filesinput')!.addEventListener('change', readMultipleFiles, false);
 };

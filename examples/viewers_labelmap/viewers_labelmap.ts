@@ -15,26 +15,26 @@ import ShadersDataVertex from 'base/shaders/shaders.data.vertex';
 import ShadersDataFragment from 'base/shaders/shaders.data.fragment';
 
 // standard global letiables
-let controls;
-let renderer;
-let camera;
-let statsyay;
-let threeD;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let camera: any;
+let statsyay: any;
+let threeD: HTMLElement;
 //
-let sceneLayer0TextureTarget;
-let sceneLayer1TextureTarget;
+let sceneLayer0TextureTarget: THREE.WebGLRenderTarget;
+let sceneLayer1TextureTarget: THREE.WebGLRenderTarget;
 //
-let sceneLayer0;
-let lutLayer0;
-let sceneLayer1;
-let meshLayer1;
-let uniformsLayer1;
-let materialLayer1;
-let lutLayer1;
-let sceneLayerMix;
-let meshLayerMix;
-let uniformsLayerMix;
-let materialLayerMix;
+let sceneLayer0: THREE.Scene;
+let lutLayer0: any;
+let sceneLayer1: THREE.Scene;
+let meshLayer1: any;
+let uniformsLayer1: any;
+let materialLayer1: THREE.ShaderMaterial;
+let lutLayer1: any;
+let sceneLayerMix: THREE.Scene;
+let meshLayerMix: any;
+let uniformsLayerMix: any;
+let materialLayerMix: THREE.ShaderMaterial;
 
 const layerMix = {
   opacity1: 1.0,
@@ -75,7 +75,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
@@ -108,7 +108,7 @@ function init() {
   });
 
   // camera
-  camera = new CamerasOrthographic(
+  camera = new (CamerasOrthographic!)(
     threeD.clientWidth / -2,
     threeD.clientWidth / 2,
     threeD.clientHeight / 2,
@@ -118,7 +118,7 @@ function init() {
   );
 
   // controls
-  controls = new ControlsOrthographic(camera, threeD);
+  controls = new (ControlsOrthographic!)(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
   camera.controls = controls;
@@ -440,12 +440,12 @@ window.onload = () => {
 
   // load sequence for each file
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
 
   /**
    * Build the GUI
    */
-  function buildGUI(stackHelper) {
+  function buildGUI(stackHelper: any) {
     /**
      * Update Layer 1
      */
@@ -484,7 +484,7 @@ window.onload = () => {
       autoPlace: false,
     });
 
-    const customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container')!;
     customContainer.appendChild(gui.domElement);
 
     const layer0Folder = gui.addFolder('PET');
@@ -500,7 +500,7 @@ window.onload = () => {
     layer0Folder.add(stackHelper.slice, 'invert');
 
     const lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
-    lutUpdate.onChange((value) => {
+    lutUpdate.onChange((value: string) => {
       lutLayer0.lut = value;
       stackHelper.slice.lutTexture = lutLayer0.texture;
     });
@@ -524,14 +524,14 @@ window.onload = () => {
     // layer mix folder
     const layerMixFolder = gui.addFolder('Segmentation');
     const opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
-    opacityLayerMix1.onChange((value) => {
+    opacityLayerMix1.onChange((value: number) => {
       uniformsLayerMix.uOpacity1.value = value;
     });
 
     layerMixFolder.open();
 
     // hook up callbacks
-    controls.addEventListener('OnScroll', (e) => {
+    controls.addEventListener('OnScroll', (e: any) => {
       if (e.delta > 0) {
         if (stackHelper.index >= stack.dimensionsIJK.z - 1) {
           return false;
@@ -555,7 +555,7 @@ window.onload = () => {
      * On window resize callback
      */
     function onWindowResize() {
-      const threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d')!;
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -587,7 +587,7 @@ window.onload = () => {
       stack2 = mergedSeries[1].stack[0];
     }
 
-    const stackHelper = new HelpersStack(stack);
+    const stackHelper = new (HelpersStack!)(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
     stackHelper.index = 247;
@@ -608,7 +608,7 @@ window.onload = () => {
     // pixels packing for the fragment shaders now happens there
     stack2.pack();
 
-    const textures2 = [];
+    const textures2: THREE.DataTexture[] = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
       const tex = new THREE.DataTexture(
         stack2.rawData[m],
@@ -710,19 +710,19 @@ window.onload = () => {
     camera.fitBox(2);
 
     // CREATE LUT
-    lutLayer0 = new HelpersLut(
+    lutLayer0 = new (HelpersLut!)(
       'my-lut-canvases-l0',
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
       [[0, 1], [1, 1]]
     );
-    lutLayer0.luts = HelpersLut.presetLuts();
+    lutLayer0.luts = (HelpersLut as any).presetLuts();
     lutLayer0.lut = 'random';
     stackHelper.slice.lut = 1;
     stackHelper.slice.lutTexture = lutLayer0.texture;
 
-    lutLayer1 = new HelpersLut(
+    lutLayer1 = new (HelpersLut!)(
       'my-lut-canvases-l1',
       'default',
       'linear',
@@ -748,7 +748,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

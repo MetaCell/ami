@@ -5,7 +5,7 @@ import XVolume from 'base/helpers/x/helpers.x.volume';
 
 window.onload = () => {
   // INIT THE RENDERER
-  const renderer = new XRenderer3D();
+  const renderer: any = new XRenderer3D();
   renderer.animate();
 
   // CREATE THE 3D MESH
@@ -16,20 +16,20 @@ window.onload = () => {
   // LOAD AND RENDER THE 3D MESH
   xMesh
     .load()
-    .then(mesh => {
+    .then((mesh: any) => {
       renderer.add(mesh);
     })
-    .catch(error => console.log('ERROR: something went wrong with the mesh load.', error));
+    .catch((error: any) => console.log('ERROR: something went wrong with the mesh load.', error));
 
   // CREATE THE 3D VOLUME
-  const xVolume = new XVolume();
+  const xVolume: any = new XVolume();
   xVolume.file = 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/nifti/marc_avf/avf_float_32.nii.gz';
   xVolume.progressbarContainer = renderer.container;
 
   // LOAD AND RENDER THE 3D VOLUME
   xVolume
     .load()
-    .then(volume => {
+    .then((volume: any) => {
       renderer.add(volume);
       renderer.center(volume.centerLPS);
 
@@ -40,5 +40,5 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(error => console.log('ERROR: something went wrong with the volume load.', error));
+    .catch((error: any) => console.log('ERROR: something went wrong with the volume load.', error));
 };

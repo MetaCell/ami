@@ -17,36 +17,36 @@ import ShadersDataVertex from 'base/shaders/shaders.data.vertex';
 import ShadersDataFragment from 'base/shaders/shaders.data.fragment';
 
 // standard global variables
-let controls;
-let renderer;
-let camera;
-let threeD;
-let sceneLayer0TextureTarget;
-let sceneLayer1TextureTarget;
-let sceneLayer0;
-let lutLayer0;
-let sceneLayer1;
-let meshLayer1;
-let uniformsLayer1;
-let materialLayer1;
-let lutLayer1;
-let sceneLayerMix;
-let meshLayerMix;
-let uniformsLayerMix;
-let materialLayerMix;
-let stackHelper;
-let stack2;
-let textures2;
+let controls: any;
+let renderer: THREE.WebGLRenderer;
+let camera: any;
+let threeD: HTMLElement;
+let sceneLayer0TextureTarget: THREE.WebGLRenderTarget;
+let sceneLayer1TextureTarget: THREE.WebGLRenderTarget;
+let sceneLayer0: THREE.Scene;
+let lutLayer0: any;
+let sceneLayer1: THREE.Scene;
+let meshLayer1: any;
+let uniformsLayer1: any;
+let materialLayer1: THREE.ShaderMaterial;
+let lutLayer1: any;
+let sceneLayerMix: THREE.Scene;
+let meshLayerMix: any;
+let uniformsLayerMix: any;
+let materialLayerMix: THREE.ShaderMaterial;
+let stackHelper: any;
+let stack2: any;
+let textures2: THREE.DataTexture[];
 let ijkBBox = [99999999, 0, 9999999, 0, 999999999, 0];
 const layerMix = {
   opacity1: 1.0,
   lut: null,
 };
-let canvas;
-let canvasDiv;
-let context;
-let lastPoint = null;
-let currentPoint = null;
+let canvas: HTMLCanvasElement;
+let canvasDiv: HTMLElement;
+let context: CanvasRenderingContext2D;
+let lastPoint: { x: number; y: number } | null = null;
+let currentPoint: { x: number; y: number } | null = null;
 let isEditing = false;
 let isDrawing = false;
 const cursor = {
@@ -56,9 +56,9 @@ const cursor = {
   shape: 'round',
   segment: 'erase',
 };
-let segmentsList = [];
-let segmentsDict = {};
-const editorStats = {
+let segmentsList: string[] = [];
+let segmentsDict: Record<string, any> = {};
+const editorStats: Record<string, number> = {
   '0': 0,
   '1': 0,
   '2': 0,
@@ -73,14 +73,14 @@ function setupEditor() {
   /**
    *
    */
-  function distanceBetween(point1, point2) {
+  function distanceBetween(point1: { x: number; y: number }, point2: { x: number; y: number }) {
     return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2);
   }
 
   /**
    *
    */
-  function angleBetween(point1, point2) {
+  function angleBetween(point1: { x: number; y: number }, point2: { x: number; y: number }) {
     return Math.atan2(point2.x - point1.x, point2.y - point1.y);
   }
 
@@ -107,8 +107,8 @@ function setupEditor() {
    */
   function updateEditorStatsDom() {
     for (let i = 0; i < 3; i++) {
-      document.getElementById(`editorSegment${i}Label`).innerHTML = segmentsList[i];
-      document.getElementById(`editorSegment${i}Value`).innerHTML = editorStats[i];
+      document.getElementById(`editorSegment${i}Label`)!.innerHTML = segmentsList[i];
+      document.getElementById(`editorSegment${i}Value`)!.innerHTML = String(editorStats[i]);
     }
   }
 
@@ -175,9 +175,9 @@ function setupEditor() {
   /**
    *
    */
-  function drawCircle(x, y) {
+  function drawCircle(x: number, y: number) {
     context.beginPath();
-    context.arc(x, y, cursor.size, false, Math.PI * 2, false);
+    context.arc(x, y, cursor.size, 0, Math.PI * 2, false);
     context.closePath();
     context.fill();
     context.stroke();
@@ -197,7 +197,7 @@ function setupEditor() {
     /**
      *
      */
-    function onMouseDown(e) {
+    function onMouseDown(e: MouseEvent) {
       if (!isEditing) return;
 
       isDrawing = true;
@@ -210,7 +210,7 @@ function setupEditor() {
     /**
      *
      */
-    function onMouseMove(e) {
+    function onMouseMove(e: MouseEvent) {
       if (!isEditing) return;
 
       currentPoint = {
@@ -224,12 +224,12 @@ function setupEditor() {
       context.fillStyle = cursor.color;
 
       if (isDrawing) {
-        const dist = distanceBetween(lastPoint, currentPoint);
-        const angle = angleBetween(lastPoint, currentPoint);
+        const dist = distanceBetween(lastPoint!, currentPoint);
+        const angle = angleBetween(lastPoint!, currentPoint);
 
         for (let i = 0; i < dist; i += 5) {
-          const x = lastPoint.x + Math.sin(angle) * i;
-          const y = lastPoint.y + Math.cos(angle) * i;
+          const x = lastPoint!.x + Math.sin(angle) * i;
+          const y = lastPoint!.y + Math.cos(angle) * i;
           drawCircle(x, y);
         }
 
@@ -248,7 +248,7 @@ function setupEditor() {
     /**
      *
      */
-    function onMouseUp(e) {
+    function onMouseUp(e: MouseEvent) {
       if (!isEditing) return;
 
       isDrawing = false;
@@ -266,17 +266,17 @@ function setupEditor() {
       // lets events go through or not for scrolling, padding, zooming, etc.
       if (isEditing) {
         canvasDiv.className = 'editing';
-        document.getElementById('help').style.display = 'none';
+        document.getElementById('help')!.style.display = 'none';
       } else {
         canvasDiv.className = 'exploring';
-        document.getElementById('help').style.display = 'block';
+        document.getElementById('help')!.style.display = 'block';
       }
     }
 
     /**
      *
      */
-    function onKeyDown(e) {
+    function onKeyDown(e: KeyboardEvent) {
       if (e.keyCode === 17) {
         isEditing = true;
         isDrawing = false;
@@ -287,7 +287,7 @@ function setupEditor() {
     /**
      *
      */
-    function onKeyUp(e) {
+    function onKeyUp(e: KeyboardEvent) {
       if (e.keyCode === 17) {
         isEditing = false;
         isDrawing = false;
@@ -299,7 +299,7 @@ function setupEditor() {
     /**
      *
      */
-    function disableRightClick(e) {
+    function disableRightClick(e: Event) {
       e.preventDefault();
       e.stopPropagation();
       return false;
@@ -351,7 +351,7 @@ function init() {
   }
 
   // renderer
-  threeD = document.getElementById('r3d');
+  threeD = document.getElementById('r3d')!;
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
@@ -362,13 +362,13 @@ function init() {
   threeD.appendChild(renderer.domElement);
 
   // canvas 2D
-  canvasDiv = document.getElementById('canvasDiv');
+  canvasDiv = document.getElementById('canvasDiv')!;
   canvas = document.createElement('canvas');
-  canvas.setAttribute('width', canvasDiv.clientWidth);
-  canvas.setAttribute('height', canvasDiv.clientHeight);
+  canvas.setAttribute('width', String(canvasDiv.clientWidth));
+  canvas.setAttribute('height', String(canvasDiv.clientHeight));
   canvas.setAttribute('id', 'canvas');
   canvasDiv.appendChild(canvas);
-  context = canvas.getContext('2d');
+  context = canvas.getContext('2d')!;
 
   // scene
   sceneLayer0 = new THREE.Scene();
@@ -389,7 +389,7 @@ function init() {
   });
 
   // camera
-  camera = new CamerasOrthographic(
+  camera = new (CamerasOrthographic!)(
     threeD.clientWidth / -2,
     threeD.clientWidth / 2,
     threeD.clientHeight / 2,
@@ -399,7 +399,7 @@ function init() {
   );
 
   // controls
-  controls = new ControlsOrthographic(camera, threeD);
+  controls = new (ControlsOrthographic!)(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
   camera.controls = controls;
@@ -504,7 +504,7 @@ window.onload = () => {
     const gui = new dat.GUI({
       autoPlace: false,
     });
-    const customContainer = document.getElementById('my-gui-container');
+    const customContainer = document.getElementById('my-gui-container')!;
     customContainer.appendChild(gui.domElement);
 
     // PET FOLDER
@@ -521,7 +521,7 @@ window.onload = () => {
     });
 
     const updateInterpolation = layer0Folder.add(stackHelper.slice, 'interpolation');
-    updateInterpolation.onChange((value) => {
+    updateInterpolation.onChange((value: boolean) => {
       if (value) {
         stackHelper.slice.interpolation = 1;
       } else {
@@ -534,7 +534,7 @@ window.onload = () => {
     const layerMixFolder = gui.addFolder('Segmentation');
 
     const opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
-    opacityLayerMix1.onChange((value) => {
+    opacityLayerMix1.onChange((value: number) => {
       uniformsLayerMix.uOpacity1.value = value;
     });
 
@@ -544,7 +544,7 @@ window.onload = () => {
     const editorFolder = gui.addFolder('Editor');
     editorFolder.add(cursor, 'size', 1, 50).step(1);
     const brushSegment = editorFolder.add(cursor, 'segment', segmentsList);
-    brushSegment.onChange((value) => {
+    brushSegment.onChange((value: string) => {
       // update color and value
       cursor.value = segmentsDict[value].value;
       cursor.color = segmentsDict[value].color;
@@ -560,7 +560,7 @@ window.onload = () => {
     /**
      *
      */
-    function onScroll(e) {
+    function onScroll(e: any) {
       if (e.delta > 0) {
         if (stackHelper.index >= 253) {
           return false;
@@ -582,7 +582,7 @@ window.onload = () => {
      *
      */
     function onWindowResize() {
-      const threeD = document.getElementById('r3d');
+      const threeD = document.getElementById('r3d')!;
       camera.canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight,
@@ -591,8 +591,8 @@ window.onload = () => {
 
       renderer.setSize(threeD.clientWidth, threeD.clientHeight);
 
-      canvas.setAttribute('width', canvasDiv.clientWidth);
-      canvas.setAttribute('height', canvasDiv.clientHeight);
+      canvas.setAttribute('width', String(canvasDiv.clientWidth));
+      canvas.setAttribute('height', String(canvasDiv.clientHeight));
     }
     onWindowResize();
 
@@ -619,7 +619,7 @@ window.onload = () => {
       stack2 = mergedSeries[1].stack[0];
     }
 
-    stackHelper = new HelpersStack(stack);
+    stackHelper = new (HelpersStack!)(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
     stackHelper.index = 247;
@@ -768,19 +768,19 @@ window.onload = () => {
     camera.fitBox(2);
 
     // CREATE LUT
-    lutLayer0 = new HelpersLut(
+    lutLayer0 = new (HelpersLut!)(
       'my-lut-canvases-l0',
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
       [[0, 1], [1, 1]]
     );
-    lutLayer0.luts = HelpersLut.presetLuts();
+    lutLayer0.luts = (HelpersLut as any).presetLuts();
     lutLayer0.lut = 'random';
     stackHelper.slice.lut = 1;
     stackHelper.slice.lutTexture = lutLayer0.texture;
 
-    lutLayer1 = new HelpersLut(
+    lutLayer1 = new (HelpersLut!)(
       'my-lut-canvases-l1',
       'default',
       'linear',
@@ -1102,7 +1102,7 @@ window.onload = () => {
 
   // load sequence for each file
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader: any = new LoadersVolume(threeD);
 
   loader
     .load(files)
@@ -1118,7 +1118,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });

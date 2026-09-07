@@ -68,32 +68,32 @@ const files = t2.map((v) => 'https://cdn.jsdelivr.net/gh/FNNDSC/data@master/dico
 
 window.onload = () => {
   // CREATE RENDERER 3D
-  const renderer0 = new XRenderer3D('r0');
+  const renderer0: any = new XRenderer3D('r0');
   renderer0.animate();
 
   // CREATE RENDERER 2D
-  const renderer1 = new XRenderer2D('r1', 'sagittal');
+  const renderer1: any = new XRenderer2D('r1', 'sagittal');
   renderer1.animate();
 
   // CREATE RENDERER 2D
-  const renderer2 = new XRenderer2D('r2', 'axial');
+  const renderer2: any = new XRenderer2D('r2', 'axial');
   renderer2.animate();
 
   // CREATE RENDERER 2D
-  const renderer3 = new XRenderer2D('r3', 'coronal');
+  const renderer3: any = new XRenderer2D('r3', 'coronal');
   renderer3.animate();
 
   // CREATE THE 3D VOLUME
-  const xVolume = new XVolume();
+  const xVolume: any = new XVolume();
   xVolume.file = files;
   xVolume.progressbarContainer = renderer0.container;
 
   // LOAD AND RENDER THE 3D VOLUME
   xVolume
     .load()
-    .then(volume => {
+    .then((volume: any) => {
       // white BBox
-      const box = new HelpersBoundingBox(volume.stack);
+      const box = new (HelpersBoundingBox!)(volume.stack);
       renderer0.add(box);
       renderer0.center(volume.centerLPS);
 
@@ -120,7 +120,7 @@ window.onload = () => {
         autoPlace: false,
       });
 
-      const customContainer = document.getElementById('my-gui-container');
+      const customContainer = document.getElementById('my-gui-container')!;
       customContainer.appendChild(gui.domElement);
 
       const stackFolder1 = gui.addFolder('Sagittal');
@@ -149,7 +149,7 @@ window.onload = () => {
       puppetDiv.setAttribute('id', 'puppeteer');
       document.body.appendChild(puppetDiv);
     })
-    .catch(error => {
+    .catch((error: any) => {
       console.log('ERROR: something went wrong with the volume load.', error);
     });
 };

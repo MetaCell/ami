@@ -6,6 +6,11 @@ import HelpersLut from 'base/helpers/helpers.lut';
 import HelpersVR from 'base/helpers/helpers.volumerendering';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
+// Raymarching this volume at native HiDPI resolution (devicePixelRatio > 1) multiplies
+// the fragment count and can push the shader past the GPU driver's watchdog timeout,
+// losing the WebGL context outright. Cap it at 1.
+const PIXEL_RATIO = Math.min(window.devicePixelRatio, 1);
+
 // standard global letiables
 let controls: any, threeD: HTMLElement, renderer: THREE.WebGLRenderer, stats: any, camera: THREE.PerspectiveCamera, scene: THREE.Scene;
 let vrHelper: any;
@@ -16,7 +21,7 @@ let interpolationState: number;
 const myStack = {
   lut: 'walking_dead',
   opacity: 'linear',
-  steps: 256,
+  steps: 128,
   alphaCorrection: 0.5,
   frequence: 0,
   amplitude: 0,
@@ -135,6 +140,7 @@ function init() {
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setPixelRatio(PIXEL_RATIO);
   threeD.appendChild(renderer.domElement);
 
   // stats

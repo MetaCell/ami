@@ -91,6 +91,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
         this._uniforms.uTextureContainer.length = 14;
       }
       this._uniforms.uWorldToData.value = this._stack.lps2IJK;
+      this._uniforms.uDataToWorld.value = this._stack.ijk2LPS;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;

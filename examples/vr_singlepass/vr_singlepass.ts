@@ -6,6 +6,11 @@ import HelpersLut from 'base/helpers/helpers.lut';
 import HelpersVR from 'base/helpers/helpers.volumerendering';
 import LoadersVolume from 'base/loaders/loaders.volume';
 
+// Raymarching this volume at native HiDPI resolution (devicePixelRatio > 1) multiplies
+// the fragment count and can push the shader past the GPU driver's watchdog timeout,
+// losing the WebGL context outright. Cap it at 1.
+const PIXEL_RATIO = Math.min(window.devicePixelRatio, 1);
+
 // standard global letiables
 let controls: any;
 let threeD: HTMLElement;
@@ -33,7 +38,7 @@ const myStack = {
 
 function onStart(event?: any) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    renderer.setPixelRatio(0.1 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.1 * PIXEL_RATIO);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
   }
@@ -41,12 +46,12 @@ function onStart(event?: any) {
 
 function onEnd(event?: any) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    renderer.setPixelRatio(0.5 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.5 * PIXEL_RATIO);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
 
     setTimeout(() => {
-      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setPixelRatio(PIXEL_RATIO);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
     }, 100);
@@ -55,7 +60,7 @@ function onEnd(event?: any) {
 
 function onWheel() {
   if (!wheel) {
-    renderer.setPixelRatio(0.1 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.1 * PIXEL_RATIO);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     wheel = Date.now();
   }
@@ -63,12 +68,12 @@ function onWheel() {
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO!);
     wheelTO = setTimeout(() => {
-      renderer.setPixelRatio(0.5 * window.devicePixelRatio);
+      renderer.setPixelRatio(0.5 * PIXEL_RATIO);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
 
       setTimeout(() => {
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(PIXEL_RATIO);
         renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
         wheel = null;
         modified = true;
@@ -193,7 +198,7 @@ function init() {
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(PIXEL_RATIO);
   threeD.appendChild(renderer.domElement);
 
   // scene

@@ -176,7 +176,9 @@ void main(void) {
   // MIP volume rendering
   float maxIntensity = 0.0;
 
-  mat4 dataToWorld = inverse(uWorldToData);
+  // uDataToWorld is precomputed on the CPU (stack.ijk2LPS) rather than inverted
+  // here per-fragment: mat4 inverse() is expensive and this shader runs it for
+  // every covered pixel of every frame.
 
   // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;
 
@@ -195,7 +197,7 @@ void main(void) {
     getIntensity(currentVoxel, intensity, gradient);
     // map gradient to world space and normalize before using
     // we avoid to call "normalize" as it may be undefined if vector length == 0.
-    gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
+    gradient = (vec3(uDataToWorld * vec4(gradient, 0.)));
     if (length(gradient) > 0.0) {
       gradient = normalize(gradient);
     }

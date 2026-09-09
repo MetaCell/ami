@@ -28,25 +28,44 @@ class Texture3d extends ShadersBase {
   }
 
   computeDefinition() {
-    let content = `
-      step( abs( textureIndexF - 0.0 ), 0.0 ) * texture2D(uTextureContainer[0], uv) +
-      step( abs( textureIndexF - 1.0 ), 0.0 ) * texture2D(uTextureContainer[1], uv) +
-      step( abs( textureIndexF - 2.0 ), 0.0 ) * texture2D(uTextureContainer[2], uv) +
-      step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +
-      step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +
-      step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +
-      step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv)`;
+    /*
+     * One term per BOUND texture, not a fixed 7 (or 14).
+     *
+     * GLSL has no dynamic sampler indexing, so the slot is selected by summing every slot masked
+     * with step() - which means every declared slot is sampled on every read, whether or not it
+     * holds data. That cost is paid per interpolation sample: trilinear expands to 8 of these, and
+     * a blended view (base volume + overlay layer) doubles it again, so a fixed 7 cost 112
+     * texture2D calls per fragment where a single-texture volume needs 16.
+     *
+     * Almost every volume packs into ONE texture (a 4096^2 texture holds 33.5M voxels at 16 bits,
+     * i.e. a 256^3 study over twice over), so the other six fetches were pure waste. Sizing the
+     * array to _textures.length - set by the helpers alongside the value - removes them, and lets
+     * helpers.material.mixin stop padding with 1x1 dummies whose only purpose was to keep those
+     * fetches legal.
+     */
+    const container = this._base._uniforms.uTextureContainer;
+    const slots = Math.max(1, container.length || 1);
 
-    if (this._base._uniforms.uTextureContainer.length === 14) {
-      content += ` +
-      step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +
-      step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +
-      step( abs( textureIndexF - 9.0 ), 0.0 ) * texture2D(uTextureContainer[9], uv) +
-      step( abs( textureIndexF - 10.0 ), 0.0 ) * texture2D(uTextureContainer[10], uv) +
-      step( abs( textureIndexF - 11.0 ), 0.0 ) * texture2D(uTextureContainer[11], uv) +
-      step( abs( textureIndexF - 12.0 ), 0.0 ) * texture2D(uTextureContainer[12], uv) +
-      step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv)`;
+    // The declared array size (container.length, which shaders.*.fragment.js emits as
+    // `uniform sampler2D uTextureContainer[N]`) and the bound textures (container.value) must
+    // match: too few declared is out of range, too many leaves unbound samplers that WebGL2 faults
+    // on. Padding used to hide the second case at the cost of the wasted fetches this change
+    // removes, so say so plainly instead of failing later as an opaque driver error.
+    if (container.value && container.value.length && container.value.length !== slots) {
+      console.warn(
+        `ami: uTextureContainer declares ${slots} sampler(s) but ${container.value.length} texture(s) ` +
+        'are bound. Set uniforms.uTextureContainer.length to the bound count when assigning .value.'
+      );
     }
+
+
+    // A single texture cannot have a non-zero textureIndex by construction, so the mask collapses.
+    const content = slots === 1
+      ? 'texture2D(uTextureContainer[0], uv)'
+      : Array.from(
+        { length: slots },
+        (unused, i) => `step( abs( textureIndexF - ${i}.0 ), 0.0 ) * texture2D(uTextureContainer[${i}], uv)`,
+      ).join(' +\n      ');
 
     this._definition = `
 void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){

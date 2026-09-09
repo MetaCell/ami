@@ -129,10 +129,13 @@ const helpersStack = (three = window.THREE) => {
     set index(index) {
       this._index = index;
 
-      // update the slice
-      this._slice.index = index;
+      // update the slice - both values in one rebuild. Setting .index and .planePosition
+      // separately ran a full slice rebuild twice per change, per pane, for no observable gain.
       const halfDimensions = this._stack.halfDimensionsIJK;
-      this._slice.planePosition = this._prepareSlicePosition(halfDimensions, this._index);
+      this._slice.setIndexAndPlanePosition(
+        index,
+        this._prepareSlicePosition(halfDimensions, this._index)
+      );
 
       // also update the border
       this._border.helpersSlice = this._slice;

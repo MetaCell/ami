@@ -238,6 +238,17 @@ const helpersSlice = (three = window.THREE) => {
       this._update();
     }
 
+    /*
+     * Move the slice in ONE rebuild. StackHelper.index used to set `index` and then `planePosition`,
+     * and each setter runs a full _update() - so every scroll tick rebuilt the slice twice, per
+     * pane. Nothing observes the intermediate state, so it was pure churn.
+     */
+    setIndexAndPlanePosition(index, planePosition) {
+      this._index = index;
+      this._planePosition = planePosition;
+      this._update();
+    }
+
     set planePosition(position) {
       this._planePosition = position;
       this._update();
@@ -395,9 +406,10 @@ const helpersSlice = (three = window.THREE) => {
         // compute texture if material exist
         this._prepareTexture();
         this._uniforms.uTextureContainer.value = this._textures;
-        if (this._stack.textureUnits > 8) {
-          this._uniforms.uTextureContainer.length = 14;
-        }
+        // Declared length must match the bound textures exactly: it sizes the GLSL array AND the
+        // number of terms shaders.helpers.texture3d generates, and every declared slot is sampled
+        // on every read. Anything larger is wasted fetches; anything smaller is out of range.
+        this._uniforms.uTextureContainer.length = this._textures.length;
 
         this._createMaterial({
           side: three.DoubleSide,
@@ -500,6 +512,60 @@ const helpersSlice = (three = window.THREE) => {
     }
 
     _update() {
+      /*
+       * Fast path: move the existing vertices instead of tearing the mesh down.
+       *
+       * A slice change used to dispose the geometry and rebuild the mesh, which frees and
+       * reallocates a GPU buffer every time - twice per tick before setIndexAndPlanePosition, and
+       * once per pane, so twelve alloc/free cycles per scroll tick in a six-pane layout. Drivers
+       * that stall on buffer orphaning turn that into a hitch that no JS profiler can see.
+       *
+       * The slice polygon is the intersection of a plane with the volume's box, so for an
+       * axis-aligned plane sweeping the volume it stays a rectangle and only the positions move.
+       * When the vertex count matches we copy the new positions into the existing attribute; when
+       * it does not (the plane crossing a corner, an oblique plane) we fall back to the rebuild.
+       */
+      if (this._mesh && this._geometry && this._geometry.attributes.position) {
+        let candidate = null;
+        try {
+          const SliceGeometryContructor = geometriesSlice(three);
+          candidate = new SliceGeometryContructor(
+            this._halfDimensions,
+            this._center,
+            this._planePosition,
+            this._planeDirection,
+            this._toAABB
+          );
+        } catch (e) {
+          candidate = null;
+        }
+
+        const current = this._geometry.attributes.position;
+        if (
+          candidate &&
+          candidate.attributes &&
+          candidate.attributes.position &&
+          candidate.attributes.position.array.length === current.array.length
+        ) {
+          current.array.set(candidate.attributes.position.array);
+          current.needsUpdate = true;
+          // `vertices` is legacy state the border helper and normal computation still read.
+          this._geometry.vertices = candidate.vertices;
+          this._geometry.computeBoundingBox();
+          this._geometry.computeBoundingSphere();
+          candidate.dispose();
+
+          // Still refreshed: with intensityAuto on, ami derives the window from the current frame,
+          // so skipping this would leave the previous slice's window/level in place.
+          this.updateIntensitySettings();
+          this.updateIntensitySettingsUniforms();
+          return;
+        }
+        if (candidate) {
+          candidate.dispose();
+        }
+      }
+
       // update slice
       if (this._mesh) {
         this.remove(this._mesh);

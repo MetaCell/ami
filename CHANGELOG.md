@@ -20,6 +20,7 @@ Real bugs surfaced by real types replacing `any` during the migration:
 
 ### Changed
 - [[core]](https://github.com/Metacell/ami/commit/c49f7895bc05d4777e713e8a81126ff1abaa71bc) Deleted dead code found during the migration: `core.pack.js` and `helpers.dummy.js` (both unreferenced anywhere; `helpers.dummy.js` also referenced an unimported global `THREE` and would have thrown if ever instantiated).
+- [[helpers]](https://github.com/Metacell/ami/commit/4a9c6a7c87ce0ea12b997705a131df8e1fb9660b) Ported from `master`: size `uTextureContainer` to the actual number of bound textures instead of a fixed 7/14 slots, dropping the 1x1 dummy-texture padding this required — the fixed size cost a wasted `texture2D` sample per unused slot, per interpolation sample, on every fragment. Also collapsed `StackHelper`'s index scroll handler from two full slice rebuilds (`index` then `planePosition`, each triggering `_update()`) into one via a new `SliceHelper.setIndexAndPlanePosition()`.
 
 ## 0.34.0
 

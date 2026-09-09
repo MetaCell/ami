@@ -87,9 +87,8 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
       this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
       this._uniforms.uTextureSize.value = this._stack.textureSize;
       this._uniforms.uTextureContainer.value = this._textures;
-      if (this._stack.textureUnits > 8) {
-        this._uniforms.uTextureContainer.length = 14;
-      }
+      // Match the declared slot count to the bound textures - see helpers.slice for why.
+      this._uniforms.uTextureContainer.length = this._textures.length;
       this._uniforms.uWorldToData.value = this._stack.lps2IJK;
       this._uniforms.uDataToWorld.value = this._stack.ijk2LPS;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;

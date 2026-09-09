@@ -276,6 +276,12 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       this._update();
     }
 
+    setIndexAndPlanePosition(index: number, planePosition: THREE.Vector3) {
+      this._index = index;
+      this._planePosition = planePosition;
+      this._update();
+    }
+
     set planePosition(position: THREE.Vector3) {
       this._planePosition = position;
       this._update();
@@ -433,9 +439,10 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
         // compute texture if material exist
         this._prepareTexture();
         this._uniforms.uTextureContainer.value = this._textures;
-        if (this._stack.textureUnits > 8) {
-          this._uniforms.uTextureContainer.length = 14;
-        }
+        // Declared length must match the bound textures exactly: it sizes the GLSL array AND the
+        // number of terms shaders.helpers.texture3d generates, and every declared slot is sampled
+        // on every read. Anything larger is wasted fetches; anything smaller is out of range.
+        this._uniforms.uTextureContainer.length = this._textures.length;
 
         this._createMaterial({
           side: three.DoubleSide,

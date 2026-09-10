@@ -5,6 +5,11 @@ We may want to also add it to the Gtihub release information.
 
 Note: We need this file so we can log new features while we are developing instead of having to do it all at once when release happens.
 
+## 0.34.1
+
+### Fixed
+- [[helpers]](https://github.com/Metacell/ami/commit/4a9c6a7c87ce0ea12b997705a131df8e1fb9660b) Size `uTextureContainer` to the actual number of bound textures instead of a fixed 7/14 slots, dropping the 1x1 dummy-texture padding this required — the fixed size cost a wasted `texture2D` sample per unused slot, per interpolation sample, on every fragment. Also collapsed `StackHelper`'s index scroll handler from two full slice rebuilds (`index` then `planePosition`, each triggering `_update()`) into one via a new `SliceHelper.setIndexAndPlanePosition()`.
+
 ## 0.34.0
 
 MetaCell fork, published as `@metacell/ami` on npm.

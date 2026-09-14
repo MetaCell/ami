@@ -84,6 +84,7 @@
     "clean": "rimraf build",
     "dev": "vite build --watch",
     "dev:examples": "vite --config vite.examples.config.ts",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src"

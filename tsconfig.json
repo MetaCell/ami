@@ -4,8 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "allowJs": true,
-    "checkJs": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -15,7 +13,6 @@
     "skipLibCheck": true
   },
   "include": [
-    "./src/**/*.ts",
-    "./src/**/*.js"
+    "./src/**/*.ts"
   ]
 }

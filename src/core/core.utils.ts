@@ -18,7 +18,7 @@ import Validators from './core.validators';
  */
 type CameraWithControls = Camera & { controls: { domElement: HTMLElement } };
 
-interface OrderedPoint extends Vector3 {
+export interface OrderedPoint extends Vector3 {
   direction: Vector3;
   xy: { x: number; y: number };
   angle: number;

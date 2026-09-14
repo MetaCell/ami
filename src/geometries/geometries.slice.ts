@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 /** * Imports ***/
 import coreIntersections from '../core/core.intersections';
-import coreUtils from '../core/core.utils';
+import coreUtils, { type OrderedPoint } from '../core/core.utils';
 
 /**
  *
@@ -50,7 +50,7 @@ const geometriesSlice = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.ShapeGeometry;
   return class GeometriesSlice extends Constructor {
-    vertices: any;
+    vertices: OrderedPoint[];
 
     constructor(
       halfDimensions: THREE.Vector3,
@@ -115,7 +115,9 @@ const geometriesSlice = (three: typeof THREE = window.THREE!) => {
       // Generate Slice Buffer Geometry from Shape Buffer Geomtry
       // bewcause it does triangulation for us!
       super(shape);
-      (this as any).type = 'SliceBufferGeometry';
+      // `type` is declared readonly in @types/three (subclasses are expected to override it,
+      // per its own doc comment) - Object.assign sets it without needing a readonly-bypass cast.
+      Object.assign(this, { type: 'SliceBufferGeometry' });
 
       // update real position of each vertex! (not in 2d)
       this.setAttribute('position', new three.Float32BufferAttribute(positions, 3));

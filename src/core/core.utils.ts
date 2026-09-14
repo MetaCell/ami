@@ -1,10 +1,49 @@
-import { Box3, BufferGeometry, Matrix4, Raycaster, Triangle, Vector2, Vector3 } from 'three';
+import {
+  Box3,
+  BufferGeometry,
+  Camera,
+  type Intersection,
+  Matrix4,
+  Mesh,
+  Raycaster,
+  Triangle,
+  Vector2,
+  Vector3,
+} from 'three';
 import Validators from './core.validators';
+
+/**
+ * getRoI is documented as "Tested on CamerasOrthographic" - that class (cameras/) exposes
+ * `.controls` but its type is itself `any` there, so this only pins down what's read here.
+ */
+type CameraWithControls = Camera & { controls: { domElement: HTMLElement } };
 
 interface OrderedPoint extends Vector3 {
   direction: Vector3;
   xy: { x: number; y: number };
   angle: number;
+}
+
+export interface Bbox {
+  min: Vector3;
+  max: Vector3;
+}
+
+/**
+ * Structural view of ModelsStack, scoped to what this module reads/writes.
+ * A real import would cycle - models.stack.ts already imports from core.utils.ts.
+ */
+interface StackLike {
+  _frame: FrameLike[];
+  lps2IJK: Matrix4 | null;
+  numberOfChannels: number;
+  rescaleSlope: number;
+  rescaleIntercept: number;
+}
+
+interface FrameLike {
+  getPixelData(column: number, row: number): number | null;
+  setPixelData(column: number, row: number, value: number): void;
 }
 
 /**
@@ -33,7 +72,7 @@ export default class CoreUtils {
    * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
    *
    */
-  static bbox(center: Vector3, halfDimensions: Vector3): { min: Vector3; max: Vector3 } | false {
+  static bbox(center: Vector3, halfDimensions: Vector3): Bbox | false {
     // make sure we have valid inputs
     if (!(Validators.vector3(center) && Validators.vector3(halfDimensions))) {
       console.log('Invalid center or plane halfDimensions.');
@@ -80,7 +119,7 @@ export default class CoreUtils {
    * @param {HTMLElement} obj
    * @return {boolean}
    */
-  static isElement(obj: any): boolean {
+  static isElement(obj: unknown): obj is HTMLElement {
     try {
       // Using W3 DOM2 (works for FF, Opera and Chrom)
       return obj instanceof HTMLElement;
@@ -88,11 +127,13 @@ export default class CoreUtils {
       // Browsers not supporting W3 DOM2 don't have HTMLElement and
       // an exception is thrown and we end up here. Testing some
       // properties that all elements have. (works on IE7)
+      const candidate = obj as Partial<HTMLElement> | null;
       return (
-        typeof obj === 'object' &&
-        obj.nodeType === 1 &&
-        typeof obj.style === 'object' &&
-        typeof obj.ownerDocument === 'object'
+        typeof candidate === 'object' &&
+        candidate !== null &&
+        candidate.nodeType === 1 &&
+        typeof candidate.style === 'object' &&
+        typeof candidate.ownerDocument === 'object'
       );
     }
   }
@@ -102,7 +143,7 @@ export default class CoreUtils {
    * @param {String} str
    * @return {Boolean}
    */
-  static isString(str: any): boolean {
+  static isString(str: unknown): str is string {
     return typeof str === 'string' || str instanceof String;
   }
 
@@ -156,7 +197,7 @@ export default class CoreUtils {
     ];
 
     if (
-      !isNaN(data.extension as any) ||
+      !isNaN(Number(data.extension)) ||
       skipExt.indexOf(data.extension) !== -1 ||
       (data.query && data.query.includes('contentType=application%2Fdicom'))
     ) {
@@ -263,7 +304,7 @@ export default class CoreUtils {
     return dataCoordinate;
   }
 
-  static value(stack: any, coordinate: Vector3) {
+  static value(stack: StackLike, coordinate: Vector3) {
     window.console.warn('value is deprecated, please use getPixelData instead');
     CoreUtils.getPixelData(stack, coordinate);
   }
@@ -275,7 +316,7 @@ export default class CoreUtils {
    * @param {Vector3} coordinate
    * @return {*}
    */
-  static getPixelData(stack: any, coordinate: Vector3): number | null {
+  static getPixelData(stack: StackLike, coordinate: Vector3): number | null {
     if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].getPixelData(coordinate.x, coordinate.y);
     } else {
@@ -291,7 +332,7 @@ export default class CoreUtils {
    * @param {Number} value
    * @return {*}
    */
-  static setPixelData(stack: any, coordinate: Vector3, value: number) {
+  static setPixelData(stack: StackLike, coordinate: Vector3, value: number) {
     if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
       stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
     } else {
@@ -397,7 +438,11 @@ export default class CoreUtils {
    *
    * @return {Object|null}
    */
-  static getRoI(mesh: any, camera: any, stack: any) {
+  static getRoI(mesh: Mesh, camera: CameraWithControls, stack: StackLike) {
+    if (!stack.lps2IJK) {
+      return null;
+    }
+
     mesh.geometry.computeBoundingBox();
 
     const bbox = new Box3().setFromObject(mesh);
@@ -415,7 +460,7 @@ export default class CoreUtils {
     [min.x, max.x] = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
     [min.y, max.y] = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
 
-    let intersect: any[] = [];
+    let intersect: Intersection[] = [];
     let value: number | null = null;
 
     for (let x = min.x; x <= max.x; x++) {

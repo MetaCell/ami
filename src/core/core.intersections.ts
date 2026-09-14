@@ -1,27 +1,7 @@
 import { Matrix4, Vector3 } from 'three';
-import CoreUtils from './core.utils';
+import CoreUtils, { type Bbox } from './core.utils';
 import Validators from './core.validators';
-
-interface Ray {
-  position: Vector3;
-  direction: Vector3;
-}
-
-interface Plane {
-  position: Vector3;
-  direction: Vector3;
-}
-
-interface AABB {
-  center: Vector3;
-  halfDimensions: Vector3;
-  toAABB: Matrix4;
-}
-
-interface Box {
-  center: Vector3;
-  halfDimensions: Vector3;
-}
+import type { AABB, Box, Plane, Ray } from './core.types';
 
 interface Orientation {
   x: Vector3;
@@ -141,6 +121,13 @@ export default class Intersections {
     );
 
     const bbox = CoreUtils.bbox(aabb.center, aabb.halfDimensions);
+    if (!bbox) {
+      // unreachable in practice: validateAabb above already checked center/halfDimensions,
+      // the same conditions bbox() checks - kept as a guard so a future drift between the two
+      // fails loudly here instead of throwing deep inside rayPlaneInBBox.
+      window.console.log('Invalid aabb or plane provided.');
+      return false;
+    }
 
     const orientation: Orientation = {
       x: new Vector3(1, 0, 0),
@@ -406,7 +393,7 @@ export default class Intersections {
    * @param {*} bbox
    * @param {*} intersections
    */
-  static rayPlaneInBBox(ray: Ray, planeAABB: Plane, bbox: any, intersections: Vector3[]) {
+  static rayPlaneInBBox(ray: Ray, planeAABB: Plane, bbox: Bbox, intersections: Vector3[]) {
     const intersection = Intersections.rayPlane(ray, planeAABB);
     // window.console.log(intersection);
     if (intersection && Intersections.inBBox(intersection, bbox)) {
@@ -440,7 +427,7 @@ export default class Intersections {
    * @param {Object} bbox
    * @return {Boolean}
    */
-  static inBBox(point: Vector3, bbox: any): boolean {
+  static inBBox(point: Vector3, bbox: Bbox): boolean {
     //
     const epsilon = 0.0001;
     if (

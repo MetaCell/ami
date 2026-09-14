@@ -1,3 +1,6 @@
+import { Matrix4, Vector3 } from 'three';
+import type { Box, Ray } from './core.types';
+
 /**
  * Validate basic structures.
  *
@@ -18,16 +21,17 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid Matrix4, false if NOT.
    */
-  static matrix4(objectToTest: any): boolean {
+  static matrix4(objectToTest: unknown): objectToTest is Matrix4 {
+    const candidate = objectToTest as Matrix4 | null | undefined;
     if (
       !(
-        objectToTest !== null &&
-        typeof objectToTest !== 'undefined' &&
-        Object.hasOwn(objectToTest, 'elements') &&
-        objectToTest.elements.length === 16 &&
-        typeof objectToTest.identity === 'function' &&
-        typeof objectToTest.copy === 'function' &&
-        typeof objectToTest.determinant === 'function'
+        candidate !== null &&
+        typeof candidate !== 'undefined' &&
+        Object.hasOwn(candidate, 'elements') &&
+        candidate.elements.length === 16 &&
+        typeof candidate.identity === 'function' &&
+        typeof candidate.copy === 'function' &&
+        typeof candidate.determinant === 'function'
       )
     ) {
       return false;
@@ -41,15 +45,16 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid Vector3, false if NOT.
    */
-  static vector3(objectToTest: any): boolean {
+  static vector3(objectToTest: unknown): objectToTest is Vector3 {
+    const candidate = objectToTest as Vector3 | null | undefined;
     if (
       !(
-        objectToTest !== null &&
-        typeof objectToTest !== 'undefined' &&
-        Object.hasOwn(objectToTest, 'x') &&
-        Object.hasOwn(objectToTest, 'y') &&
-        Object.hasOwn(objectToTest, 'z') &&
-        !Object.hasOwn(objectToTest, 'w')
+        candidate !== null &&
+        typeof candidate !== 'undefined' &&
+        Object.hasOwn(candidate, 'x') &&
+        Object.hasOwn(candidate, 'y') &&
+        Object.hasOwn(candidate, 'z') &&
+        !Object.hasOwn(candidate, 'w')
       )
     ) {
       return false;
@@ -71,18 +76,19 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid box, false if NOT.
    */
-  static box(objectToTest: any): boolean {
+  static box(objectToTest: unknown): objectToTest is Box {
+    const candidate = objectToTest as Box | null | undefined;
     if (
       !(
-        objectToTest !== null &&
-        typeof objectToTest !== 'undefined' &&
-        Object.hasOwn(objectToTest, 'center') &&
-        Validators.vector3(objectToTest.center) &&
-        Object.hasOwn(objectToTest, 'halfDimensions') &&
-        Validators.vector3(objectToTest.halfDimensions) &&
-        objectToTest.halfDimensions.x >= 0 &&
-        objectToTest.halfDimensions.y >= 0 &&
-        objectToTest.halfDimensions.z >= 0
+        candidate !== null &&
+        typeof candidate !== 'undefined' &&
+        Object.hasOwn(candidate, 'center') &&
+        Validators.vector3(candidate.center) &&
+        Object.hasOwn(candidate, 'halfDimensions') &&
+        Validators.vector3(candidate.halfDimensions) &&
+        candidate.halfDimensions.x >= 0 &&
+        candidate.halfDimensions.y >= 0 &&
+        candidate.halfDimensions.z >= 0
       )
     ) {
       return false;
@@ -104,15 +110,16 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid ray, false if NOT.
    */
-  static ray(objectToTest: any): boolean {
+  static ray(objectToTest: unknown): objectToTest is Ray {
+    const candidate = objectToTest as Ray | null | undefined;
     if (
       !(
-        objectToTest !== null &&
-        typeof objectToTest !== 'undefined' &&
-        Object.hasOwn(objectToTest, 'position') &&
-        Validators.vector3(objectToTest.position) &&
-        Object.hasOwn(objectToTest, 'direction') &&
-        Validators.vector3(objectToTest.direction)
+        candidate !== null &&
+        typeof candidate !== 'undefined' &&
+        Object.hasOwn(candidate, 'position') &&
+        Validators.vector3(candidate.position) &&
+        Object.hasOwn(candidate, 'direction') &&
+        Validators.vector3(candidate.direction)
       )
     ) {
       return false;

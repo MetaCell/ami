@@ -1,5 +1,7 @@
 /** * Imports ***/
 import ModelsBase from '../models/models.base';
+import ModelsStack from '../models/models.stack';
+import type { SegmentationSegment } from './models.types';
 
 /**
  * Series object.
@@ -7,31 +9,37 @@ import ModelsBase from '../models/models.base';
  * @module models/series
  */
 export default class ModelsSeries extends ModelsBase {
-  private _concatenationUID: any;
-  private _seriesInstanceUID: any;
+  // Never actually populated anywhere in this codebase (no parser exposes them) - typed from
+  // their sentinel defaults below, not from any real producer.
+  private _concatenationUID: string | number;
+  // Defaults to the sentinel -1 (number); loaders.volume.ts sets it to the parser's real string
+  // UID once a file is loaded (see parsers.dicom.ts/nifti.ts/etc.'s seriesInstanceUID()).
+  private _seriesInstanceUID: string | number;
   private _transferSyntaxUID: string;
   private _seriesNumber: number;
   private _seriesDescription: string;
   private _seriesDate: string;
   private _studyDescription: string;
   private _studyDate: string;
-  private _accessionNumber: any;
+  private _accessionNumber: string | number;
   private _modality: string;
-  private _dimensionIndexSequence: any[];
+  private _dimensionIndexSequence: unknown[];
   private _numberOfFrames: number;
   private _numberOfChannels: number;
 
-  private _rawHeader: any;
+  // Opaque parser-specific data (DICOM dataset vs NIfTI header have unrelated shapes) - held and
+  // passed through, never destructured here.
+  private _rawHeader: unknown;
   private _patientID: string;
   private _patientName: string;
   private _patientAge: string;
   private _patientBirthdate: string;
   private _patientSex: string;
 
-  private _segmentationType: any;
-  private _segmentationSegments: any[];
+  private _segmentationType: string;
+  private _segmentationSegments: SegmentationSegment[];
 
-  private _stack: any[];
+  private _stack: ModelsStack[];
 
   /**
    * Models series constructor
@@ -126,7 +134,7 @@ export default class ModelsSeries extends ModelsBase {
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
       // may merge incorrectly if loader will return more than one stacks per series
       if (series.stack[0]) {
-        if (this._stack[0]._numberOfFrames === 0) {
+        if (this._stack[0].numberOfFrames === 0) {
           this._stack[0].computeNumberOfFrames();
         }
         this._stack[0].computeCosines();
@@ -162,7 +170,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {*} seriesInstanceUID
    */
-  set seriesInstanceUID(seriesInstanceUID: any) {
+  set seriesInstanceUID(seriesInstanceUID: string | number) {
     this._seriesInstanceUID = seriesInstanceUID;
   }
 
@@ -300,7 +308,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {*} rawHeader
    */
-  set rawHeader(rawHeader: any) {
+  set rawHeader(rawHeader: unknown) {
     this._rawHeader = rawHeader;
   }
 
@@ -444,7 +452,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {*} stack
    */
-  set stack(stack: any[]) {
+  set stack(stack: ModelsStack[]) {
     this._stack = stack;
   }
 
@@ -480,7 +488,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {*} segmentationType
    */
-  set segmentationType(segmentationType: any) {
+  set segmentationType(segmentationType: string) {
     this._segmentationType = segmentationType;
   }
 
@@ -498,7 +506,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {*} segmentationSegments
    */
-  set segmentationSegments(segmentationSegments: any[]) {
+  set segmentationSegments(segmentationSegments: SegmentationSegment[]) {
     this._segmentationSegments = segmentationSegments;
   }
 

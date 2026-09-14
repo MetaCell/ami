@@ -1,9 +1,11 @@
 /** * Imports ***/
 import binaryString from 'math-float32-to-binary-string';
-import { Matrix4, RGBAFormat, RGBFormat, Vector3 } from 'three';
+import { Matrix4, type PixelFormat, RGBAFormat, RGBFormat, Vector3 } from 'three';
 import CoreColors from '../core/core.colors';
-import CoreUtils from '../core/core.utils';
+import CoreUtils, { type StackLike } from '../core/core.utils';
 import ModelsBase from '../models/models.base';
+import ModelsFrame from '../models/models.frame';
+import type { SegmentationSegment } from './models.types';
 
 /**
  * Stack object.
@@ -14,7 +16,7 @@ export default class ModelsStack extends ModelsBase {
   private _uid: string | null;
   private _stackID: number;
 
-  private _frame: any[];
+  private _frame: ModelsFrame[];
   private _numberOfFrames: number;
 
   private _rows: number;
@@ -26,9 +28,9 @@ export default class ModelsStack extends ModelsBase {
 
   private _textureSize: number;
   private _textureUnits: number;
-  private _textureType: any;
+  private _textureType: PixelFormat | null;
 
-  private _rawData: any[];
+  private _rawData: Uint8Array[];
 
   private _windowCenter: number;
   private _windowWidth: number;
@@ -69,12 +71,12 @@ export default class ModelsStack extends ModelsBase {
   private _modality: string;
 
   // SEGMENTATION STUFF
-  private _segmentationType: any;
-  private _segmentationSegments: any[];
+  private _segmentationType: string;
+  private _segmentationSegments: SegmentationSegment[];
   private _segmentationDefaultColor: number[];
-  private _frameSegment: any[];
-  private _segmentationLUT: any[];
-  private _segmentationLUTO: any[];
+  private _frameSegment: ModelsFrame[];
+  private _segmentationLUT: number[][];
+  private _segmentationLUTO: number[][];
 
   // photometricInterpretation Monochrome1 VS Monochrome2
   private _invert: boolean;
@@ -166,7 +168,7 @@ export default class ModelsStack extends ModelsBase {
   prepareSegmentation() {
     // store frame and do special pre-processing
     this._frameSegment = this._frame;
-    const mergedFrames: any[] = [];
+    const mergedFrames: ModelsFrame[] = [];
 
     // order frames
     this.computeCosines();
@@ -176,7 +178,7 @@ export default class ModelsStack extends ModelsBase {
     // merge frames
     let prevIndex = -1;
     for (let i = 0; i < this._frame.length; i++) {
-      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
+      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex].dist != this._frame[i].dist) {
         mergedFrames.push(this._frame[i]);
         prevIndex++;
 
@@ -187,26 +189,26 @@ export default class ModelsStack extends ModelsBase {
         // That allows us to merge frames later on.
         // If we merge frames without scaling, then we can not differenciate
         // voxels from segmentation A or B as the value is 0 or 1 in both cases.
-        for (let k = 0; k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
-          mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
+        for (let k = 0; k < mergedFrames[prevIndex].rows * mergedFrames[prevIndex].columns; k++) {
+          mergedFrames[prevIndex].pixelData[k] *= this._frame[i].referencedSegmentNumber;
         }
       } else {
         // frame already exsits at this location.
         // merge data from this segmentation into existing frame
-        for (let k = 0; k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
-          mergedFrames[prevIndex]._pixelData[k] +=
-            this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
+        for (let k = 0; k < mergedFrames[prevIndex].rows * mergedFrames[prevIndex].columns; k++) {
+          mergedFrames[prevIndex].pixelData[k] +=
+            this._frame[i].pixelData[k] * this._frame[i].referencedSegmentNumber;
         }
       }
 
-      mergedFrames[prevIndex].minMax = CoreUtils.minMax(mergedFrames[prevIndex]._pixelData);
+      mergedFrames[prevIndex].minMax = CoreUtils.minMax(mergedFrames[prevIndex].pixelData);
     }
 
     // get information about segments
     const dict: Record<string, number[]> = {};
     let max = 0;
     for (let i = 0; i < this._segmentationSegments.length; i++) {
-      max = Math.max(max, parseInt(this._segmentationSegments[i].segmentNumber, 10));
+      max = Math.max(max, parseInt(String(this._segmentationSegments[i].segmentNumber), 10));
 
       const color = this._segmentationSegments[i].recommendedDisplayCIELab;
       if (color === null) {
@@ -325,7 +327,7 @@ export default class ModelsStack extends ModelsBase {
   packEchos() {
     // 4 echo times...
     const echos = 4;
-    const packedEcho: any[] = [];
+    const packedEcho: ModelsFrame[] = [];
     for (let i = 0; i < this._frame.length; i += echos) {
       const frame = this._frame[i];
       for (let k = 0; k < this._rows * this._columns; k++) {
@@ -590,8 +592,14 @@ export default class ModelsStack extends ModelsBase {
    * @param {*} startVoxel
    * @param {*} stopVoxel
    */
-  _packTo8Bits(channels: number, frame: any[], textureSize: number, startVoxel: number, stopVoxel: number) {
-    const packed: { textureType: any; data: any } = {
+  _packTo8Bits(
+    channels: number,
+    frame: ModelsFrame[],
+    textureSize: number,
+    startVoxel: number,
+    stopVoxel: number
+  ): { textureType: PixelFormat | null; data: Uint8Array | null } {
+    const packed: { textureType: PixelFormat | null; data: Uint8Array | null } = {
       textureType: null,
       data: null,
     };
@@ -815,7 +823,7 @@ export default class ModelsStack extends ModelsBase {
     return new Vector3(array[index], array[index + 1], array[index + 2]);
   }
 
-  _orderFrameOnDimensionIndicesArraySort(a: any, b: any): number {
+  _orderFrameOnDimensionIndicesArraySort(a: ModelsFrame, b: ModelsFrame): number {
     if (
       'dimensionIndexValues' in a &&
       Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' &&
@@ -823,10 +831,16 @@ export default class ModelsStack extends ModelsBase {
       Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]'
     ) {
       for (let i = 0; i < a.dimensionIndexValues.length; i++) {
-        if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
+        if (
+          parseInt(String(a.dimensionIndexValues[i]), 10) >
+          parseInt(String(b.dimensionIndexValues[i]), 10)
+        ) {
           return 1;
         }
-        if (parseInt(a.dimensionIndexValues[i], 10) < parseInt(b.dimensionIndexValues[i], 10)) {
+        if (
+          parseInt(String(a.dimensionIndexValues[i]), 10) <
+          parseInt(String(b.dimensionIndexValues[i]), 10)
+        ) {
           return -1;
         }
       }
@@ -839,7 +853,7 @@ export default class ModelsStack extends ModelsBase {
     return 0;
   }
 
-  _computeDistanceArrayMap(normal: Vector3, frame: any) {
+  _computeDistanceArrayMap(normal: Vector3, frame: ModelsFrame): ModelsFrame {
     if (frame.imagePosition) {
       frame.dist =
         frame.imagePosition[0] * normal.x +
@@ -849,25 +863,33 @@ export default class ModelsStack extends ModelsBase {
     return frame;
   }
 
-  _sortDistanceArraySort(a: any, b: any): number {
-    return a.dist - b.dist;
+  _sortDistanceArraySort(a: ModelsFrame, b: ModelsFrame): number {
+    return (a.dist ?? 0) - (b.dist ?? 0);
   }
-  _sortInstanceNumberArraySort(a: any, b: any): number {
-    return a.instanceNumber - b.instanceNumber;
+  _sortInstanceNumberArraySort(a: ModelsFrame, b: ModelsFrame): number {
+    return (a.instanceNumber ?? 0) - (b.instanceNumber ?? 0);
   }
-  _sortSopInstanceUIDArraySort(a: any, b: any): number {
-    return a.sopInstanceUID - b.sopInstanceUID;
+  // sopInstanceUID is a string (a DICOM UID) - the previous `a.sopInstanceUID - b.sopInstanceUID`
+  // was a numeric subtraction of two non-numeric strings, always NaN, silently leaving this
+  // last-resort fallback ordering (see orderFrames()) a no-op. Real bug surfaced by typing this.
+  _sortSopInstanceUIDArraySort(a: ModelsFrame, b: ModelsFrame): number {
+    return (a.sopInstanceUID ?? '').localeCompare(b.sopInstanceUID ?? '');
   }
 
   set numberOfChannels(numberOfChannels: number) {
     this._numberOfChannels = numberOfChannels;
   }
 
+  // Read-only by design - derived via computeNumberOfFrames(), not set directly.
+  get numberOfFrames() {
+    return this._numberOfFrames;
+  }
+
   get numberOfChannels() {
     return this._numberOfChannels;
   }
 
-  set frame(frame: any[]) {
+  set frame(frame: ModelsFrame[]) {
     this._frame = frame;
   }
 
@@ -963,7 +985,7 @@ export default class ModelsStack extends ModelsBase {
     return this._textureUnits;
   }
 
-  set textureType(textureType: any) {
+  set textureType(textureType: PixelFormat | null) {
     this._textureType = textureType;
   }
 
@@ -979,7 +1001,7 @@ export default class ModelsStack extends ModelsBase {
     return this._bitsAllocated;
   }
 
-  set rawData(rawData: any[]) {
+  set rawData(rawData: Uint8Array[]) {
     this._rawData = rawData;
   }
 
@@ -1107,7 +1129,7 @@ export default class ModelsStack extends ModelsBase {
     this._spacingBetweenSlices = spacingBetweenSlices;
   }
 
-  set segmentationSegments(segmentationSegments: any[]) {
+  set segmentationSegments(segmentationSegments: SegmentationSegment[]) {
     this._segmentationSegments = segmentationSegments;
   }
 
@@ -1115,7 +1137,7 @@ export default class ModelsStack extends ModelsBase {
     return this._segmentationSegments;
   }
 
-  set segmentationType(segmentationType: any) {
+  set segmentationType(segmentationType: string) {
     this._segmentationType = segmentationType;
   }
 
@@ -1123,7 +1145,7 @@ export default class ModelsStack extends ModelsBase {
     return this._segmentationType;
   }
 
-  set segmentationLUT(segmentationLUT: any[]) {
+  set segmentationLUT(segmentationLUT: number[][]) {
     this._segmentationLUT = segmentationLUT;
   }
 
@@ -1131,7 +1153,7 @@ export default class ModelsStack extends ModelsBase {
     return this._segmentationLUT;
   }
 
-  set segmentationLUTO(segmentationLUTO: any[]) {
+  set segmentationLUTO(segmentationLUTO: number[][]) {
     this._segmentationLUTO = segmentationLUTO;
   }
 
@@ -1151,7 +1173,7 @@ export default class ModelsStack extends ModelsBase {
    *
    * @return {*}
    */
-  static value(stack: any, coordinate: Vector3) {
+  static value(stack: StackLike, coordinate: Vector3) {
     window.console.warn(
       `models.stack.value is deprecated.
        Please use core.utils.value instead.`
@@ -1188,7 +1210,7 @@ export default class ModelsStack extends ModelsBase {
    *
    * @return {*}
    */
-  static worldToData(stack: any, worldCoordinates: Vector3): Vector3 {
+  static worldToData(stack: ModelsStack, worldCoordinates: Vector3): Vector3 {
     window.console.warn(
       `models.stack.worldToData is deprecated.
        Please use core.utils.worldToData instead.`

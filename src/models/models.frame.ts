@@ -1,6 +1,20 @@
 /** * Imports ***/
 import { Vector3 } from 'three';
 import ModelsBase from '../models/models.base';
+import type { PixelBuffer, UltrasoundRegion } from './models.types';
+
+/**
+ * Windowing state threaded through _frameToCanvas/_pixelTo8Bit for one canvas conversion.
+ * max/range are filled in after construction (both branches of the if/else below set them
+ * before _pixelTo8Bit ever reads them), hence optional here.
+ */
+interface PixelToCanvasParams {
+  invert: boolean;
+  min: number;
+  max?: number;
+  range?: number;
+  padding: number | null;
+}
 
 /**
  * Frame object.
@@ -13,7 +27,7 @@ export default class ModelsFrame extends ModelsBase {
   private _stackID: number;
   private _invert: boolean;
   private _frameTime: number | null;
-  private _ultrasoundRegions: any[];
+  private _ultrasoundRegions: UltrasoundRegion[];
   private _rows: number;
   private _columns: number;
   private _dimensionIndexValues: number[];
@@ -27,7 +41,7 @@ export default class ModelsFrame extends ModelsBase {
   private _pixelType: number;
   private _pixelSpacing: number[] | null;
   private _pixelAspectRatio: number[] | null;
-  private _pixelData: any;
+  private _pixelData: PixelBuffer | null;
 
   private _instanceNumber: number | null;
   private _windowCenter: number | null;
@@ -39,7 +53,7 @@ export default class ModelsFrame extends ModelsBase {
   private _numberOfChannels: number;
 
   private _minMax: number[] | null;
-  private _dist: any;
+  private _dist: number | null;
 
   private _index: number;
 
@@ -265,7 +279,7 @@ export default class ModelsFrame extends ModelsBase {
   _frameToCanvas(): Uint8Array {
     const dimension = this._columns * this._rows;
 
-    const params: any = {
+    const params: PixelToCanvasParams = {
       invert: this._invert,
       min: this._minMax![0],
       padding: this._pixelPaddingValue,
@@ -330,7 +344,7 @@ export default class ModelsFrame extends ModelsBase {
    *
    * @return {Number}
    */
-  _pixelTo8Bit(value: number, params: any): number {
+  _pixelTo8Bit(value: number, params: PixelToCanvasParams): number {
     // values equal to pixelPaddingValue are outside of the image and should be ignored
     let packedValue = value <= params.min || value === params.padding ? 0 : 255;
 
@@ -352,7 +366,7 @@ export default class ModelsFrame extends ModelsBase {
    *
    * @return {boolean} True if arrays are identicals. False if not.
    */
-  _compareArrays(reference: any, target: any): boolean {
+  _compareArrays(reference: unknown[] | null, target: unknown[] | null): boolean {
     // could both be null
     if (reference === target) {
       return true;
@@ -378,7 +392,7 @@ export default class ModelsFrame extends ModelsBase {
     return this._ultrasoundRegions;
   }
 
-  set ultrasoundRegions(ultrasoundRegions: any[]) {
+  set ultrasoundRegions(ultrasoundRegions: UltrasoundRegion[]) {
     this._ultrasoundRegions = ultrasoundRegions;
   }
 
@@ -474,7 +488,7 @@ export default class ModelsFrame extends ModelsBase {
     return this._dist;
   }
 
-  set dist(dist: any) {
+  set dist(dist: number | null) {
     this._dist = dist;
   }
 
@@ -522,7 +536,7 @@ export default class ModelsFrame extends ModelsBase {
     return this._pixelData;
   }
 
-  set pixelData(pixelData: any) {
+  set pixelData(pixelData: PixelBuffer | null) {
     this._pixelData = pixelData;
   }
 

@@ -31,9 +31,12 @@ export interface Bbox {
 
 /**
  * Structural view of ModelsStack, scoped to what this module reads/writes.
- * A real import would cycle - models.stack.ts already imports from core.utils.ts.
+ * A real import would cycle - models.stack.ts already imports from core.utils.ts. Exported so
+ * models.stack.ts's own deprecated static value()/worldToData() wrappers (which just forward to
+ * this module) can use it too - ModelsStack itself doesn't structurally satisfy this (its real
+ * _frame is private), so those wrappers type their `stack` param as StackLike, not ModelsStack.
  */
-interface StackLike {
+export interface StackLike {
   _frame: FrameLike[];
   lps2IJK: Matrix4 | null;
   numberOfChannels: number;
@@ -101,7 +104,7 @@ export default class CoreUtils {
    * @param {Array} data
    * @return {Array}
    */
-  static minMax(data: number[] = []): number[] {
+  static minMax(data: ArrayLike<number> = []): number[] {
     const minMax = [65535, -32768];
     const numPixels = data.length;
 

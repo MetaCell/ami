@@ -3,6 +3,8 @@ import { Vector3 } from 'three';
 
 import CoreUtils from '../../src/core/core.utils';
 
+type Bbox = { min: Vector3; max: Vector3 };
+
 describe('Core.Utils', () => {
   describe('bbox', () => {
     it('should return false if input is not valid', () => {
@@ -13,7 +15,7 @@ describe('Core.Utils', () => {
 
     it('should return true if input is valid', () => {
       // zero bbox
-      let bbox = CoreUtils.bbox(new Vector3(), new Vector3());
+      let bbox = CoreUtils.bbox(new Vector3(), new Vector3()) as Bbox;
       // { min: { x : 0, y : 0,  z : 0 },
       //  max: { x : 0, y : 0,  z : 0 }
       // }
@@ -28,7 +30,7 @@ describe('Core.Utils', () => {
       expect(bbox.max.z).toEqual(0);
 
       // regular bbox
-      bbox = CoreUtils.bbox(new Vector3(1, 2, 3), new Vector3(1, 2, 3));
+      bbox = CoreUtils.bbox(new Vector3(1, 2, 3), new Vector3(1, 2, 3)) as Bbox;
       // { min: { x : 0, y : 0,  z : 0 },
       //  max: { x : 2, y : 4,  z : 6 }
       // }

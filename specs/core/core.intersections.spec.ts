@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import CoreIntersections from '../../src/core/core.intersections';
 import { Matrix4 } from 'three';
 import { Vector3 } from 'three';
@@ -12,16 +10,19 @@ describe('Core.Intersections', () => {
       expect(validate).toEqual(false);
 
       // missing toAABB
+      // @ts-expect-error missing required AABB properties, that's what's under test
       validate = CoreIntersections.validateAabb({});
       expect(validate).toEqual(false);
 
       // missing center
+      // @ts-expect-error missing required AABB properties, that's what's under test
       validate = CoreIntersections.validateAabb({
         toAABB: new Matrix4(),
       });
       expect(validate).toEqual(false);
 
       // missing halfDimensions
+      // @ts-expect-error missing required AABB properties, that's what's under test
       validate = CoreIntersections.validateAabb({
         toAABB: new Matrix4(),
         center: new Vector3(),
@@ -30,6 +31,7 @@ describe('Core.Intersections', () => {
 
       // toAABB should be Matrix4
       validate = CoreIntersections.validateAabb({
+        // @ts-expect-error toAABB should be a Matrix4, that's what's under test
         toAABB: new Vector3(),
         center: new Vector3(),
         halfDimensions: new Vector3(),
@@ -39,6 +41,7 @@ describe('Core.Intersections', () => {
       // center should be vector3
       validate = CoreIntersections.validateAabb({
         toAABB: new Matrix4(),
+        // @ts-expect-error center should be a Vector3, that's what's under test
         center: new Matrix4(),
         halfDimensions: new Vector3(),
       });
@@ -48,6 +51,7 @@ describe('Core.Intersections', () => {
       validate = CoreIntersections.validateAabb({
         toAABB: new Matrix4(),
         center: new Vector3(),
+        // @ts-expect-error halfDimensions should be a Vector3, that's what's under test
         halfDimensions: new Matrix4(),
       });
       expect(validate).toEqual(false);
@@ -78,10 +82,12 @@ describe('Core.Intersections', () => {
       expect(validate).toEqual(false);
 
       // missing position
+      // @ts-expect-error missing required Plane properties, that's what's under test
       validate = CoreIntersections.validatePlane({});
       expect(validate).toEqual(false);
 
       // missing direction
+      // @ts-expect-error missing required Plane properties, that's what's under test
       validate = CoreIntersections.validatePlane({
         position: new Vector3(),
       });
@@ -89,6 +95,7 @@ describe('Core.Intersections', () => {
 
       // position should be vector3
       validate = CoreIntersections.validatePlane({
+        // @ts-expect-error position should be a Vector3, that's what's under test
         position: new Matrix4(),
         direction: new Vector3(),
       });
@@ -97,6 +104,7 @@ describe('Core.Intersections', () => {
       // direction should be vector3
       validate = CoreIntersections.validatePlane({
         position: new Vector3(),
+        // @ts-expect-error direction should be a Vector3, that's what's under test
         direction: new Matrix4(),
       });
       expect(validate).toEqual(false);
@@ -130,7 +138,7 @@ describe('Core.Intersections', () => {
         direction: new Vector3(1, 0, 0),
       };
 
-      let intersections = CoreIntersections.aabbPlane(aabb, plane);
+      let intersections = CoreIntersections.aabbPlane(aabb, plane) as Vector3[];
       // 4 intersections:
       // [ { x : 110, y : 90,  z : 80 },
       //   { x : 110, y : 210, z : 220 },
@@ -173,7 +181,7 @@ describe('Core.Intersections', () => {
         direction: new Vector3(1, 0, 0),
       };
 
-      intersections = CoreIntersections.aabbPlane(aabb, plane);
+      intersections = CoreIntersections.aabbPlane(aabb, plane) as Vector3[];
       // 4 intersections
       // [ {x: 0, y: -50, z: -70.71068048477173},
       //   {x: 0, y: 50, z: 70.71067333221436},
@@ -204,7 +212,7 @@ describe('Core.Intersections', () => {
         direction: new Vector3(1, 0, 0),
       };
 
-      intersections = CoreIntersections.aabbPlane(aabb, plane);
+      intersections = CoreIntersections.aabbPlane(aabb, plane) as Vector3[];
       // 4 intersections
       // [ {x: 100, y: 100, z: 100},
       //   {x: 100, y: 200, z: 200},
@@ -236,7 +244,7 @@ describe('Core.Intersections', () => {
         direction: new Vector3(1, 0, 0),
       };
 
-      intersections = CoreIntersections.aabbPlane(aabb, plane);
+      intersections = CoreIntersections.aabbPlane(aabb, plane) as Vector3[];
       expect(intersections.length).toEqual(0);
     });
   });

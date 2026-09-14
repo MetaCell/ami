@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import sinon from 'sinon';
 import VolumeLoader from '../../src/loaders/loaders.volume';
 

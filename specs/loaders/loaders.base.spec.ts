@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import sinon from 'sinon';
 import LoadersBase from '../../src/loaders/loaders.base';
 import ProgressBar from '../../src/helpers/helpers.progressbar';
@@ -45,8 +43,8 @@ describe('Loader.Base', () => {
       const loader = new LoadersBase();
       expect(loader instanceof LoadersBase).toEqual(true);
       loader.free();
-      expect(loader._container).toEqual(null);
-      expect(loader._progressBar).toEqual(null);
+      expect(loader['_container']).toEqual(null);
+      expect(loader['_progressBar']).toEqual(null);
     });
 
     it('should return success only with container', () => {
@@ -54,17 +52,17 @@ describe('Loader.Base', () => {
       const loader = new LoadersBase(container);
       expect(loader instanceof LoadersBase).toEqual(true);
       loader.free();
-      expect(loader._container).toEqual(null);
-      expect(loader._progressBar).toEqual(null);
+      expect(loader['_container']).toEqual(null);
+      expect(loader['_progressBar']).toEqual(null);
     });
 
     it('should return success only with ProgressBar', () => {
       const loader = new LoadersBase(null, ProgressBar);
       expect(loader instanceof LoadersBase).toEqual(true);
-      expect(loader._progressBar).toEqual(null);
+      expect(loader['_progressBar']).toEqual(null);
       loader.free();
-      expect(loader._container).toEqual(null);
-      expect(loader._progressBar).toEqual(null);
+      expect(loader['_container']).toEqual(null);
+      expect(loader['_progressBar']).toEqual(null);
     });
 
     it('should return success with both container and ProgressBar', () => {
@@ -72,8 +70,8 @@ describe('Loader.Base', () => {
       const loader = new LoadersBase(container, ProgressBar);
       expect(loader instanceof LoadersBase).toEqual(true);
       loader.free();
-      expect(loader._container).toEqual(null);
-      expect(loader._progressBar).toEqual(null);
+      expect(loader['_container']).toEqual(null);
+      expect(loader['_progressBar']).toEqual(null);
     });
   });
 

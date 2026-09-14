@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import CarmerasOrthographic from '../../src/cameras/cameras.orthographic';
 
 describe('Cameras.Orthographic', () => {

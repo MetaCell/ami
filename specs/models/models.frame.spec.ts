@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import ModelsFrame from '../../src/models/models.frame';
 
 import { Vector3 } from 'three';

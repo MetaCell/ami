@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import CoreValidators from '../../src/core/core.validators';
 import { Matrix3 } from 'three';
 import { Matrix4 } from 'three';
@@ -15,8 +13,7 @@ describe('Core.Validator', () => {
       expect(validate).toEqual(false);
 
       // undefined provided
-      const obj = {};
-      validate = CoreValidators.matrix4(obj.iamundefined);
+      validate = CoreValidators.matrix4(undefined);
       expect(validate).toEqual(false);
 
       // {} ptovided
@@ -49,8 +46,7 @@ describe('Core.Validator', () => {
       expect(validate).toEqual(false);
 
       // undefined provided
-      const obj = {};
-      validate = CoreValidators.vector3(obj.iamundefined);
+      validate = CoreValidators.vector3(undefined);
       expect(validate).toEqual(false);
 
       // {} ptovided
@@ -87,8 +83,7 @@ describe('Core.Validator', () => {
       expect(validate).toEqual(false);
 
       // undefined provided
-      const obj = {};
-      validate = CoreValidators.box(obj.iamundefined);
+      validate = CoreValidators.box(undefined);
       expect(validate).toEqual(false);
 
       // {} ptovided
@@ -138,8 +133,7 @@ describe('Core.Validator', () => {
       expect(validate).toEqual(false);
 
       // undefined provided
-      const obj = {};
-      validate = CoreValidators.ray(obj.iamundefined);
+      validate = CoreValidators.ray(undefined);
       expect(validate).toEqual(false);
 
       // {} ptovided

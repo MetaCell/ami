@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import ParsersDicom from '../../src/parsers/parsers.dicom';
 
 const datasets = [];
@@ -446,7 +444,7 @@ function dicomTestSequence(referenceDataset) {
     // before each, load the data...
     let parser;
 
-    beforeEach(() => new Promise(resolve => {
+    beforeEach(() => new Promise<void>(resolve => {
       const oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
@@ -629,7 +627,7 @@ function pixelDataTestSequence(referenceDataset) {
     // before each, load the data...
     let parser;
 
-    beforeEach(() => new Promise(resolve => {
+    beforeEach(() => new Promise<void>(resolve => {
       const oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';

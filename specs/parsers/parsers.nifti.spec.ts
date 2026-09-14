@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import ParsersDicom from '../../src/parsers/parsers.dicom';
 import ParsersNifti from '../../src/parsers/parsers.nifti';
 
@@ -22,7 +20,7 @@ function crop(value, decimals) {
 function test(dataset, datasetDicom) {
   let parserDicom = null;
 
-  beforeEach(() => new Promise(resolve => {
+  beforeEach(() => new Promise<void>(resolve => {
     const oReqDicom = new XMLHttpRequest();
     oReqDicom.open('GET', datasetDicom.url, true);
     oReqDicom.responseType = 'arraybuffer';
@@ -47,7 +45,7 @@ function test(dataset, datasetDicom) {
   describe(dataset.format, () => {
     let parser = null;
 
-    beforeEach(() => new Promise(resolve => {
+    beforeEach(() => new Promise<void>(resolve => {
       const oReqData = new XMLHttpRequest();
       oReqData.open('GET', dataset.url, true);
       oReqData.responseType = 'arraybuffer';

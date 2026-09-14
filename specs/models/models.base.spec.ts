@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import ModelsBase from '../../src/models/models.base';
 
 describe('Models.Base', () => {

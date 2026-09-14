@@ -10,9 +10,11 @@
     "outDir": "./build",
     "strict": false,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["vitest/globals", "node"]
   },
   "include": [
-    "./src/**/*.ts"
+    "./src/**/*.ts",
+    "./specs/**/*.ts"
   ]
 }

@@ -1,5 +1,3 @@
-/* globals describe, it, expect, beforeEach*/
-
 import ModelsSeries from '../../src/models/models.series';
 
 describe('Models.series', () => {

@@ -7,7 +7,23 @@ import { join } from 'path';
 
 const PROJECT_ROOT = join(new URL(import.meta.url).pathname, '../..');
 
+type XHREventHandler = ((event: any) => void) | null;
+
 class MockXMLHttpRequest {
+  status: number;
+  statusText: string;
+  response: ArrayBuffer | null;
+  responseType: string;
+  crossOrigin: boolean;
+  _url: string;
+  onload: XHREventHandler;
+  onerror: XHREventHandler;
+  onabort: XHREventHandler;
+  ontimeout: XHREventHandler;
+  onprogress: XHREventHandler;
+  onloadstart: XHREventHandler;
+  onloadend: XHREventHandler;
+
   constructor() {
     this.status = 0;
     this.statusText = '';
@@ -24,7 +40,7 @@ class MockXMLHttpRequest {
     this.onloadend = null;
   }
 
-  open(_method, url) {
+  open(_method: string, url: string) {
     this._url = url;
   }
 
@@ -70,4 +86,6 @@ class MockXMLHttpRequest {
   setRequestHeader() {}
 }
 
-globalThis.XMLHttpRequest = MockXMLHttpRequest;
+// Deliberately a minimal mock, not a full XMLHttpRequest implementation - only what
+// VolumeLoader's fetch path (open/send/abort/setRequestHeader + the on* callbacks) uses.
+globalThis.XMLHttpRequest = MockXMLHttpRequest as unknown as typeof XMLHttpRequest;

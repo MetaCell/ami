@@ -1,18 +1,20 @@
 import * as THREE from 'three';
 import CoreIntersections from '../core/core.intersections';
+import type { Plane, Ray } from '../core/core.types';
+import type { WidgetControls, WidgetParameter } from './widgets.base';
 import { widgetsBase } from './widgets.base';
 
 /**
  * @module widgets/handle
  */
-const widgetsHandle = (three: any = window.THREE) => {
+const widgetsHandle = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
 
   const Constructor = widgetsBase(three)!;
   return class WidgetsHandle extends Constructor {
-    _plane: any;
+    _plane: Plane;
     _offset: THREE.Vector3;
     _raycaster: THREE.Raycaster;
 
@@ -25,10 +27,14 @@ const widgetsHandle = (three: any = window.THREE) => {
     _initialized: boolean;
 
     _meshHovered: boolean;
-    _dom: any;
+    _dom: HTMLDivElement;
     _domHovered: boolean;
 
-    constructor(targetMesh: any, controls: any, params: any = {}) {
+    constructor(
+      targetMesh: THREE.Mesh,
+      controls: WidgetControls,
+      params: WidgetParameter = {}
+    ) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'Handle';
@@ -98,7 +104,7 @@ const widgetsHandle = (three: any = window.THREE) => {
       this.initOffsets();
     }
 
-    onHover(evt: any) {
+    onHover(evt: MouseEvent | null) {
       if (evt) {
         this.hoverDom(evt);
       }
@@ -115,17 +121,20 @@ const widgetsHandle = (three: any = window.THREE) => {
       this._meshHovered = intersectsHandle.length > 0;
     }
 
-    hoverDom(evt: any) {
+    hoverDom(evt: MouseEvent) {
       this._domHovered = evt.type === 'mouseenter';
     }
 
-    onStart(evt: any) {
+    onStart(evt: MouseEvent) {
       const offsets = this.getMouseOffsets(evt, this._container);
       this._mouse.set(offsets.x, offsets.y);
 
       // update raycaster
       this._raycaster.setFromCamera(this._mouse, this._camera);
-      (this._raycaster.ray as any).position = this._raycaster.ray.origin;
+      // THREE.Ray only has .origin/.direction; CoreIntersections' Ray/Plane shape is
+      // {position, direction} - build a fresh object rather than bolting .position onto the
+      // raycaster's own Ray instance.
+      const ray: Ray = { position: this._raycaster.ray.origin, direction: this._raycaster.ray.direction };
 
       if (this._hovered) {
         this._active = true;
@@ -139,7 +148,7 @@ const widgetsHandle = (three: any = window.THREE) => {
         } else {
           this._plane.position.copy(this._worldPosition);
           this._plane.direction.copy(this._camera.getWorldDirection());
-          const intersection = CoreIntersections.rayPlane(this._raycaster.ray as any, this._plane);
+          const intersection = CoreIntersections.rayPlane(ray, this._plane);
           if (intersection !== null) {
             this._offset.copy(intersection).sub(this._plane.position);
           }
@@ -153,14 +162,13 @@ const widgetsHandle = (three: any = window.THREE) => {
      * @param {Object} evt - Browser event
      * @param {Boolean} forced - true to move inactive handles
      */
-    onMove(evt: any, forced = false) {
+    onMove(evt: MouseEvent, forced = false) {
       const offsets = this.getMouseOffsets(evt, this._container);
       this._mouse.set(offsets.x, offsets.y);
 
       // update raycaster
-      // set ray.position to satisfy CoreIntersections::rayPlane API
       this._raycaster.setFromCamera(this._mouse, this._camera);
-      (this._raycaster.ray as any).position = this._raycaster.ray.origin;
+      const ray: Ray = { position: this._raycaster.ray.origin, direction: this._raycaster.ray.direction };
 
       if (this._active || forced) {
         this._dragged = true;
@@ -177,7 +185,7 @@ const widgetsHandle = (three: any = window.THREE) => {
             this._plane.direction.copy(this._camera.getWorldDirection());
           }
 
-          const intersection = CoreIntersections.rayPlane(this._raycaster.ray as any, this._plane);
+          const intersection = CoreIntersections.rayPlane(ray, this._plane);
           if (intersection !== null) {
             this._worldPosition.copy(intersection.sub(this._offset));
           }
@@ -327,7 +335,7 @@ const widgetsHandle = (three: any = window.THREE) => {
       return this._screenPosition;
     }
 
-    set screenPosition(screenPosition: any) {
+    set screenPosition(screenPosition: THREE.Vector3) {
       this._screenPosition = screenPosition;
     }
 

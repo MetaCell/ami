@@ -167,7 +167,9 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
 
     set windowCenter(windowCenter: number) {
       this._windowCenter = windowCenter;
-      this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
+      // uWindowCenterWidth.value is always the [center, width] pair set in _prepareMaterial().
+      (this._uniforms.uWindowCenterWidth.value as number[])[0] =
+        this._windowCenter - this._offset;
     }
 
     get windowWidth() {
@@ -176,7 +178,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
 
     set windowWidth(windowWidth: number) {
       this._windowWidth = Math.max(1, windowWidth);
-      this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
+      (this._uniforms.uWindowCenterWidth.value as number[])[1] = this._windowWidth;
     }
 
     get steps() {

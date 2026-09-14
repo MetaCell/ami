@@ -1,14 +1,16 @@
-import type { Matrix4, Mesh, Vector3 } from 'three';
+import type { Camera, Matrix4, Mesh, Vector2, Vector3 } from 'three';
 import { COLORS } from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
+import type { UltrasoundRegion } from '../models/models.types';
+import type ModelsStack from '../models/models.stack';
 import WidgetsCss from './widgets.css';
 
-interface WidgetControls {
-  object: any;
+export interface WidgetControls {
+  object: Camera;
   domElement: HTMLElement;
 }
 
-interface WidgetParameter {
+export interface WidgetParameter {
   calibrationFactor?: number;
   frameIndex?: number;
   hideMesh?: boolean;
@@ -16,8 +18,8 @@ interface WidgetParameter {
   ijk2LPS?: Matrix4;
   lps2IJK?: Matrix4;
   pixelSpacing?: number;
-  stack?: {};
-  ultrasoundRegions?: Array<{}>;
+  stack?: ModelsStack;
+  ultrasoundRegions?: UltrasoundRegion[];
   worldPosition?: Vector3;
 }
 
@@ -35,7 +37,11 @@ export interface USRegion {
 /**
  * @module Abstract Widget
  */
-// tslint:disable-next-line
+// Deliberately untyped: none of the 17 widgets/ files declare instance fields - every field is a
+// bare `this._x = ...`. This class (and every widget built on it) only compiles because it
+// extends a value of type `any` (Constructor below), which suppresses member-existence checking
+// for the whole hierarchy. Giving `three` its real type here turns that into hard TS2339 errors
+// across every widget file, since none of them declare their fields - out of scope for this pass.
 const widgetsBase = (three = (window as any).THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
@@ -93,7 +99,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       }
     }
 
-    public initOffsets() {
+    public initOffsets(): void {
       const box = this._container.getBoundingClientRect();
 
       const body = document.body;
@@ -111,7 +117,10 @@ const widgetsBase = (three = (window as any).THREE) => {
       };
     }
 
-    public getMouseOffsets(event: MouseEvent, container: HTMLDivElement) {
+    public getMouseOffsets(
+      event: MouseEvent,
+      container: HTMLDivElement
+    ): { x: number; y: number; screenX: number; screenY: number } {
       return {
         x: ((event.clientX - this._offsets.left) / container.offsetWidth) * 2 - 1,
         y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
@@ -127,7 +136,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number}
      */
-    public getArea(points: Vector3[]) {
+    public getArea(points: Vector3[]): number {
       let area = 0;
       let j = points.length - 1; // the last vertex is the 'previous' one to the first
 
@@ -147,7 +156,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number|null}
      */
-    public getRegionByXY(regions: USRegion[], point: Vector3) {
+    public getRegionByXY(regions: USRegion[], point: Vector3): number | null {
       let result = null;
 
       regions.some((region, ind) => {
@@ -174,7 +183,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Vector2|null}
      */
-    public getPointInRegion(region: USRegion, point: Vector3) {
+    public getPointInRegion(region: USRegion, point: Vector3): Vector2 | null {
       if (!region) {
         return null;
       }
@@ -193,8 +202,8 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Vector2|null}
      */
-    public getUsPoint(regions: USRegion[], point: Vector3) {
-      return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
+    public getUsPoint(regions: USRegion[], point: Vector3): Vector2 | null {
+      return this.getPointInRegion(regions[this.getRegionByXY(regions, point)!], point);
     }
 
     /**
@@ -205,7 +214,7 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Number|null}
      */
-    public getUsDistance(pointA: Vector3, pointB: Vector3) {
+    public getUsDistance(pointA: Vector3, pointB: Vector3): number | null {
       const regions = this._params.ultrasoundRegions || [];
 
       if (regions.length < 1) {
@@ -239,7 +248,11 @@ const widgetsBase = (three = (window as any).THREE) => {
      *
      * @returns {Object}
      */
-    public getDistanceData(pointA: Vector3, pointB: Vector3, calibrationFactor: number) {
+    public getDistanceData(
+      pointA: Vector3,
+      pointB: Vector3,
+      calibrationFactor: number
+    ): { distance: number | null; units: string | null } {
       let distance = null;
       let units = null;
 
@@ -268,7 +281,17 @@ const widgetsBase = (three = (window as any).THREE) => {
       };
     }
 
-    public getLineData(pointA: Vector3, pointB: Vector3) {
+    public getLineData(
+      pointA: Vector3,
+      pointB: Vector3
+    ): {
+      line: Vector3;
+      length: number;
+      transformX: number;
+      transformY: number;
+      transformAngle: number;
+      center: Vector3;
+    } {
       const line = pointB.clone().sub(pointA);
       const center = pointB
         .clone()
@@ -287,7 +310,16 @@ const widgetsBase = (three = (window as any).THREE) => {
       };
     }
 
-    public getRectData(pointA: Vector3, pointB: Vector3) {
+    public getRectData(
+      pointA: Vector3,
+      pointB: Vector3
+    ): {
+      width: number;
+      height: number;
+      transformX: number;
+      transformY: number;
+      paddingVector: Vector3;
+    } {
       const line = pointB.clone().sub(pointA);
       const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
       const min = pointA.clone().min(pointB); // coordinates of the top left corner
@@ -309,7 +341,11 @@ const widgetsBase = (three = (window as any).THREE) => {
      * @param {Vector3}     point  label's center coordinates (default)
      * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
      */
-    public adjustLabelTransform(label: HTMLDivElement, point: Vector3, corner: boolean = false) {
+    public adjustLabelTransform(
+      label: HTMLDivElement,
+      point: Vector3,
+      corner: boolean = false
+    ): Vector2 {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
       let y =
         Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
@@ -335,7 +371,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       return new three.Vector2(x, y);
     }
 
-    public worldToScreen(worldCoordinate: Vector3) {
+    public worldToScreen(worldCoordinate: Vector3): Vector3 {
       const screenCoordinates = worldCoordinate.clone();
       screenCoordinates.project(this._camera);
 
@@ -350,12 +386,12 @@ const widgetsBase = (three = (window as any).THREE) => {
       return screenCoordinates;
     }
 
-    public update() {
+    public update(): void {
       // to be overloaded
       window.console.log('update() should be overloaded!');
     }
 
-    public updateColor() {
+    public updateColor(): void {
       if (this._active) {
         this._color = this._colors.active;
       } else if (this._hovered) {
@@ -367,8 +403,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       }
     }
 
-    // tslint:disable-next-line
-    public setDefaultColor(color: any) {
+    public setDefaultColor(color: string): void {
       this._colors.default = color;
       if (this._handles) {
         this._handles.forEach(elem => (elem._colors.default = color));
@@ -376,34 +411,34 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    public show() {
+    public show(): void {
       this.showDOM();
       this.showMesh();
       this.update();
       this._displayed = true;
     }
 
-    public hide() {
+    public hide(): void {
       this.hideDOM();
       this.hideMesh();
       this._displayed = false;
     }
 
-    public hideDOM() {
+    public hideDOM(): void {
       // to be overloaded
       window.console.log('hideDOM() should be overloaded!');
     }
 
-    public showDOM() {
+    public showDOM(): void {
       // to be overloaded
       window.console.log('showDOM() should be overloaded!');
     }
 
-    public hideMesh() {
+    public hideMesh(): void {
       this.visible = false;
     }
 
-    public showMesh() {
+    public showMesh(): void {
       if (this._params.hideMesh === true) {
         return;
       }
@@ -411,7 +446,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.visible = true;
     }
 
-    public free() {
+    public free(): void {
       this._camera = null;
       this._container = null;
       this._controls = null;
@@ -419,11 +454,11 @@ const widgetsBase = (three = (window as any).THREE) => {
       this._targetMesh = null;
     }
 
-    get widgetType() {
+    get widgetType(): string {
       return this._widgetType;
     }
 
-    get targetMesh() {
+    get targetMesh(): Mesh | null {
       return this._targetMesh;
     }
 
@@ -432,7 +467,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get worldPosition() {
+    get worldPosition(): Vector3 {
       return this._worldPosition;
     }
 
@@ -441,7 +476,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get enabled() {
+    get enabled(): boolean {
       return this._enabled;
     }
 
@@ -450,7 +485,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get selected() {
+    get selected(): boolean {
       return this._selected;
     }
 
@@ -459,7 +494,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get hovered() {
+    get hovered(): boolean {
       return this._hovered;
     }
 
@@ -468,7 +503,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get dragged() {
+    get dragged(): boolean {
       return this._dragged;
     }
 
@@ -477,7 +512,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get displayed() {
+    get displayed(): boolean {
       return this._displayed;
     }
 
@@ -486,7 +521,7 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get active() {
+    get active(): boolean {
       return this._active;
     }
 
@@ -495,12 +530,11 @@ const widgetsBase = (three = (window as any).THREE) => {
       this.update();
     }
 
-    get color() {
+    get color(): string {
       return this._color;
     }
 
-    // tslint:disable-next-line
-    set color(color: any) {
+    set color(color: string) {
       this._color = color;
       this.update();
     }

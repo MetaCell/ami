@@ -1,18 +1,21 @@
 import * as THREE from 'three';
+import type { WidgetControls, WidgetParameter } from './widgets.base';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
+
+type WidgetsHandleInstance = InstanceType<NonNullable<ReturnType<typeof widgetsHandleFactory>>>;
 
 /**
  * @module widgets/ruler
  */
-const widgetsRuler = (three: any = window.THREE) => {
+const widgetsRuler = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
 
   const Constructor = widgetsBase(three)!;
   return class WidgetsRuler extends Constructor {
-    constructor(targetMesh: any, controls: any, params: any = {}) {
+    constructor(targetMesh: THREE.Mesh, controls: WidgetControls, params: WidgetParameter = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'Ruler';
@@ -79,7 +82,7 @@ const widgetsRuler = (three: any = window.THREE) => {
       this._label.removeEventListener('mouseleave', this.onHover);
     }
 
-    onHover(evt: any) {
+    onHover(evt: MouseEvent | null) {
       if (evt) {
         this.hoverDom(evt);
       }
@@ -94,11 +97,11 @@ const widgetsRuler = (three: any = window.THREE) => {
       // check raycast intersection, do we want to hover on mesh or just css?
     }
 
-    hoverDom(evt: any) {
+    hoverDom(evt: MouseEvent) {
       this._domHovered = evt.type === 'mouseenter';
     }
 
-    onStart(evt: any) {
+    onStart(evt: MouseEvent) {
       this._moveHandle.onMove(evt, true);
 
       this._handles[0].onStart(evt);
@@ -114,7 +117,7 @@ const widgetsRuler = (three: any = window.THREE) => {
       this.update();
     }
 
-    onMove(evt: any) {
+    onMove(evt: MouseEvent) {
       if (this._active) {
         const prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -122,7 +125,7 @@ const widgetsRuler = (three: any = window.THREE) => {
         this._moveHandle.onMove(evt, true);
 
         if (this._moving) {
-          this._handles.slice(0, -1).forEach((handle: any) => {
+          this._handles.slice(0, -1).forEach((handle: WidgetsHandleInstance) => {
             handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
           });
         }
@@ -206,7 +209,7 @@ const widgetsRuler = (three: any = window.THREE) => {
     hideDOM() {
       this._line.style.display = 'none';
       this._label.style.display = 'none';
-      this._handles.forEach((elem: any) => elem.hideDOM());
+      this._handles.forEach((elem: WidgetsHandleInstance) => elem.hideDOM());
     }
 
     showDOM() {
@@ -307,7 +310,7 @@ const widgetsRuler = (three: any = window.THREE) => {
     free() {
       this.removeEventListeners();
 
-      this._handles.forEach((h: any) => {
+      this._handles.forEach((h: WidgetsHandleInstance) => {
         this.remove(h);
         h.free();
       });
@@ -345,9 +348,9 @@ const widgetsRuler = (three: any = window.THREE) => {
       return this._targetMesh;
     }
 
-    set targetMesh(targetMesh: any) {
+    set targetMesh(targetMesh: THREE.Mesh) {
       this._targetMesh = targetMesh;
-      this._handles.forEach((elem: any) => (elem.targetMesh = targetMesh));
+      this._handles.forEach((elem: WidgetsHandleInstance) => (elem.targetMesh = targetMesh));
       this.update();
     }
 
@@ -355,7 +358,7 @@ const widgetsRuler = (three: any = window.THREE) => {
       return this._worldPosition;
     }
 
-    set worldPosition(worldPosition: any) {
+    set worldPosition(worldPosition: THREE.Vector3) {
       this._handles[0].worldPosition.copy(worldPosition);
       this._handles[1].worldPosition.copy(worldPosition);
       this._worldPosition.copy(worldPosition);
@@ -366,7 +369,7 @@ const widgetsRuler = (three: any = window.THREE) => {
       return this._calibrationFactor;
     }
 
-    set calibrationFactor(calibrationFactor: any) {
+    set calibrationFactor(calibrationFactor: number | null) {
       this._calibrationFactor = calibrationFactor;
       this._units = 'mm';
       this.update();

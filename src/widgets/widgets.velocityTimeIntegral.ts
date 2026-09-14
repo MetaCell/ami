@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import CoreUtils from '../core/core.utils';
+import type { WidgetControls, WidgetParameter } from './widgets.base';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
@@ -13,7 +14,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three)!;
   return class WidgetsvelocityTimeIntegral extends Constructor {
-    constructor(targetMesh: any, controls: any, params: any = {}) {
+    constructor(targetMesh: THREE.Mesh, controls: WidgetControls, params: WidgetParameter = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'VelocityTimeIntegral';

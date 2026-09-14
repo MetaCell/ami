@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import CoreUtils from '../core/core.utils';
 import ModelsVoxel from '../models/models.voxel';
+import type { WidgetControls, WidgetParameter } from './widgets.base';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
@@ -14,7 +15,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three)!;
   return class WidgetsvoxelProbe extends Constructor {
-    constructor(targetMesh: any, controls: any, params: any = {}) {
+    constructor(targetMesh: THREE.Mesh, controls: WidgetControls, params: WidgetParameter = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'VoxelProbe';

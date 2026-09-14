@@ -335,7 +335,7 @@ export default class CoreUtils {
    * @param {Number} value
    * @return {*}
    */
-  static setPixelData(stack: StackLike, coordinate: Vector3, value: number) {
+  static setPixelData(stack: StackLike, coordinate: Vector3, value: number): void | null {
     if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
       stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
     } else {

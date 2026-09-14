@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { WidgetControls, WidgetParameter } from './widgets.base';
 import { widgetsBase } from './widgets.base';
 import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
@@ -12,7 +13,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three)!;
   return class WidgetscrossRuler extends Constructor {
-    constructor(targetMesh: any, controls: any, params: any = {}) {
+    constructor(targetMesh: THREE.Mesh, controls: WidgetControls, params: WidgetParameter = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'CrossRuler';

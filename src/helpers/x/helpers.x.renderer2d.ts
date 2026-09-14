@@ -16,16 +16,6 @@ interface ScrollEvent {
   delta: number;
 }
 
-/**
- * ControlsTrackballOrtho extends THREE.EventDispatcher unparameterized (see controls.trackballortho.ts,
- * not yet typed), so its addEventListener/removeEventListener reject any event name. This documents
- * the one custom event it actually dispatches (see the 'OnScroll' dispatchEvent call there).
- */
-interface ControlsWithScrollEvent {
-  addEventListener(type: 'OnScroll', listener: (event: ScrollEvent) => void): void;
-  removeEventListener(type: 'OnScroll', listener: (event: ScrollEvent) => void): void;
-}
-
 export default class {
   _container: HTMLElement | null;
   _renderer: THREE.WebGLRenderer | null;
@@ -67,18 +57,12 @@ export default class {
   }
 
   addEventListeners() {
-    (this._controls as unknown as ControlsWithScrollEvent).addEventListener(
-      'OnScroll',
-      this._onScroll
-    );
+    this._controls!.addEventListener('OnScroll', this._onScroll);
     window.addEventListener('resize', this._onWindowResize, false);
   }
 
   removeEventListeners() {
-    (this._controls as unknown as ControlsWithScrollEvent).removeEventListener(
-      'OnScroll',
-      this._onScroll
-    );
+    this._controls!.removeEventListener('OnScroll', this._onScroll);
     window.removeEventListener('resize', this._onWindowResize, false);
   }
 

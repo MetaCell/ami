@@ -7,14 +7,24 @@ import * as THREE from 'three';
  * @author Max Smolens / https://github.com/msmolens
  */
 
+/** No payload beyond `type` on change/start/end - see the event literals below. 'OnScroll' is the
+ * one custom event this control fires (see the mousewheel handler). */
+interface ControlsTrackballOrthoEventMap {
+  change: {};
+  start: {};
+  end: {};
+  OnScroll: { delta: number };
+}
+
 const trackballOrtho = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.EventDispatcher === undefined) {
     return null;
   }
 
-  const Constructor = three.EventDispatcher;
+  const Constructor: new () => THREE.EventDispatcher<ControlsTrackballOrthoEventMap> =
+    three.EventDispatcher;
   return class ControlsTrackballOrtho extends Constructor {
-    object: any;
+    object: THREE.OrthographicCamera;
     domElement: HTMLElement | Document;
 
     enabled: boolean;
@@ -46,7 +56,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
     top0: number;
     bottom0: number;
 
-    handleEvent: (event: any) => void;
+    handleEvent: (event: Event) => void;
     zoomCamera: () => void;
     panCamera: () => void;
     update: () => void;
@@ -54,7 +64,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
     dispose: () => void;
 
     constructor(
-      object: any,
+      object: THREE.OrthographicCamera,
       domElement?: HTMLElement,
       state: Record<string, number> = {
         NONE: -1,
@@ -125,15 +135,18 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
 
       // events
 
-      const changeEvent = { type: 'change' };
-      const startEvent = { type: 'start' };
-      const endEvent = { type: 'end' };
+      const changeEvent = { type: 'change' as const };
+      const startEvent = { type: 'start' as const };
+      const endEvent = { type: 'end' as const };
 
       // methods
 
-      this.handleEvent = function (this: any, event: any) {
-        if (typeof this[event.type] == 'function') {
-          this[event.type](event);
+      this.handleEvent = function (this: ControlsTrackballOrtho, event: Event) {
+        const handler = (this as unknown as Record<string, ((event: Event) => void) | undefined>)[
+          event.type
+        ];
+        if (typeof handler === 'function') {
+          handler(event);
         }
       };
 
@@ -150,7 +163,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         };
       })();
 
-      this.zoomCamera = function (this: any) {
+      this.zoomCamera = function (this: ControlsTrackballOrtho) {
         if (_state === STATE.TOUCH_ZOOM_PAN) {
           var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
           _touchZoomDistanceStart = _touchZoomDistanceEnd;
@@ -234,7 +247,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         _this.object.lookAt(_this.target);
 
         if (_changed) {
-          (_this as any).dispatchEvent(changeEvent);
+          _this.dispatchEvent(changeEvent);
 
           _changed = false;
         }
@@ -257,14 +270,14 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
 
         _this.object.lookAt(_this.target);
 
-        (_this as any).dispatchEvent(changeEvent);
+        _this.dispatchEvent(changeEvent);
 
         _changed = false;
       };
 
       // listeners
 
-      function keydown(event: any) {
+      function keydown(event: KeyboardEvent) {
         if (_this.enabled === false) return;
 
         window.removeEventListener('keydown', keydown);
@@ -282,7 +295,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function keyup(event: any) {
+      function keyup(event: KeyboardEvent) {
         if (_this.enabled === false) return;
 
         _state = _prevState;
@@ -290,7 +303,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         window.addEventListener('keydown', keydown, false);
       }
 
-      function mousedown(event: any) {
+      function mousedown(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -312,10 +325,10 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         document.addEventListener('mousemove', mousemove, false);
         document.addEventListener('mouseup', mouseup, false);
 
-        (_this as any).dispatchEvent(startEvent);
+        _this.dispatchEvent(startEvent);
       }
 
-      function mousemove(event: any) {
+      function mousemove(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -329,7 +342,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function mouseup(event: any) {
+      function mouseup(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -339,10 +352,10 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
 
         document.removeEventListener('mousemove', mousemove);
         document.removeEventListener('mouseup', mouseup);
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function mousewheel(event: any) {
+      function mousewheel(event: WheelEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -355,16 +368,16 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
          *
          * It is known behaviors/shortcuts to scroll through a page horizontally.
          */
-        (_this as any).dispatchEvent({
+        _this.dispatchEvent({
           type: 'OnScroll',
           delta: event.deltaX * 0.01 + event.deltaY * 0.01,
         });
 
-        (_this as any).dispatchEvent(startEvent);
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(startEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function touchstart(event: any) {
+      function touchstart(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         switch (event.touches.length) {
@@ -389,10 +402,10 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
           default:
             _state = STATE.NONE;
         }
-        (_this as any).dispatchEvent(startEvent);
+        _this.dispatchEvent(startEvent);
       }
 
-      function touchmove(event: any) {
+      function touchmove(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -418,7 +431,7 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function touchend(event: any) {
+      function touchend(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         switch (event.touches.length) {
@@ -437,14 +450,14 @@ const trackballOrtho = (three: typeof THREE = window.THREE!) => {
         }
 
         _state = STATE.NONE;
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function contextmenu(event: any) {
+      function contextmenu(event: MouseEvent) {
         event.preventDefault();
       }
 
-      this.dispose = function (this: any) {
+      this.dispose = function (this: ControlsTrackballOrtho) {
         this.domElement.removeEventListener('contextmenu', contextmenu, false);
         this.domElement.removeEventListener('mousedown', mousedown, false);
         this.domElement.removeEventListener('wheel', mousewheel, false);

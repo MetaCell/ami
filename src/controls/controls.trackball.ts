@@ -8,14 +8,22 @@ import * as THREE from 'three';
  * @author Luca Antiga  / http://lantiga.github.io
  */
 
+/** No payload beyond `type` on any of these - see the changeEvent/startEvent/endEvent literals below. */
+interface ControlsTrackballEventMap {
+  change: {};
+  start: {};
+  end: {};
+}
+
 const trackball = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.EventDispatcher === undefined) {
     return null;
   }
 
-  const Constructor = three.EventDispatcher;
+  const Constructor: new () => THREE.EventDispatcher<ControlsTrackballEventMap> =
+    three.EventDispatcher;
   return class ControlsTrackball extends Constructor {
-    object: any;
+    object: THREE.Camera;
     domElement: HTMLElement | Document;
 
     enabled: boolean;
@@ -47,7 +55,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
     up0: THREE.Vector3;
 
     handleResize: () => void;
-    handleEvent: (event: any) => void;
+    handleEvent: (event: Event) => void;
     rotateCamera: () => void;
     zoomCamera: () => void;
     panCamera: () => void;
@@ -58,7 +66,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
     custom: (customStart: THREE.Vector2, customEnd: THREE.Vector2) => void;
     dispose: () => void;
 
-    constructor(object: any, domElement?: HTMLElement) {
+    constructor(object: THREE.Camera, domElement?: HTMLElement) {
       super();
 
       const _this = this;
@@ -133,22 +141,25 @@ const trackball = (three: typeof THREE = window.THREE!) => {
 
       // events
 
-      const changeEvent = { type: 'change' };
-      const startEvent = { type: 'start' };
-      const endEvent = { type: 'end' };
+      const changeEvent = { type: 'change' as const };
+      const startEvent = { type: 'start' as const };
+      const endEvent = { type: 'end' as const };
 
       // methods
 
-      this.handleResize = function (this: any) {
+      this.handleResize = function (this: ControlsTrackball) {
         if (this.domElement === document) {
           this.screen.left = 0;
           this.screen.top = 0;
           this.screen.width = window.innerWidth;
           this.screen.height = window.innerHeight;
         } else {
-          const box = this.domElement.getBoundingClientRect();
+          // domElement is only ever Document when it === document (handled above), so this is
+          // always the HTMLElement passed to the constructor.
+          const domElement = this.domElement as HTMLElement;
+          const box = domElement.getBoundingClientRect();
           // adjustments come from similar code in the jquery offset() function
-          const d = this.domElement.ownerDocument.documentElement;
+          const d = domElement.ownerDocument.documentElement;
           this.screen.left = box.left + window.pageXOffset - d.clientLeft;
           this.screen.top = box.top + window.pageYOffset - d.clientTop;
           this.screen.width = box.width;
@@ -156,9 +167,12 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         }
       };
 
-      this.handleEvent = function (this: any, event: any) {
-        if (typeof this[event.type] == 'function') {
-          this[event.type](event);
+      this.handleEvent = function (this: ControlsTrackball, event: Event) {
+        const handler = (this as unknown as Record<string, ((event: Event) => void) | undefined>)[
+          event.type
+        ];
+        if (typeof handler === 'function') {
+          handler(event);
         }
       };
 
@@ -235,7 +249,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         };
       })();
 
-      this.zoomCamera = function (this: any) {
+      this.zoomCamera = function (this: ControlsTrackball) {
         let factor;
 
         if (_state === STATE.TOUCH_ZOOM) {
@@ -328,7 +342,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         _this.object.lookAt(_this.target);
 
         if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
-          (_this as any).dispatchEvent(changeEvent);
+          _this.dispatchEvent(changeEvent);
 
           lastPosition.copy(_this.object.position);
         }
@@ -346,7 +360,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
 
         _this.object.lookAt(_this.target);
 
-        (_this as any).dispatchEvent(changeEvent);
+        _this.dispatchEvent(changeEvent);
 
         lastPosition.copy(_this.object.position);
       };
@@ -361,7 +375,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
 
       // listeners
 
-      function keydown(event: any) {
+      function keydown(event: KeyboardEvent) {
         if (_this.enabled === false) return;
 
         window.removeEventListener('keydown', keydown);
@@ -379,7 +393,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function keyup(event: any) {
+      function keyup(event: KeyboardEvent) {
         if (_this.enabled === false) return;
 
         _state = _prevState;
@@ -387,7 +401,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         window.addEventListener('keydown', keydown, false);
       }
 
-      function mousedown(event: any) {
+      function mousedown(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -414,10 +428,10 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         document.addEventListener('mousemove', mousemove, false);
         document.addEventListener('mouseup', mouseup, false);
 
-        (_this as any).dispatchEvent(startEvent);
+        _this.dispatchEvent(startEvent);
       }
 
-      function mousemove(event: any) {
+      function mousemove(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -435,7 +449,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function mouseup(event: any) {
+      function mouseup(event: MouseEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -447,10 +461,10 @@ const trackball = (three: typeof THREE = window.THREE!) => {
 
         document.removeEventListener('mousemove', mousemove);
         document.removeEventListener('mouseup', mouseup);
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function mousewheel(event: any) {
+      function mousewheel(event: WheelEvent) {
         if (_this.enabled === false) return;
 
         if (_this.noZoom === true) return;
@@ -476,11 +490,11 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         }
 
         // _zoomStart.y += delta * 0.01;
-        (_this as any).dispatchEvent(startEvent);
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(startEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function touchstart(event: any) {
+      function touchstart(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         if (_this.forceState === -1) {
@@ -560,10 +574,10 @@ const trackball = (three: typeof THREE = window.THREE!) => {
           }
         }
 
-        (_this as any).dispatchEvent(startEvent);
+        _this.dispatchEvent(startEvent);
       }
 
-      function touchmove(event: any) {
+      function touchmove(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         event.preventDefault();
@@ -637,7 +651,7 @@ const trackball = (three: typeof THREE = window.THREE!) => {
         }
       }
 
-      function touchend(event: any) {
+      function touchend(event: TouchEvent) {
         if (_this.enabled === false) return;
 
         if (_this.forceState === -1) {
@@ -700,14 +714,14 @@ const trackball = (three: typeof THREE = window.THREE!) => {
           }
         }
 
-        (_this as any).dispatchEvent(endEvent);
+        _this.dispatchEvent(endEvent);
       }
 
-      function contextmenu(event: any) {
+      function contextmenu(event: MouseEvent) {
         event.preventDefault();
       }
 
-      this.dispose = function (this: any) {
+      this.dispose = function (this: ControlsTrackball) {
         this.domElement.removeEventListener('contextmenu', contextmenu, false);
         this.domElement.removeEventListener('mousedown', mousedown, false);
         this.domElement.removeEventListener('wheel', mousewheel, false);

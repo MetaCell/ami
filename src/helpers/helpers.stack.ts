@@ -3,6 +3,11 @@ import * as THREE from 'three';
 import { helpersBorder } from '../helpers/helpers.border';
 import { helpersBoundingBox } from '../helpers/helpers.boundingbox';
 import { helpersSlice } from '../helpers/helpers.slice';
+import ModelsStack from '../models/models.stack';
+
+type HelpersBoundingBoxInstance = InstanceType<NonNullable<ReturnType<typeof helpersBoundingBox>>>;
+type HelpersSliceInstance = InstanceType<NonNullable<ReturnType<typeof helpersSlice>>>;
+type HelpersBorderInstance = InstanceType<NonNullable<ReturnType<typeof helpersBorder>>>;
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -42,26 +47,23 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.Object3D;
   return class HelpersStack extends Constructor {
-    _stack: any;
-    _bBox: any;
-    _slice: any;
-    _border: any;
-    _dummy: any;
+    _stack: ModelsStack | null;
+    _bBox: HelpersBoundingBoxInstance | null;
+    _slice: HelpersSliceInstance | null;
+    _border: HelpersBorderInstance | null;
 
     _orientation: number;
     _index: number;
 
-    _uniforms: any;
-    _autoWindowLevel: boolean;
     _outOfBounds: boolean;
     _orientationMaxIndex: number;
     _orientationSpacing: number;
 
     _canvasWidth: number;
     _canvasHeight: number;
-    _borderColor: any;
+    _borderColor: THREE.ColorRepresentation | null;
 
-    constructor(stack: any) {
+    constructor(stack: ModelsStack) {
       //
       super();
 
@@ -69,13 +71,10 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
       this._bBox = null;
       this._slice = null;
       this._border = null;
-      this._dummy = null;
 
       this._orientation = 0;
       this._index = 0;
 
-      this._uniforms = null;
-      this._autoWindowLevel = false;
       this._outOfBounds = false;
       this._orientationMaxIndex = 0;
       this._orientationSpacing = 0;
@@ -101,7 +100,7 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
      *
      * @type {ModelsStack}
      */
-    set stack(stack: any) {
+    set stack(stack: ModelsStack) {
       this._stack = stack;
     }
 
@@ -251,7 +250,7 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
       return this._canvasHeight;
     }
 
-    set borderColor(borderColor: any) {
+    set borderColor(borderColor: THREE.ColorRepresentation | null) {
       this._borderColor = borderColor;
       this._border.color = borderColor;
       this._slice.borderColor = this._borderColor;
@@ -285,7 +284,7 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
     }
 
     _computeOrientationSpacing() {
-      const spacing = this._stack._spacing;
+      const spacing = this._stack.spacing;
       switch (this._orientation) {
         case 0:
           this._orientationSpacing = spacing.z;
@@ -383,8 +382,8 @@ const helpersStack = (three: typeof THREE = window.THREE!) => {
       // compute initial direction orientation
       const direction = this._prepareDirection(this._orientation);
 
-      const SliceHelperConstructor = helpersSlice(three);
-      this._slice = new SliceHelperConstructor(this._stack, this._index, position, direction);
+      const SliceHelperConstructor = helpersSlice(three)!;
+      this._slice = new SliceHelperConstructor(this._stack!, this._index, position, direction);
       this.add(this._slice);
     }
 

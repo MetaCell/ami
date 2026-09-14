@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 /** * Imports ***/
+import ModelsStack from '../models/models.stack';
 import ShadersFragment from '../shaders/shaders.contour.fragment';
 import ShadersUniform from '../shaders/shaders.contour.uniform';
 import ShadersVertex from '../shaders/shaders.contour.vertex';
+import type { ShaderUniforms } from '../shaders/shaders.types';
 
 /**
  * @module helpers/contour
@@ -14,20 +16,20 @@ const helpersContour = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.Object3D;
   return class HelpersContour extends Constructor {
-    _stack: any;
+    _stack: ModelsStack | null;
     _textureToFilter: THREE.Texture | null;
     _contourWidth: number;
     _contourOpacity: number;
     _canvasWidth: number;
     _canvasHeight: number;
-    _shadersFragment: any;
-    _shadersVertex: any;
-    _uniforms: any;
+    _shadersFragment: typeof ShadersFragment | null;
+    _shadersVertex: typeof ShadersVertex | null;
+    _uniforms: ShaderUniforms | null;
     _material: THREE.ShaderMaterial | null;
-    _geometry: THREE.BufferGeometry;
+    _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.Mesh | null;
 
-    constructor(stack: any, geometry: THREE.BufferGeometry, texture: THREE.Texture | null) {
+    constructor(stack: ModelsStack, geometry: THREE.BufferGeometry, texture: THREE.Texture | null) {
       //
       super();
 
@@ -50,7 +52,7 @@ const helpersContour = (three: typeof THREE = window.THREE!) => {
     _create() {
       this._prepareMaterial();
       this._mesh = new three.Mesh(this._geometry, this._material!);
-      this._mesh.applyMatrix4(this._stack._ijk2LPS);
+      this._mesh.applyMatrix4(this._stack.ijk2LPS);
       this.add(this._mesh);
     }
 
@@ -81,7 +83,7 @@ const helpersContour = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         this._mesh = null;
       }
 
@@ -103,16 +105,16 @@ const helpersContour = (three: typeof THREE = window.THREE!) => {
       // material, geometry and mesh
       this.remove(this._mesh!);
       this._mesh!.geometry.dispose();
-      (this._mesh as any).geometry = null;
+      this._mesh!.geometry = null;
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._mesh = null;
 
       this._geometry.dispose();
-      this._geometry = null as any;
-      (this._material as any).vertexShader = null;
-      (this._material as any).fragmentShader = null;
-      (this._material as any).uniforms = null;
+      this._geometry = null;
+      this._material!.vertexShader = null;
+      this._material!.fragmentShader = null;
+      this._material!.uniforms = null;
       this._material!.dispose();
       this._material = null;
 
@@ -127,11 +129,11 @@ const helpersContour = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         this._mesh = null;
 
         this._geometry.dispose();
-        this._geometry = null as any;
+        this._geometry = null;
       }
 
       this._geometry = geometry;

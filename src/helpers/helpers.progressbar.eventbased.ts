@@ -1,3 +1,4 @@
+import type EventEmitter from 'eventemitter3';
 import CoreUtils from '../core/core.utils';
 
 /**
@@ -11,9 +12,20 @@ import CoreUtils from '../core/core.utils';
  * const pb = new HelpersProgressBarEventBased(loader, domContainer);
  */
 
+/** Shape of the payloads emitted by LoadersBase/LoadersVolumes (see their emit() calls). */
+interface ProgressEventPayload {
+  file?: string;
+  files?: string[];
+  time?: Date;
+  total?: number;
+  loaded?: number;
+  parsed?: number;
+  error?: string | Error;
+}
+
 export default class HelpersProgressBarEventBased {
-  _dom: any;
-  _emitter: any;
+  _dom: HTMLElement | null;
+  _emitter: EventEmitter | null;
   loaded: number;
   totalFile: number;
 
@@ -22,7 +34,7 @@ export default class HelpersProgressBarEventBased {
   _domProcessList: HTMLElement | null = null;
   _domCurrentProgress: HTMLElement | null = null;
 
-  constructor(emitter: any, domTarget: any) {
+  constructor(emitter: EventEmitter, domTarget: string | HTMLElement) {
     if (!emitter || !this._isFunction(emitter.emit)) {
       window.console.error('please give the this._emitter instance');
       return;
@@ -45,18 +57,18 @@ export default class HelpersProgressBarEventBased {
     this.totalFile = 0;
   }
 
-  _isFunction(fn: any): boolean {
+  _isFunction(fn: unknown): boolean {
     return Object.prototype.toString.call(fn) === '[object Function]';
   }
 
   initEventListenner() {
-    this._emitter.on('load-start', (event: any) => {
-      const totalFiles = event.files.length;
+    this._emitter.on('load-start', (event: ProgressEventPayload) => {
+      const totalFiles = event.files!.length;
       this.totalFile = totalFiles;
-      this._domTotalFile!.innerHTML = totalFiles;
+      this._domTotalFile!.innerHTML = String(totalFiles);
     });
 
-    this._emitter.on('fetch-start', (event: any) => {
+    this._emitter.on('fetch-start', (event: ProgressEventPayload) => {
       const fetchLi = document.createElement('li');
 
       const fileTag = document.createElement('div');
@@ -76,14 +88,14 @@ export default class HelpersProgressBarEventBased {
       this._domProcessList!.append(fetchLi);
     });
 
-    this._emitter.on('fetch-progress', (event: any) => {
+    this._emitter.on('fetch-progress', (event: ProgressEventPayload) => {
       const id = 'file-fetch-' + event.file;
       const fileFetchDom = document.getElementById(id)!;
       fileFetchDom.style.width = (event.loaded / event.total) * 100 + '%';
       fileFetchDom.style.border = '1px solid red';
     });
 
-    this._emitter.on('fetch-success', (event: any) => {
+    this._emitter.on('fetch-success', (event: ProgressEventPayload) => {
       // show result
       const liParent = document.getElementById('file-' + event.file)!;
       const result = document.createElement('div');
@@ -93,23 +105,23 @@ export default class HelpersProgressBarEventBased {
       liParent.append(result);
     });
 
-    this._emitter.on('fetch-error', (event: any) => {
+    this._emitter.on('fetch-error', (event: ProgressEventPayload) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-abort', (event: any) => {
+    this._emitter.on('fetch-abort', (event: ProgressEventPayload) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-end', (event: any) => {
+    this._emitter.on('fetch-end', (event: ProgressEventPayload) => {
       // console.log(event);
     });
 
-    this._emitter.on('fetch-timeout', (event: any) => {
+    this._emitter.on('fetch-timeout', (event: ProgressEventPayload) => {
       // console.log(event);
     });
 
-    this._emitter.on('parse-start', (event: any) => {
+    this._emitter.on('parse-start', (event: ProgressEventPayload) => {
       const liParent = document.getElementById('file-' + event.file)!;
       const parseprogress = document.createElement('div');
       parseprogress.id = 'file-parse-' + event.file;
@@ -117,14 +129,14 @@ export default class HelpersProgressBarEventBased {
       liParent.append(parseprogress);
     });
 
-    this._emitter.on('parsing', (event: any) => {
+    this._emitter.on('parsing', (event: ProgressEventPayload) => {
       const id = 'file-parse-' + event.file;
       const fileParseDom = document.getElementById(id)!;
       fileParseDom.style.width = (event.parsed / event.total) * 100 + '%';
       fileParseDom.style.border = '1px solid yellow';
     });
 
-    this._emitter.on('parse-success', (event: any) => {
+    this._emitter.on('parse-success', (event: ProgressEventPayload) => {
       this.loaded += 1;
       this._domCurrentFile!.innerHTML = String(this.loaded);
       this._domCurrentProgress!.style.width = (this.loaded / this.totalFile) * 100 + '%';

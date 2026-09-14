@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 /** * Imports ***/
+import ModelsStack from '../models/models.stack';
 import ShadersFragment from '../shaders/shaders.localizer.fragment';
 import ShadersUniform from '../shaders/shaders.localizer.uniform';
 import ShadersVertex from '../shaders/shaders.localizer.vertex';
+import type { ShaderUniforms } from '../shaders/shaders.types';
 
 /**
  * @module helpers/localizer
@@ -14,24 +16,24 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.Object3D;
   return class HelpersLocalizer extends Constructor {
-    _stack: any;
-    _referencePlane: any;
-    _plane1: any;
+    _stack: ModelsStack | null;
+    _referencePlane: THREE.Vector4 | null;
+    _plane1: THREE.Vector4 | null;
     _color1: THREE.ColorRepresentation | null;
-    _plane2: any;
+    _plane2: THREE.Vector4 | null;
     _color2: THREE.ColorRepresentation | null;
-    _plane3: any;
+    _plane3: THREE.Vector4 | null;
     _color3: THREE.ColorRepresentation | null;
     _canvasWidth: number;
     _canvasHeight: number;
-    _shadersFragment: any;
-    _shadersVertex: any;
-    _uniforms: any;
+    _shadersFragment: typeof ShadersFragment | null;
+    _shadersVertex: typeof ShadersVertex | null;
+    _uniforms: ShaderUniforms | null;
     _material: THREE.ShaderMaterial | null;
-    _geometry: THREE.BufferGeometry;
+    _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.Mesh | null;
 
-    constructor(stack: any, geometry: THREE.BufferGeometry, referencePlane: any) {
+    constructor(stack: ModelsStack, geometry: THREE.BufferGeometry, referencePlane: THREE.Vector4) {
       //
       super();
 
@@ -58,7 +60,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
     _create() {
       this._prepareMaterial();
       this._mesh = new three.Mesh(this._geometry, this._material!);
-      this._mesh.applyMatrix4(this._stack._ijk2LPS);
+      this._mesh.applyMatrix4(this._stack.ijk2LPS);
       this.add(this._mesh);
     }
 
@@ -68,19 +70,24 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
         this._uniforms.uSlice.value = this._referencePlane;
 
         // localizer planes
+        // Three.js r180: vec3 uniforms require [r,g,b] arrays, not THREE.Color or raw hex numbers
+        // (see the color1/2/3 setters below) - match that conversion here too.
         if (this._plane1) {
           this._uniforms.uPlane1.value = this._plane1;
-          this._uniforms.uPlaneColor1.value = this._color1;
+          const c1 = new three.Color(this._color1!);
+          this._uniforms.uPlaneColor1.value = [c1.r, c1.g, c1.b];
         }
 
         if (this._plane2) {
           this._uniforms.uPlane2.value = this._plane2;
-          this._uniforms.uPlaneColor2.value = this._color2;
+          const c2 = new three.Color(this._color2!);
+          this._uniforms.uPlaneColor2.value = [c2.r, c2.g, c2.b];
         }
 
         if (this._plane3) {
           this._uniforms.uPlane3.value = this._plane3;
-          this._uniforms.uPlaneColor3.value = this._color3;
+          const c3 = new three.Color(this._color3!);
+          this._uniforms.uPlaneColor3.value = [c3.r, c3.g, c3.b];
         }
 
         //
@@ -104,7 +111,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         this._mesh = null;
       }
 
@@ -129,16 +136,16 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       // material, geometry and mesh
       this.remove(this._mesh!);
       this._mesh!.geometry.dispose();
-      (this._mesh as any).geometry = null;
+      this._mesh!.geometry = null;
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._mesh = null;
 
       this._geometry.dispose();
-      this._geometry = null as any;
-      (this._material as any).vertexShader = null;
-      (this._material as any).fragmentShader = null;
-      (this._material as any).uniforms = null;
+      this._geometry = null;
+      this._material!.vertexShader = null;
+      this._material!.fragmentShader = null;
+      this._material!.uniforms = null;
       this._material!.dispose();
       this._material = null;
 
@@ -153,11 +160,11 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         this._mesh = null;
 
         this._geometry.dispose();
-        this._geometry = null as any;
+        this._geometry = null;
       }
 
       this._geometry = geometry;
@@ -169,7 +176,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       return this._referencePlane;
     }
 
-    set referencePlane(referencePlane: any) {
+    set referencePlane(referencePlane: THREE.Vector4) {
       this._referencePlane = referencePlane;
       this._uniforms.uSlice.value = this._referencePlane;
     }
@@ -178,7 +185,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       return this._plane1;
     }
 
-    set plane1(plane1: any) {
+    set plane1(plane1: THREE.Vector4) {
       this._plane1 = plane1;
       this._uniforms.uPlane1.value = this._plane1;
     }
@@ -198,7 +205,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       return this._plane2;
     }
 
-    set plane2(plane2: any) {
+    set plane2(plane2: THREE.Vector4) {
       this._plane2 = plane2;
       this._uniforms.uPlane2.value = this._plane2;
     }
@@ -217,7 +224,7 @@ const helpersLocalizer = (three: typeof THREE = window.THREE!) => {
       return this._plane3;
     }
 
-    set plane3(plane3: any) {
+    set plane3(plane3: THREE.Vector4) {
       this._plane3 = plane3;
       this._uniforms.uPlane3.value = this._plane3;
     }

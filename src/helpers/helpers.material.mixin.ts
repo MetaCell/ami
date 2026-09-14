@@ -1,10 +1,20 @@
 import * as THREE from 'three';
+import ModelsStack from '../models/models.stack';
+import type { ShaderUniforms } from '../shaders/shaders.types';
 
 /**
  * Helpers material mixin.
  *
  * @module helpers/material/mixin
  */
+
+/** Shape shared by every *.fragment.ts / *.vertex.ts class assigned to _shadersFragment/_shadersVertex. */
+export interface MaterialShader {
+  compute(): string;
+}
+
+export type ShaderFragmentConstructor = new (uniforms: ShaderUniforms) => MaterialShader;
+export type ShaderVertexConstructor = new () => MaterialShader;
 
 const helpersMaterialMixin = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
@@ -14,14 +24,14 @@ const helpersMaterialMixin = (three: typeof THREE = window.THREE!) => {
   const Constructor = three.Object3D;
   return class HelpersMaterialMixin extends Constructor {
     // provided by whichever class mixes this in (HelpersSlice, HelpersVolumeRendering)
-    _shadersFragment: any;
-    _shadersVertex: any;
-    _uniforms: any;
-    _material: any;
-    _stack: any;
-    _textures: any[];
+    _shadersFragment: ShaderFragmentConstructor | null;
+    _shadersVertex: ShaderVertexConstructor | null;
+    _uniforms: ShaderUniforms | null;
+    _material: THREE.ShaderMaterial | null;
+    _stack: ModelsStack | null;
+    _textures: THREE.DataTexture[] | null;
 
-    _createMaterial(extraOptions: any) {
+    _createMaterial(extraOptions: THREE.ShaderMaterialParameters) {
       // generate shaders on-demand!
       const fs = new this._shadersFragment(this._uniforms);
       const vs = new this._shadersVertex();
@@ -51,7 +61,7 @@ const helpersMaterialMixin = (three: typeof THREE = window.THREE!) => {
 
     _prepareTexture() {
       this._textures = [];
-      for (let m = 0; m < this._stack._rawData.length; m++) {
+      for (let m = 0; m < this._stack.rawData.length; m++) {
         const tex = new three.DataTexture(
           this._stack.rawData[m],
           this._stack.textureSize,

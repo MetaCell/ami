@@ -4,12 +4,14 @@
 import * as THREE from 'three';
 import ControlsTrackball from '../../controls/controls.trackball';
 
+type ControlsTrackballInstance = InstanceType<NonNullable<typeof ControlsTrackball>>;
+
 export default class {
-  _container: any;
-  _renderer: any;
-  _camera: any;
-  _controls: any;
-  _scene: any;
+  _container: HTMLElement | null;
+  _renderer: THREE.WebGLRenderer | null;
+  _camera: THREE.PerspectiveCamera | null;
+  _controls: ControlsTrackballInstance | null;
+  _scene: THREE.Scene | null;
 
   constructor(containerId = 'r3d') {
     this._container = null;
@@ -28,7 +30,7 @@ export default class {
     this.addEventListeners();
   }
 
-  set container(container: any) {
+  set container(container: HTMLElement | null) {
     this._container = container;
   }
 
@@ -36,8 +38,8 @@ export default class {
     return this._container;
   }
 
-  add(obj: any) {
-    this._scene.add(obj);
+  add(obj: THREE.Object3D) {
+    this._scene!.add(obj);
   }
 
   addEventListeners() {
@@ -48,16 +50,16 @@ export default class {
     window.removeEventListener('resize', this._onWindowResize, false);
   }
 
-  center(worldPosition: any) {
+  center(worldPosition: THREE.Vector3) {
     // update camrea's and control's target
-    this._camera.lookAt(worldPosition.x, worldPosition.y, worldPosition.z);
-    this._camera.updateProjectionMatrix();
-    this._controls.target.set(worldPosition.x, worldPosition.y, worldPosition.z);
+    this._camera!.lookAt(worldPosition.x, worldPosition.y, worldPosition.z);
+    this._camera!.updateProjectionMatrix();
+    this._controls!.target.set(worldPosition.x, worldPosition.y, worldPosition.z);
   }
 
   render() {
-    this._controls.update();
-    this._renderer.render(this._scene, this._camera);
+    this._controls!.update();
+    this._renderer!.render(this._scene!, this._camera!);
   }
 
   animate() {

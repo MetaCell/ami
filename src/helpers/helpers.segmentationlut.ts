@@ -13,13 +13,16 @@ const defaultSegmentation: Record<number, SegmentationEntry> = {
 };
 
 export default class HelpersSegmentationLut {
-  _dom: any;
+  _dom: HTMLElement | null;
   _segmentation: Record<string | number, SegmentationEntry>;
-  _canvasContainer: any;
+  _canvasContainer: HTMLElement;
   _canvasBg: HTMLCanvasElement;
   _canvas: HTMLCanvasElement;
 
-  constructor(domTarget: any, segmentation: Record<string | number, SegmentationEntry> = defaultSegmentation) {
+  constructor(
+    domTarget: string | HTMLElement,
+    segmentation: Record<string | number, SegmentationEntry> = defaultSegmentation
+  ) {
     if (CoreUtils.isString(domTarget)) {
       this._dom = document.getElementById(domTarget);
     } else {
@@ -50,7 +53,7 @@ export default class HelpersSegmentationLut {
     this._canvasContainer.appendChild(this._canvas);
   }
 
-  initCanvasContainer(dom: any) {
+  initCanvasContainer(dom: HTMLElement): HTMLElement {
     const canvasContainer = dom;
     canvasContainer.style.width = '256 px';
     canvasContainer.style.height = '128 px';
@@ -74,8 +77,9 @@ export default class HelpersSegmentationLut {
 
     for (const i in this._segmentation) {
       // i is the label number and specifies the coordinates inside the canvas
-      const xCoord = (i as any) % this._canvas.width;
-      const yCoord = Math.floor((i as any) / this._canvas.width);
+      const key = Number(i);
+      const xCoord = key % this._canvas.width;
+      const yCoord = Math.floor(key / this._canvas.width);
       const opacity =
         typeof this._segmentation[i]['opacity'] != 'undefined'
           ? this._segmentation[i]['opacity']

@@ -937,6 +937,10 @@ export default class ModelsStack extends ModelsBase {
     return this._halfDimensionsIJK;
   }
 
+  get spacing() {
+    return this._spacing;
+  }
+
   set regMatrix(regMatrix: Matrix4) {
     this._regMatrix = regMatrix;
   }

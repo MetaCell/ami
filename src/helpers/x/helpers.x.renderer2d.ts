@@ -5,15 +5,35 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import CamerasOrthographic from '../../cameras/cameras.orthographic';
 import ControlsOrthographic from '../../controls/controls.trackballortho';
+import ModelsStack from '../../models/models.stack';
+import HelpersStack from '../helpers.stack';
+
+type CamerasOrthographicInstance = InstanceType<NonNullable<typeof CamerasOrthographic>>;
+type ControlsOrthographicInstance = InstanceType<NonNullable<typeof ControlsOrthographic>>;
+type HelpersStackInstance = InstanceType<NonNullable<typeof HelpersStack>>;
+
+interface ScrollEvent {
+  delta: number;
+}
+
+/**
+ * ControlsTrackballOrtho extends THREE.EventDispatcher unparameterized (see controls.trackballortho.ts,
+ * not yet typed), so its addEventListener/removeEventListener reject any event name. This documents
+ * the one custom event it actually dispatches (see the 'OnScroll' dispatchEvent call there).
+ */
+interface ControlsWithScrollEvent {
+  addEventListener(type: 'OnScroll', listener: (event: ScrollEvent) => void): void;
+  removeEventListener(type: 'OnScroll', listener: (event: ScrollEvent) => void): void;
+}
 
 export default class {
-  _container: any;
-  _renderer: any;
-  _camera: any;
-  _controls: any;
+  _container: HTMLElement | null;
+  _renderer: THREE.WebGLRenderer | null;
+  _camera: CamerasOrthographicInstance | null;
+  _controls: ControlsOrthographicInstance | null;
   _orientation: string;
-  _scene: any;
-  _object: any;
+  _scene: THREE.Scene | null;
+  _object: HelpersStackInstance | null;
 
   constructor(containerId = 'r2d', orientation = 'default') {
     this._container = null;
@@ -35,30 +55,36 @@ export default class {
     this.addEventListeners();
   }
 
-  add(object: any) {
+  add(object: HelpersStackInstance) {
     this._object = object;
-    this._scene.add(this._object);
+    this._scene!.add(this._object);
 
-    this._setupCamera(this._object.stack);
+    this._setupCamera(this._object.stack!);
     this._orientCamera(this._object, this._orientation);
 
-    this._object.canvasWidth = this._container.clientWidth;
-    this._object.canvasHeight = this._container.clientHeight;
+    this._object.canvasWidth = this._container!.clientWidth;
+    this._object.canvasHeight = this._container!.clientHeight;
   }
 
   addEventListeners() {
-    this._controls.addEventListener('OnScroll', this._onScroll, false);
+    (this._controls as unknown as ControlsWithScrollEvent).addEventListener(
+      'OnScroll',
+      this._onScroll
+    );
     window.addEventListener('resize', this._onWindowResize, false);
   }
 
   removeEventListeners() {
-    this._controls.removeEventListener('OnScroll', this._onScroll, false);
+    (this._controls as unknown as ControlsWithScrollEvent).removeEventListener(
+      'OnScroll',
+      this._onScroll
+    );
     window.removeEventListener('resize', this._onWindowResize, false);
   }
 
   animate() {
-    this._controls.update();
-    this._renderer.render(this._scene, this._camera);
+    this._controls!.update();
+    this._renderer!.render(this._scene!, this._camera!);
 
     // request new frame
     requestAnimationFrame(this.animate.bind(this));
@@ -72,18 +98,18 @@ export default class {
     this._renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
-    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._renderer.setSize(this._container!.clientWidth, this._container!.clientHeight);
     this._renderer.setClearColor(0x212121, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
-    this._container.appendChild(this._renderer.domElement);
+    this._container!.appendChild(this._renderer.domElement);
   }
 
   _initCamera() {
-    this._camera = new CamerasOrthographic(
-      this._container.clientWidth / -2,
-      this._container.clientWidth / 2,
-      this._container.clientHeight / 2,
-      this._container.clientHeight / -2,
+    this._camera = new (CamerasOrthographic!)(
+      this._container!.clientWidth / -2,
+      this._container!.clientWidth / 2,
+      this._container!.clientHeight / 2,
+      this._container!.clientHeight / -2,
       1,
       1000
     );
@@ -95,13 +121,13 @@ export default class {
 
   _initControls() {
     // controls
-    this._controls = new ControlsOrthographic(this._camera, this._container);
+    this._controls = new (ControlsOrthographic!)(this._camera, this._container!);
     this._controls.staticMoving = true;
     this._controls.noRotate = true;
-    this._camera.controls = this._controls;
+    this._camera!.controls = this._controls;
   }
 
-  _setupCamera(stack: any) {
+  _setupCamera(stack: ModelsStack) {
     // set camera
     const worldbb = stack.worldBoundingBox();
     const lpsDims = new Vector3(
@@ -118,46 +144,46 @@ export default class {
 
     // init and zoom
     const canvas = {
-      width: this._container.clientWidth,
-      height: this._container.clientHeight,
+      width: this._container!.clientWidth,
+      height: this._container!.clientHeight,
     };
 
-    this._camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
-    this._camera.box = box;
-    this._camera.canvas = canvas;
-    this._camera.update();
-    this._camera.fitBox(2);
+    this._camera!.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+    this._camera!.box = box;
+    this._camera!.canvas = canvas;
+    this._camera!.update();
+    this._camera!.fitBox(2);
   }
 
-  _orientCamera(target: any, orientation = 'default') {
-    this._camera.orientation = orientation;
-    this._camera.update();
-    this._camera.fitBox(2);
-    target.orientation = this._camera.stackOrientation;
+  _orientCamera(target: HelpersStackInstance, orientation = 'default') {
+    this._camera!.orientation = orientation;
+    this._camera!.update();
+    this._camera!.fitBox(2);
+    target.orientation = this._camera!.stackOrientation;
   }
 
   _onWindowResize() {
-    this._camera.canvas = {
-      width: this._container.clientWidth,
-      height: this._container.clientHeight,
+    this._camera!.canvas = {
+      width: this._container!.clientWidth,
+      height: this._container!.clientHeight,
     };
-    this._camera.fitBox(2);
-    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
-    this._object.canvasWidth = this._container.clientWidth;
-    this._object.canvasHeight = this._container.clientHeight;
+    this._camera!.fitBox(2);
+    this._renderer!.setSize(this._container!.clientWidth, this._container!.clientHeight);
+    this._object!.canvasWidth = this._container!.clientWidth;
+    this._object!.canvasHeight = this._container!.clientHeight;
   }
 
-  _onScroll(event: any) {
+  _onScroll(event: ScrollEvent) {
     if (event.delta > 0) {
-      if (this._object.index >= this._object.orientationMaxIndex) {
+      if (this._object!.index >= this._object!.orientationMaxIndex) {
         return false;
       }
-      this._object.index += 1;
+      this._object!.index += 1;
     } else {
-      if (this._object.index <= 0) {
+      if (this._object!.index <= 0) {
         return false;
       }
-      this._object.index -= 1;
+      this._object!.index -= 1;
     }
   }
 }

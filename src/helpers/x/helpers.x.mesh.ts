@@ -50,7 +50,7 @@ export default class {
       return new Promise((resolve, reject) => {
         this._3jsVTK_loader.load(
           this.file!,
-          (geometry: any) => {
+          (geometry: THREE.BufferGeometry) => {
             geometry.computeVertexNormals();
             this._mesh = new THREE.Mesh(geometry, this._material);
             this._RAStoLPS = new Matrix4();
@@ -60,7 +60,7 @@ export default class {
             resolve(this._mesh);
           },
           () => {},
-          (error: any) => {
+          (error: ErrorEvent) => {
             console.log(error);
             reject({
               message: `Couldn't load file: ${this.file}.`,

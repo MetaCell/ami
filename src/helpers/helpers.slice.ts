@@ -2,6 +2,7 @@ import * as THREE from 'three';
 /** * Imports ***/
 import { geometriesSlice } from '../geometries/geometries.slice';
 import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
+import ModelsStack from '../models/models.stack';
 import ShadersFragment from '../shaders/shaders.data.fragment';
 import ShadersUniform from '../shaders/shaders.data.uniform';
 import ShadersVertex from '../shaders/shaders.data.vertex';
@@ -9,6 +10,8 @@ import ShadersVertex from '../shaders/shaders.data.vertex';
 /**
  * @module helpers/slice
  */
+
+type IntensitySetting = 'windowCenter' | 'windowWidth' | 'rescaleSlope' | 'rescaleIntercept';
 
 const helpersSlice = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
@@ -38,21 +41,21 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
 
     _canvasWidth: number;
     _canvasHeight: number;
-    _borderColor: any;
+    _borderColor: THREE.ColorRepresentation | null;
 
     _planePosition: THREE.Vector3;
     _planeDirection: THREE.Vector3;
     _aaBBspace: string;
-    _geometry: any;
+    _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.Mesh | null;
     _visible: boolean;
 
-    _halfDimensions: any;
-    _center: any;
+    _halfDimensions: THREE.Vector3 | null;
+    _center: THREE.Vector3 | null;
     _toAABB: THREE.Matrix4 | null;
 
     constructor(
-      stack: any,
+      stack: ModelsStack,
       index: number = 0,
       position: THREE.Vector3 = new three.Vector3(0, 0, 0),
       direction: THREE.Vector3 = new three.Vector3(0, 0, 1),
@@ -128,7 +131,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       return this._stack;
     }
 
-    set stack(stack: any) {
+    set stack(stack: ModelsStack) {
       this._stack = stack;
     }
 
@@ -300,7 +303,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       return this._planeDirection;
     }
 
-    set halfDimensions(halfDimensions: any) {
+    set halfDimensions(halfDimensions: THREE.Vector3 | null) {
       this._halfDimensions = halfDimensions;
     }
 
@@ -308,7 +311,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       return this._halfDimensions;
     }
 
-    set center(center: any) {
+    set center(center: THREE.Vector3 | null) {
       this._center = center;
     }
 
@@ -333,7 +336,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       return this._mesh;
     }
 
-    set geometry(geometry: any) {
+    set geometry(geometry: THREE.BufferGeometry | null) {
       this._geometry = geometry;
     }
 
@@ -359,7 +362,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       return this._canvasHeight;
     }
 
-    set borderColor(borderColor: any) {
+    set borderColor(borderColor: THREE.ColorRepresentation) {
       this._borderColor = borderColor;
       // Three.js r180 setValueV3f no longer accepts THREE.Color (r/g/b) for vec3 uniforms —
       // it checks v.x !== undefined and falls through to uniform3fv with a non-array.
@@ -373,7 +376,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
     }
 
     _init() {
-      if (!this._stack || !this._stack._prepared || !this._stack._packed) {
+      if (!this._stack || !this._stack.prepared || !this._stack.packed) {
         return;
       }
 
@@ -492,11 +495,11 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
 
       // adding thresholding
       if (this._upperThreshold === null) {
-        this._upperThreshold = this._stack._minMax[1];
+        this._upperThreshold = this._stack.minMax[1];
       }
 
       if (this._lowerThreshold === null) {
-        this._lowerThreshold = this._stack._minMax[0];
+        this._lowerThreshold = this._stack.minMax[0];
       }
     }
 
@@ -504,8 +507,8 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       // compensate for the offset to only pass > 0 values to shaders
       // models > models.stack.js : _packTo8Bits
       let offset = 0;
-      if (this._stack._minMax[0] < 0) {
-        offset -= this._stack._minMax[0];
+      if (this._stack.minMax[0] < 0) {
+        offset -= this._stack.minMax[0];
       }
 
       // set slice window center and width
@@ -536,11 +539,22 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       }
     }
 
-    updateIntensitySetting(setting: string) {
-      if (this._stack.frame[this._index] && this._stack.frame[this._index][setting]) {
-        (this as any)['_' + setting] = this._stack.frame[this._index][setting];
-      } else {
-        (this as any)['_' + setting] = this._stack[setting];
+    updateIntensitySetting(setting: IntensitySetting) {
+      const frame = this._stack.frame[this._index];
+      const value = (frame && frame[setting]) || this._stack[setting];
+      switch (setting) {
+        case 'windowCenter':
+          this._windowCenter = value;
+          break;
+        case 'windowWidth':
+          this._windowWidth = value;
+          break;
+        case 'rescaleSlope':
+          this._rescaleSlope = value;
+          break;
+        case 'rescaleIntercept':
+          this._rescaleIntercept = value;
+          break;
       }
     }
 
@@ -549,7 +563,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         // we do not want to dispose the texture!
         // this._mesh.material.dispose();
         // this._mesh.material = null;
@@ -574,9 +588,9 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       // material, geometry and mesh
       this.remove(this._mesh!);
       this._mesh!.geometry.dispose();
-      (this._mesh as any).geometry = null;
+      this._mesh!.geometry = null;
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._mesh = null;
 
       this._geometry.dispose();

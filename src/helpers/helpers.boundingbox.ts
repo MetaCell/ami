@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import ModelsStack from '../models/models.stack';
 
 /**
  * @module helpers/boundingbox
@@ -11,15 +12,15 @@ const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.Object3D;
   return class HelpersBoundingBox extends Constructor {
-    _stack: any;
+    _stack: ModelsStack | null;
     _visible: boolean;
-    _color: number;
-    _material: THREE.Material | null;
+    _color: THREE.ColorRepresentation;
+    _material: THREE.MeshBasicMaterial | THREE.LineBasicMaterial | null;
     _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.BoxHelper | null;
     _meshStack: THREE.Mesh | null;
 
-    constructor(stack: any) {
+    constructor(stack: ModelsStack) {
       //
       super();
 
@@ -50,10 +51,10 @@ const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
       return this._visible;
     }
 
-    set color(color: number) {
+    set color(color: THREE.ColorRepresentation) {
       this._color = color;
       if (this._material) {
-        (this._material as any).color.set(this._color);
+        this._material.color.set(this._color);
       }
     }
 
@@ -90,7 +91,7 @@ const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
       this._meshStack = mesh;
 
       this._mesh = new three.BoxHelper(this._meshStack, this._color);
-      this._material = this._mesh.material as THREE.Material;
+      this._material = this._mesh.material as THREE.LineBasicMaterial;
 
       this.add(this._mesh);
     }
@@ -99,9 +100,9 @@ const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
-        (this._mesh as any).geometry = null;
+        this._mesh!.geometry = null;
         (this._mesh.material as THREE.Material).dispose();
-        (this._mesh as any).material = null;
+        this._mesh!.material = null;
         this._mesh = null;
       }
 
@@ -110,7 +111,7 @@ const helpersBoundingBox = (three: typeof THREE = window.THREE!) => {
 
     dispose() {
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._geometry!.dispose();
       this._geometry = null;
       this._material!.dispose();

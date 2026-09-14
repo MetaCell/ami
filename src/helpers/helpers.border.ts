@@ -1,8 +1,11 @@
 import * as THREE from 'three';
+import { helpersSlice } from '../helpers/helpers.slice';
 
 /**
  * @module helpers/border
  */
+
+type HelpersSliceInstance = InstanceType<NonNullable<ReturnType<typeof helpersSlice>>>;
 
 const helpersBorder = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
@@ -11,14 +14,14 @@ const helpersBorder = (three: typeof THREE = window.THREE!) => {
 
   const Constructor = three.Object3D;
   return class HelpersBorder extends Constructor {
-    _helpersSlice: any;
+    _helpersSlice: HelpersSliceInstance;
     _visible: boolean;
-    _color: number;
+    _color: THREE.ColorRepresentation;
     _material: THREE.LineBasicMaterial | null;
     _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.Line | null;
 
-    constructor(helpersSlice: any) {
+    constructor(helpersSlice: HelpersSliceInstance) {
       //
       super();
 
@@ -33,7 +36,7 @@ const helpersBorder = (three: typeof THREE = window.THREE!) => {
       this._create();
     }
 
-    set helpersSlice(helpersSlice: any) {
+    set helpersSlice(helpersSlice: HelpersSliceInstance) {
       this._helpersSlice = helpersSlice;
       this._update();
     }
@@ -55,7 +58,7 @@ const helpersBorder = (three: typeof THREE = window.THREE!) => {
       return this._visible;
     }
 
-    set color(color: number) {
+    set color(color: THREE.ColorRepresentation) {
       this._color = color;
       if (this._material) {
         this._material.color.set(this._color);
@@ -113,7 +116,7 @@ const helpersBorder = (three: typeof THREE = window.THREE!) => {
 
     dispose() {
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._geometry!.dispose();
       this._geometry = null;
       this._material!.dispose();

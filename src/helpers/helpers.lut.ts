@@ -10,7 +10,7 @@ const helpersLut = (three: typeof THREE = window.THREE!) => {
   }
   const Constructor = three.Object3D;
   return class HelpersLut extends Constructor {
-    _dom: any;
+    _dom: HTMLElement | null;
     _discrete: boolean;
     _color: number[][];
     _lut: string;
@@ -18,12 +18,12 @@ const helpersLut = (three: typeof THREE = window.THREE!) => {
     _opacity: number[][];
     _lutO: string;
     _lutsO: Record<string, number[][]>;
-    _canvasContainer: any;
+    _canvasContainer: HTMLElement;
     _canvasBg: HTMLCanvasElement;
     _canvas: HTMLCanvasElement;
 
     constructor(
-      domTarget: any,
+      domTarget: string | HTMLElement,
       lut: string = 'default',
       lutO: string = 'linear',
       color: number[][] = [[0, 0, 0, 0], [1, 1, 1, 1]],
@@ -64,7 +64,7 @@ const helpersLut = (three: typeof THREE = window.THREE!) => {
       this._canvasContainer.appendChild(this._canvas);
     }
 
-    initCanvasContainer(dom: any) {
+    initCanvasContainer(dom: HTMLElement): HTMLElement {
       const canvasContainer = dom;
       canvasContainer.style.border = '1px solid #F9F9F9';
       return canvasContainer;

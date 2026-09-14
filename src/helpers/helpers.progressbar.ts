@@ -44,7 +44,7 @@ export default class HelpersProgressBar {
     if (progressContainers.length > 0) {
       progressContainers[0].parentNode!.removeChild(progressContainers[0]);
     }
-    progressContainers = null as any;
+    progressContainers = null;
     // stop rendering loop
     window.cancelAnimationFrame(this.requestAnimationFrameID!);
   }
@@ -56,7 +56,7 @@ export default class HelpersProgressBar {
       if (Object.hasOwn(this._modes, mode)) {
         let bar: HTMLElement | false = this._domBar(this._modes[mode]);
         progressContainer.appendChild(bar as HTMLElement);
-        bar = null as any;
+        bar = null;
       }
     }
 
@@ -107,7 +107,7 @@ export default class HelpersProgressBar {
       (progressBar[0] as HTMLElement).style.borderColor = color;
       (progressBar[0] as HTMLElement).style.width = progress + '%';
     }
-    progressBar = null as any;
+    progressBar = null;
   }
 
   _domContainer(): HTMLElement {

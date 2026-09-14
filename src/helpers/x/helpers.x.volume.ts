@@ -4,15 +4,18 @@
 import * as THREE from 'three';
 import LoadersVolume from '../../loaders/loaders.volume';
 import HelpersStack from '../helpers.stack';
+import ModelsStack from '../../models/models.stack';
+
+type HelpersStackInstance = InstanceType<NonNullable<typeof HelpersStack>>;
 
 export default class extends THREE.Object3D {
   _file: string | null;
-  _progressbarContainer: any;
-  _stack: any;
+  _progressbarContainer: HTMLElement | null;
+  _stack: ModelsStack | null;
   _centerLPS: THREE.Vector3 | null;
-  _xSlice: any;
-  _ySlice: any;
-  _zSlice: any;
+  _xSlice: HelpersStackInstance | null;
+  _ySlice: HelpersStackInstance | null;
+  _zSlice: HelpersStackInstance | null;
 
   constructor() {
     super();
@@ -35,7 +38,7 @@ export default class extends THREE.Object3D {
     this._file = fname;
   }
 
-  set progressbarContainer(container: any) {
+  set progressbarContainer(container: HTMLElement | null) {
     this._progressbarContainer = container;
   }
 
@@ -50,7 +53,7 @@ export default class extends THREE.Object3D {
   // private methods
   _createSlice(orientation: number) {
     if (this._stack) {
-      const stackHelper: any = new HelpersStack(this._stack);
+      const stackHelper = new (HelpersStack!)(this._stack);
       stackHelper.orientation = orientation;
 
       if (orientation === 0) {

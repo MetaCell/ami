@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
+import ModelsStack from '../models/models.stack';
 /** * Imports ***/
 import ShadersFragment from '../shaders/shaders.vr.fragment';
 import ShadersUniform from '../shaders/shaders.vr.uniform';
 import ShadersVertex from '../shaders/shaders.vr.vertex';
+import type { ShaderUniforms } from '../shaders/shaders.types';
 
 /**
  * @module helpers/volumerendering
@@ -29,7 +31,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
     _windowCenter: number;
     _windowWidth: number;
 
-    constructor(stack: any) {
+    constructor(stack: ModelsStack) {
       //
       super();
 
@@ -76,7 +78,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
 
       // compensate for the offset to only pass > 0 values to shaders
       // models > models.stack.js : _packTo8Bits
-      this._offset = Math.min(0, this._stack._minMax[0]);
+      this._offset = Math.min(0, this._stack.minMax[0]);
       this._windowCenter = this._stack.windowCenter;
       this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
     }
@@ -139,7 +141,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
       return this._uniforms;
     }
 
-    set uniforms(uniforms: any) {
+    set uniforms(uniforms: ShaderUniforms) {
       this._uniforms = uniforms;
     }
 
@@ -155,7 +157,7 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
       return this._stack;
     }
 
-    set stack(stack: any) {
+    set stack(stack: ModelsStack) {
       this._stack = stack;
     }
 
@@ -236,9 +238,9 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
       // Release memory
       for (let j = 0; j < this._textures.length; j++) {
         this._textures[j].dispose();
-        (this._textures as any)[j] = null;
+        this._textures[j] = null;
       }
-      this._textures = null as any;
+      this._textures = null;
       this._shadersFragment = null;
       this._shadersVertex = null;
 
@@ -249,16 +251,16 @@ const helpersVolumeRendering = (three: typeof THREE = window.THREE!) => {
       // material, geometry and mesh
       this.remove(this._mesh!);
       this._mesh!.geometry.dispose();
-      (this._mesh as any).geometry = null;
+      this._mesh!.geometry = null;
       (this._mesh!.material as THREE.Material).dispose();
-      (this._mesh as any).material = null;
+      this._mesh!.material = null;
       this._mesh = null;
 
       this._geometry!.dispose();
       this._geometry = null;
-      (this._material as any).vertexShader = null;
-      (this._material as any).fragmentShader = null;
-      (this._material as any).uniforms = null;
+      this._material!.vertexShader = null;
+      this._material!.fragmentShader = null;
+      this._material!.uniforms = null;
       this._material!.dispose();
       this._material = null;
 

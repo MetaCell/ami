@@ -2,7 +2,7 @@
 import { Vector3 } from 'three';
 import ParsersVolume from './parsers.volume';
 
-interface ParserMHDData {
+export interface ParserMHDData {
   url: string;
   mhdBuffer: ArrayBuffer;
   rawBuffer: ArrayBuffer;

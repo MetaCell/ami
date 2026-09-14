@@ -3,6 +3,27 @@ import EventEmitter from 'eventemitter3';
 import HelpersProgressBar from '../helpers/helpers.progressbar';
 
 /**
+ * What LoadersBase needs from an injected progress bar implementation. HelpersProgressBar is
+ * the default, but callers can supply their own - `requests` isn't read by HelpersProgressBar
+ * itself, it's part of the contract for implementations that want it.
+ */
+interface ProgressBarLike {
+  totalFiles: number | null;
+  requests?: Map<string, XMLHttpRequest>;
+  update(value: number, total: number, mode: string, url?: string): void;
+  free(): void;
+}
+
+type ProgressBarConstructor = new (container: HTMLElement) => ProgressBarLike;
+
+/** Not part of the standard XMLHttpRequest type, kept for parity with older/vendor XHR usage. */
+interface XHRWithCrossOrigin extends XMLHttpRequest {
+  crossOrigin: boolean;
+}
+
+type LoaderUrl = string | Array<string | string[]>;
+
+/**
  *
  * It is typically used to load a DICOM image. Use loading manager for
  * advanced usage, such as multiple files handling.
@@ -34,17 +55,20 @@ export default class LoadersBase extends EventEmitter {
   protected _parsed: number;
   protected _totalParsed: number;
 
-  private _data: any[];
+  private _data: unknown[];
 
-  protected _container: any;
-  protected _progressBar: any;
+  protected _container: HTMLElement | null;
+  protected _progressBar: ProgressBarLike | null;
 
   /**
    * Create a Loader.
    * @param {dom} container - The dom container of loader.
    * @param {object} ProgressBar - The progressbar of loader.
    */
-  constructor(container: any = null, ProgressBar: any = HelpersProgressBar) {
+  constructor(
+    container: HTMLElement | null = null,
+    ProgressBar: ProgressBarConstructor = HelpersProgressBar
+  ) {
     super();
     this._loaded = -1;
     this._totalLoaded = -1;
@@ -80,11 +104,14 @@ export default class LoadersBase extends EventEmitter {
    * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  fetch(url: string, requests: any): Promise<{ url: string; buffer: ArrayBuffer }> {
+  fetch(
+    url: string,
+    requests?: Map<string, XMLHttpRequest>
+  ): Promise<{ url: string; buffer: ArrayBuffer }> {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
-      (request as any).crossOrigin = true;
+      (request as XHRWithCrossOrigin).crossOrigin = true;
       request.responseType = 'arraybuffer';
 
       request.onloadstart = (event) => {
@@ -194,7 +221,7 @@ export default class LoadersBase extends EventEmitter {
    * @param {object} response - loaded data.
    * @return {promise} promise.
    */
-  parse(response: any): Promise<any> {
+  parse(response: unknown): Promise<unknown> {
     return new Promise((resolve, reject) => {
       resolve(response);
     });
@@ -206,8 +233,11 @@ export default class LoadersBase extends EventEmitter {
    * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequenceGroup(url: string[], requests: any): Promise<any> {
-    const fetchSequence: Promise<any>[] = [];
+  loadSequenceGroup(
+    url: string[],
+    requests?: Map<string, XMLHttpRequest>
+  ): Promise<unknown> {
+    const fetchSequence: Promise<{ url: string; buffer: ArrayBuffer }>[] = [];
 
     url.forEach((file) => {
       fetchSequence.push(this.fetch(file, requests));
@@ -236,7 +266,7 @@ export default class LoadersBase extends EventEmitter {
    * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequence(url: string, requests: any): Promise<any> {
+  loadSequence(url: string, requests?: Map<string, XMLHttpRequest>): Promise<unknown> {
     return this.fetch(url, requests)
       .then((rawdata) => {
         return this.parse(rawdata);
@@ -260,25 +290,28 @@ export default class LoadersBase extends EventEmitter {
    * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
-  load(url: string | any[], requests: any = undefined): Promise<any> {
+  load(url: LoaderUrl, requests?: Map<string, XMLHttpRequest>): Promise<unknown[]> {
     // if we load a single file, convert it to an array
+    let urls: Array<string | string[]>;
     if (!Array.isArray(url)) {
-      url = [url];
+      urls = [url];
+    } else {
+      urls = url;
     }
 
     if (this._progressBar) {
-      this._progressBar.totalFiles = url.length;
+      this._progressBar.totalFiles = urls.length;
       this._progressBar.requests = requests;
     }
 
     // emit 'load-start' event
     this.emit('load-start', {
-      files: url,
+      files: urls,
       time: new Date(),
     });
 
-    const loadSequences: Promise<any>[] = [];
-    url.forEach((file: any) => {
+    const loadSequences: Promise<unknown>[] = [];
+    urls.forEach((file) => {
       if (!Array.isArray(file)) {
         loadSequences.push(this.loadSequence(file, requests));
       } else {
@@ -292,7 +325,7 @@ export default class LoadersBase extends EventEmitter {
    * Set data
    * @param {array} data
    */
-  set data(data: any[]) {
+  set data(data: unknown[]) {
     this._data = data;
   }
 

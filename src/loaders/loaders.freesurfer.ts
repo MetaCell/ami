@@ -1,25 +1,37 @@
 import { BufferGeometry, EventDispatcher, Float32BufferAttribute } from 'three';
 
-class FreeSurferLoader extends EventDispatcher {
+interface FreeSurferLoaderEventMap {
+  load: { content: BufferGeometry };
+  progress: { loaded: number; total: number };
+  error: { message: string; response?: string };
+}
+
+class FreeSurferLoader extends EventDispatcher<FreeSurferLoaderEventMap> {
   static QUAD_FILE_MAGIC_NUMBER = -1 & 0x00ffffff;
   static TRIANGLE_FILE_MAGIC_NUMBER = -2 & 0x00ffffff;
   static NEW_QUAD_FILE_MAGIC_NUMBER = -3 & 0x00ffffff;
 
-  load(url: string, onLoad?: (geometry: any) => void, onProgress?: any, onError?: any) {
+  load(
+    url: string,
+    onLoad?: (geometry: BufferGeometry) => void,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (event: ErrorEvent | Error) => void
+  ) {
     const xhr = new XMLHttpRequest();
 
     xhr.addEventListener(
       'load',
-      (event: any) => {
-        if (event.target.status === 200 || event.target.status === 0) {
-          const geometry = this.parse(event.target.response || event.target.responseText);
-          (this as any).dispatchEvent({ type: 'load', content: geometry });
+      (event: ProgressEvent) => {
+        const target = event.target as XMLHttpRequest;
+        if (target.status === 200 || target.status === 0) {
+          const geometry = this.parse(target.response || target.responseText);
+          this.dispatchEvent({ type: 'load', content: geometry });
           if (onLoad) onLoad(geometry);
         } else {
-          (this as any).dispatchEvent({
+          this.dispatchEvent({
             type: 'error',
             message: "Couldn't load URL [" + url + ']',
-            response: event.target.statusText,
+            response: target.statusText,
           });
         }
       },
@@ -28,8 +40,8 @@ class FreeSurferLoader extends EventDispatcher {
 
     xhr.addEventListener(
       'progress',
-      (event: any) => {
-        (this as any).dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
+      (event: ProgressEvent) => {
+        this.dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
       },
       false
     );
@@ -37,7 +49,7 @@ class FreeSurferLoader extends EventDispatcher {
     xhr.addEventListener(
       'error',
       () => {
-        (this as any).dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
+        this.dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
       },
       false
     );

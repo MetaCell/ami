@@ -1,21 +1,67 @@
 import { BufferGeometry, EventDispatcher, Float32BufferAttribute, Vector3 } from 'three';
 
-export default class LoadersTrk extends EventDispatcher {
-  load(url: string, onLoad?: (geometry: any) => void, onProgress?: any, onError?: any) {
+interface LoadersTrkEventMap {
+  load: { content: TrkTrack[] };
+  progress: { loaded: number; total: number };
+  error: { message: string; response?: string };
+}
+
+/** TrackVis (.trk) file header - see http://trackvis.org/docs/?subsect=fileformat */
+interface TrkHeader {
+  ID_STRING: string[];
+  dim: number[];
+  VOXEL_SIZE: number[];
+  origin: number[];
+  N_SCALARS: number[];
+  SCALAR_NAME: string[][];
+  N_PROPERTIES: number[];
+  PROPERTY_NAME: string[][];
+  VOX_TO_RAS: number[][];
+  VOXEL_ORDER: string[];
+  pad2: string[];
+  IMAGE_ORIENTATION_PATIENT: number[];
+  pad1: string[];
+  INVERT_X: string[];
+  INVERT_Y: string[];
+  INVERT_Z: string[];
+  SWAP_XY: string[];
+  SWAP_YZ: string[];
+  SWAP_ZX: string[];
+  N_COUNT: number[];
+  version: number[];
+  HDR_SIZE: number[];
+}
+
+interface TrkTrack {
+  points: number[][];
+  scalars: number[][][];
+  properties: number[][];
+  geometry: BufferGeometry;
+  xProperties: { length?: number };
+}
+
+export default class LoadersTrk extends EventDispatcher<LoadersTrkEventMap> {
+  load(
+    url: string,
+    onLoad?: (geometry: TrkTrack[]) => void,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (event: ErrorEvent | Error) => void
+  ) {
     const xhr = new XMLHttpRequest();
 
     xhr.addEventListener(
       'load',
-      (event: any) => {
-        if (event.target.status === 200 || event.target.status === 0) {
-          const geometry = this.parse(event.target.response || event.target.responseText);
-          (this as any).dispatchEvent({ type: 'load', content: geometry });
+      (event: ProgressEvent) => {
+        const target = event.target as XMLHttpRequest;
+        if (target.status === 200 || target.status === 0) {
+          const geometry = this.parse(target.response || target.responseText);
+          this.dispatchEvent({ type: 'load', content: geometry });
           if (onLoad) onLoad(geometry);
         } else {
-          (this as any).dispatchEvent({
+          this.dispatchEvent({
             type: 'error',
             message: "Couldn't load URL [" + url + ']',
-            response: event.target.statusText,
+            response: target.statusText,
           });
         }
       },
@@ -24,8 +70,8 @@ export default class LoadersTrk extends EventDispatcher {
 
     xhr.addEventListener(
       'progress',
-      (event: any) => {
-        (this as any).dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
+      (event: ProgressEvent) => {
+        this.dispatchEvent({ type: 'progress', loaded: event.loaded, total: event.total });
       },
       false
     );
@@ -33,7 +79,7 @@ export default class LoadersTrk extends EventDispatcher {
     xhr.addEventListener(
       'error',
       () => {
-        (this as any).dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
+        this.dispatchEvent({ type: 'error', message: "Couldn't load URL [" + url + ']' });
       },
       false
     );
@@ -53,43 +99,60 @@ export default class LoadersTrk extends EventDispatcher {
     return new Int16Array(buffer)[0] === 256;
   }
 
-  parse(data: ArrayBuffer): any[] {
+  parse(data: ArrayBuffer): TrkTrack[] {
     const littleEndian = this.littleEndian();
     const reader = new DataView(data);
     let offset = 0;
-    const header: Record<string, any> = {};
+    const header: TrkHeader = {
+      ID_STRING: [],
+      dim: [],
+      VOXEL_SIZE: [],
+      origin: [],
+      N_SCALARS: [],
+      SCALAR_NAME: [],
+      N_PROPERTIES: [],
+      PROPERTY_NAME: [],
+      VOX_TO_RAS: [],
+      VOXEL_ORDER: [],
+      pad2: [],
+      IMAGE_ORIENTATION_PATIENT: [],
+      pad1: [],
+      INVERT_X: [],
+      INVERT_Y: [],
+      INVERT_Z: [],
+      SWAP_XY: [],
+      SWAP_YZ: [],
+      SWAP_ZX: [],
+      N_COUNT: [],
+      version: [],
+      HDR_SIZE: [],
+    };
 
-    header.ID_STRING = [];
     for (let i = 0; i < 6; i++) {
       header.ID_STRING.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
 
-    header.dim = [];
     for (let q = 0; q < 3; q++) {
       header.dim.push(reader.getInt16(offset, littleEndian));
       offset += 2;
     }
 
-    header.VOXEL_SIZE = [];
     for (let r = 0; r < 3; r++) {
       header.VOXEL_SIZE.push(reader.getFloat32(offset, littleEndian));
       offset += 4;
     }
 
-    header.origin = [];
     for (let s = 0; s < 3; s++) {
       header.origin.push(reader.getFloat32(offset, littleEndian));
       offset += 4;
     }
 
-    header.N_SCALARS = [];
     for (let t = 0; t < 1; t++) {
       header.N_SCALARS.push(reader.getInt16(offset, littleEndian));
       offset += 2;
     }
 
-    header.SCALAR_NAME = [];
     for (let u = 0; u < 10; u++) {
       header.SCALAR_NAME.push([]);
       for (let v = 0; v < 20; v++) {
@@ -98,13 +161,11 @@ export default class LoadersTrk extends EventDispatcher {
       }
     }
 
-    header.N_PROPERTIES = [];
     for (let x = 0; x < 1; x++) {
       header.N_PROPERTIES.push(reader.getInt16(offset, littleEndian));
       offset += 2;
     }
 
-    header.PROPERTY_NAME = [];
     for (let y = 0; y < 10; y++) {
       header.PROPERTY_NAME.push([]);
       for (let z = 0; z < 20; z++) {
@@ -113,7 +174,6 @@ export default class LoadersTrk extends EventDispatcher {
       }
     }
 
-    header.VOX_TO_RAS = [];
     for (let a = 0; a < 4; a++) {
       header.VOX_TO_RAS.push([]);
       for (let b = 0; b < 4; b++) {
@@ -124,80 +184,71 @@ export default class LoadersTrk extends EventDispatcher {
 
     offset += 444; // reserved
 
-    header.VOXEL_ORDER = [];
     for (let c = 0; c < 4; c++) {
       header.VOXEL_ORDER.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
 
-    header.pad2 = [];
     for (let d = 0; d < 4; d++) {
       header.pad2.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
 
-    header.IMAGE_ORIENTATION_PATIENT = [];
     for (let e = 0; e < 6; e++) {
       header.IMAGE_ORIENTATION_PATIENT.push(reader.getFloat32(offset, littleEndian));
       offset += 4;
     }
 
-    header.pad1 = [];
     for (let f = 0; f < 2; f++) {
+      // NOTE: pre-existing quirk carried over as-is - this pushes into pad2 rather than pad1,
+      // leaving pad1 always empty. Both are reserved/unused padding bytes (never read anywhere
+      // in this file or its consumers), and the byte offset still advances correctly either way,
+      // so this has no effect on parsing - not something this typing pass changes.
       header.pad2.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
 
-    header.INVERT_X = [];
     for (let g = 0; g < 1; g++) {
       header.INVERT_X.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
-    header.INVERT_Y = [];
     for (let h = 0; h < 1; h++) {
       header.INVERT_Y.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
-    header.INVERT_Z = [];
     for (let ii = 0; ii < 1; ii++) {
       header.INVERT_Z.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
-    header.SWAP_XY = [];
     for (let ij = 0; ij < 1; ij++) {
       header.SWAP_XY.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
-    header.SWAP_YZ = [];
     for (let ik = 0; ik < 1; ik++) {
       header.SWAP_YZ.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
-    header.SWAP_ZX = [];
     for (let il = 0; il < 1; il++) {
       header.SWAP_ZX.push(String.fromCharCode(reader.getUint8(offset)));
       offset++;
     }
 
-    header.N_COUNT = [];
     for (let im = 0; im < 1; im++) {
       header.N_COUNT.push(reader.getUint32(offset, littleEndian));
       offset += 4;
     }
 
-    header.version = [];
     for (let io = 0; io < 1; io++) {
       header.version.push(reader.getUint32(offset, littleEndian));
       offset += 4;
     }
 
-    header.HDR_SIZE = [];
     for (let ip = 0; ip < 1; ip++) {
       header.HDR_SIZE.push(reader.getUint32(offset, littleEndian));
       offset += 4;
     }
 
-    const tracks: any[] = [];
+    const tracks: TrkTrack[] = [];
 
     while (offset < reader.byteLength) {
       const nbPoints = reader.getUint32(offset, littleEndian);
@@ -206,7 +257,7 @@ export default class LoadersTrk extends EventDispatcher {
       const _trackVertices: Vector3[] = [];
       const _trackColors: number[] = [];
 
-      const track: Record<string, any> = {
+      const track: TrkTrack = {
         points: [],
         scalars: [],
         properties: [],

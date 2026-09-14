@@ -1,13 +1,14 @@
 import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
 import shadersInterpolation from './interpolation/shaders.interpolation';
+import type { ShaderUniforms } from './shaders.types';
 
 export default class ShadersFragment {
-  private _uniforms: Record<string, any>;
-  private _functions: Record<string, string>;
+  _uniforms: ShaderUniforms;
+  _functions: Record<string, string>;
   private _main: string;
 
   // pass uniforms object
-  constructor(uniforms: Record<string, any>) {
+  constructor(uniforms: ShaderUniforms) {
     this._uniforms = uniforms;
     this._functions = {};
     this._main = '';

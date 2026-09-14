@@ -1,6 +1,8 @@
+import type { BaseFragment } from './shaders.types';
+
 export default class ShadersBase {
   protected _name: string;
-  protected _base: any;
+  protected _base: BaseFragment;
   protected _definition: string;
 
   constructor() {

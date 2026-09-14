@@ -1,8 +1,10 @@
+import type { ShaderUniforms } from './shaders.types';
+
 /**
  * @module shaders/data
  */
 export default class ShadersUniform {
-  static uniforms(): Record<string, any> {
+  static uniforms(): ShaderUniforms {
     return {
       uCanvasWidth: {
         type: 'f',

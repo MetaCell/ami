@@ -1,4 +1,5 @@
 import ShadersBase from '../shaders.base';
+import type { BaseFragment } from '../shaders.types';
 
 class Texture3d extends ShadersBase {
   private _dataCoordinates: string;
@@ -16,7 +17,7 @@ class Texture3d extends ShadersBase {
   }
 
   api(
-    baseFragment: any = this._base,
+    baseFragment: BaseFragment = this._base,
     dataCoordinates: string = this._dataCoordinates,
     dataValue: string = this._dataValue,
     offset: string = this._offset
@@ -55,7 +56,7 @@ class Texture3d extends ShadersBase {
     // match: too few declared is out of range, too many leaves unbound samplers that WebGL2 faults
     // on. Padding used to hide the second case at the cost of the wasted fetches this change
     // removes, so say so plainly instead of failing later as an opaque driver error.
-    if (container.value && container.value.length && container.value.length !== slots) {
+    if (Array.isArray(container.value) && container.value.length && container.value.length !== slots) {
       console.warn(
         `ami: uTextureContainer declares ${slots} sampler(s) but ${container.value.length} texture(s) ` +
         'are bound. Set uniforms.uTextureContainer.length to the bound count when assigning .value.'

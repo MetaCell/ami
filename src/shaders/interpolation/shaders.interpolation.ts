@@ -1,7 +1,13 @@
 import InterpolationIdentity from './shaders.interpolation.identity';
 import InterpolationTrilinear from './shaders.interpolation.trilinear';
+import type { BaseFragment } from '../shaders.types';
 
-function shadersInterpolation(baseFragment: any, currentVoxel: any, dataValue: any, gradient: any): string {
+function shadersInterpolation(
+  baseFragment: BaseFragment,
+  currentVoxel: string,
+  dataValue: string,
+  gradient: string
+): string {
   switch (baseFragment._uniforms.uInterpolation.value) {
     case 0:
       // no interpolation

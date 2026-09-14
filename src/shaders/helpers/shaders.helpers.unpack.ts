@@ -1,4 +1,5 @@
 import ShadersBase from '../shaders.base';
+import type { BaseFragment } from '../shaders.types';
 
 /**
  * Set of methods to unpack values from [r][b][g][a] -> float
@@ -20,21 +21,29 @@ class Unpack extends ShadersBase {
     this._offset = 'offset';
     this._unpackedData = 'unpackedData';
 
+    // Placeholder defaults, overwritten by api()'s baseFragment before use in practice - values
+    // match shaders.data.uniform.ts's real uNumberOfChannels/uBitsAllocated/uPixelType entries.
     this._base._uniforms = {
       uNumberOfChannels: {
+        type: 'i',
         value: 1,
+        typeGLSL: 'int',
       },
       uBitsAllocated: {
+        type: 'i',
         value: 16,
+        typeGLSL: 'int',
       },
       uPixelType: {
+        type: 'i',
         value: 0,
+        typeGLSL: 'int',
       },
     };
   }
 
   api(
-    baseFragment: any = this._base,
+    baseFragment: BaseFragment = this._base,
     packedData: string = this._packedData,
     offset: string = this._offset,
     unpackedData: string = this._unpackedData

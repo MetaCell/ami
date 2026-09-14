@@ -1,6 +1,7 @@
 import Texture3d from '../helpers/shaders.helpers.texture3d';
 import Unpack from '../helpers/shaders.helpers.unpack';
 import ShadersBase from '../shaders.base';
+import type { BaseFragment } from '../shaders.types';
 
 class InterpolationIdentity extends ShadersBase {
   private _currentVoxel: string;
@@ -15,7 +16,7 @@ class InterpolationIdentity extends ShadersBase {
     this._dataValue = 'dataValue';
   }
 
-  api(baseFragment: any = this._base, currentVoxel: string = this._currentVoxel, dataValue: string = this._dataValue): string {
+  api(baseFragment: BaseFragment = this._base, currentVoxel: string = this._currentVoxel, dataValue: string = this._dataValue): string {
     this._base = baseFragment;
     return this.compute(currentVoxel, dataValue);
   }

@@ -1,4 +1,5 @@
 import ShadersBase from '../shaders.base';
+import type { BaseFragment } from '../shaders.types';
 
 class IntersectBox extends ShadersBase {
   private _rayOrigin: string;
@@ -24,7 +25,7 @@ class IntersectBox extends ShadersBase {
   }
 
   api(
-    baseFragment: any = this._base,
+    baseFragment: BaseFragment = this._base,
     rayOrigin: string = this._rayOrigin,
     rayDirection: string = this._rayDirection,
     aabbMin: string = this._aabbMin,

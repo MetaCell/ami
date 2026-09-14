@@ -1,4 +1,5 @@
 import { Matrix4 } from 'three';
+import type { ShaderUniforms } from './shaders.types';
 
 /**
  * @module shaders/data
@@ -7,7 +8,7 @@ export default class ShadersUniform {
   /**
    * Shaders data uniforms
    */
-  static uniforms(): Record<string, any> {
+  static uniforms(): ShaderUniforms {
     return {
       uTextureSize: {
         type: 'i',

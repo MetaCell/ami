@@ -1,4 +1,5 @@
 import ShadersBase from '../shaders.base';
+import type { BaseFragment } from '../shaders.types';
 import InterpolationIdentity from './shaders.interpolation.identity';
 
 class InterpolationTrilinear extends ShadersBase {
@@ -17,7 +18,7 @@ class InterpolationTrilinear extends ShadersBase {
   }
 
   api(
-    baseFragment: any = this._base,
+    baseFragment: BaseFragment = this._base,
     currentVoxel: string = this._currentVoxel,
     dataValue: string = this._dataValue,
     gradient: string = this._gradient

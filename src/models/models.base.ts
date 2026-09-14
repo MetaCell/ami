@@ -19,7 +19,7 @@ export default class ModelsBase {
    *
    * @return {boolean} True if merge was sucessful. False if something went wrong.
    */
-  mergeModels(referenceArray: any[], targetArray: any[]): boolean {
+  mergeModels(referenceArray: ModelsBase[], targetArray: ModelsBase[]): boolean {
     if (!(this._validateModelArray(referenceArray) && this._validateModelArray(targetArray))) {
       window.console.log('invalid inputs provided.');
       return false;
@@ -45,7 +45,7 @@ export default class ModelsBase {
   /**
    * Merge model against current model.
    */
-  merge(model: any): boolean {
+  merge(model: ModelsBase): boolean {
     // make sure model is valid
     if (!this.validate(model)) {
       return false;
@@ -63,7 +63,7 @@ export default class ModelsBase {
    *
    * @return {boolean} True if model is valid. False if not.
    */
-  validate(model: any): boolean {
+  validate(model: ModelsBase): boolean {
     if (!(model && model !== null && typeof model.merge === 'function')) {
       return false;
     }
@@ -78,7 +78,7 @@ export default class ModelsBase {
    *
    * @return {boolean} True if array is valid. False if not.
    */
-  _validateModelArray(modelArray: any[]): boolean {
+  _validateModelArray(modelArray: ModelsBase[]): boolean {
     if (!(modelArray !== null && Array === modelArray.constructor)) {
       window.console.log('invalid model array provided.');
       return false;

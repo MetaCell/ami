@@ -515,7 +515,7 @@ export default class ModelsStack extends ModelsBase {
    *
    * @return {*}
    */
-  merge(stack: any): boolean {
+  merge(stack: ModelsStack): boolean {
     // also make sure x/y/z cosines are a match!
     if (
       this._stackID === stack.stackID &&

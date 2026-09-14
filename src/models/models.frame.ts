@@ -110,7 +110,7 @@ export default class ModelsFrame extends ModelsBase {
    *
    * @return {*}
    */
-  validate(model: any): boolean {
+  validate(model: ModelsFrame): boolean {
     if (
       !(
         super.validate(model) &&
@@ -142,7 +142,7 @@ export default class ModelsFrame extends ModelsBase {
    *
    * @return {boolean} True if frames could be merge. False if not.
    */
-  merge(frame: any): boolean {
+  merge(frame: ModelsFrame): boolean {
     if (!this.validate(frame)) {
       return false;
     }

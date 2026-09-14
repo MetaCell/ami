@@ -1,16 +1,15 @@
 import ModelsBase from '../../src/models/models.base';
 
 describe('Models.Base', () => {
-  let validBase;
-  let invalidBase;
+  let validBase: ModelsBase;
+  let invalidBase: ModelsBase;
 
   beforeEach(() => {
     //
     validBase = new ModelsBase();
-    validBase.seriesInstanceUID = 'validBaseInstanceUID';
 
     //
-    invalidBase= new ModelsBase();
+    invalidBase = new ModelsBase();
     invalidBase.merge = undefined;
   });
 
@@ -34,8 +33,9 @@ describe('Models.Base', () => {
 
   describe('merge', () => {
     it('should return false if merge was not successful', () => {
-      //
+      // @ts-expect-error wrong argument count, that's what's under test
       expect(validBase.merge()).toEqual(false);
+      // @ts-expect-error wrong argument type, that's what's under test
       expect(validBase.merge('whatever')).toEqual(false);
     });
 
@@ -68,7 +68,7 @@ describe('Models.Base', () => {
       //
       valid = validBase._validateModelArray([validBase, null]);
       expect(valid).toEqual(false);
-      
+
       //
       valid = validBase._validateModelArray([validBase, invalidBase]);
       expect(valid).toEqual(false);

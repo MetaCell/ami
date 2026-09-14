@@ -3,9 +3,9 @@ import ModelsFrame from '../../src/models/models.frame';
 import { Vector3 } from 'three';
 
 describe('Models.frame', () => {
-  let validFrame;
-  let validFrame2;
-  let invalidFrame;
+  let validFrame: ModelsFrame;
+  let validFrame2: ModelsFrame;
+  let invalidFrame: ModelsFrame;
 
   beforeEach(() => {
     //
@@ -17,13 +17,14 @@ describe('Models.frame', () => {
 
     //
     invalidFrame = new ModelsFrame();
-    invalidFrame._dimensionIndexValues = undefined;
+    invalidFrame.dimensionIndexValues = undefined;
   });
 
   describe('merge', () => {
     it('should return false if merge was not successful', () => {
-      //
+      // @ts-expect-error wrong argument count, that's what's under test
       expect(validFrame.merge()).toEqual(false);
+      // @ts-expect-error wrong argument type, that's what's under test
       expect(validFrame.merge('whatever')).toEqual(false);
       expect(validFrame.merge(validFrame2)).toEqual(false);
     });
@@ -42,11 +43,11 @@ describe('Models.frame', () => {
       expect(validFrame.cosines()).toEqual(defaultCosines);
 
       // invalid length
-      validFrame._imageOrientation = [1, 0, 0, 1, 0];
+      validFrame.imageOrientation = [1, 0, 0, 1, 0];
       expect(validFrame.cosines()).toEqual(defaultCosines);
 
       // one direction is not correct
-      validFrame._imageOrientation = [0, 0, 0, 1, 0, 0];
+      validFrame.imageOrientation = [0, 0, 0, 1, 0, 0];
       expect(validFrame.cosines()).toEqual(defaultCosines);
     });
 
@@ -54,7 +55,7 @@ describe('Models.frame', () => {
       //
       const defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
 
-      validFrame._imageOrientation = [0, 1, 0, 0, 0, 1];
+      validFrame.imageOrientation = [0, 1, 0, 0, 0, 1];
       expect(validFrame.cosines()).toEqual(defaultCosines);
     });
 
@@ -69,7 +70,7 @@ describe('Models.frame', () => {
       const defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
 
       // same directions as the previous test, but scaled by a voxel spacing of 0.5mm
-      validFrame._imageOrientation = [0, 0.5, 0, 0, 0, 0.5];
+      validFrame.imageOrientation = [0, 0.5, 0, 0, 0, 0.5];
       const cosines = validFrame.cosines();
 
       expect(cosines[0].length()).toBeCloseTo(1, 10);

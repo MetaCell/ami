@@ -1,9 +1,9 @@
 import ModelsSeries from '../../src/models/models.series';
 
 describe('Models.series', () => {
-  let validSeries;
-  let validSeries2;
-  let invalidSeries;
+  let validSeries: ModelsSeries;
+  let validSeries2: ModelsSeries;
+  let invalidSeries: ModelsSeries;
 
   beforeEach(() => {
     //
@@ -14,8 +14,8 @@ describe('Models.series', () => {
     validSeries2.seriesInstanceUID = 'validSeriesInstanceUID2';
 
     //
-    invalidSeries= new ModelsSeries();
-    invalidSeries._stack = undefined;
+    invalidSeries = new ModelsSeries();
+    invalidSeries.stack = undefined;
   });
 
   describe('mergeSeries', () => {
@@ -40,8 +40,9 @@ describe('Models.series', () => {
 
   describe('merge', () => {
     it('should return false if merge was not successful', () => {
-      //
+      // @ts-expect-error wrong argument count, that's what's under test
       expect(validSeries.merge()).toEqual(false);
+      // @ts-expect-error wrong argument type, that's what's under test
       expect(validSeries.merge('whatever')).toEqual(false);
       expect(validSeries.merge(validSeries2)).toEqual(false);
     });

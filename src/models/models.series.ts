@@ -95,7 +95,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @override
    */
-  validate(model: any): boolean {
+  validate(model: ModelsSeries): boolean {
     if (
       !(
         super.validate(model) &&
@@ -126,7 +126,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @override
    */
-  merge(series: any): boolean {
+  merge(series: ModelsSeries): boolean {
     if (!this.validate(series)) {
       return false;
     }
@@ -138,7 +138,7 @@ export default class ModelsSeries extends ModelsBase {
           this._stack[0].computeNumberOfFrames();
         }
         this._stack[0].computeCosines();
-        if (series.stack[0]._numberOfFrames === 0) {
+        if (series.stack[0].numberOfFrames === 0) {
           series.stack[0].computeNumberOfFrames();
         }
         series.stack[0].computeCosines();
@@ -159,7 +159,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @return {Array.<ModelsSeries>} Array of series properly merged.
    */
-  mergeSeries(target: any[]): any[] {
+  mergeSeries(target: ModelsSeries[]): ModelsSeries[] {
     const seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
     return seriesContainer;

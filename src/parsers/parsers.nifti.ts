@@ -1,6 +1,9 @@
 /** * Imports ***/
 import * as NiftiReader from 'nifti-reader-js';
+import type { NIFTI1, NIFTI2 } from 'nifti-reader-js';
 import ParsersVolume from './parsers.volume';
+import type { ParserFileData } from './parsers.types';
+import type { PixelBuffer } from '../models/models.types';
 
 /**
  * @module parsers/nifti
@@ -9,15 +12,14 @@ export default class ParsersNifti extends ParsersVolume {
   private _id: number;
   private _arrayBuffer: ArrayBuffer;
   private _url: string;
-  private _dataSet: any;
-  private _niftiHeader: any;
+  private _dataSet: NIFTI1 | NIFTI2 | null;
   private _niftiImage: ArrayBuffer | null;
   private _ordered: boolean;
-  private _orderedData: any;
+  private _orderedData: PixelBuffer | null;
 
   private _qfac: number;
 
-  constructor(data: any, id: number) {
+  constructor(data: ParserFileData, id: number) {
     super();
 
     /**
@@ -28,7 +30,6 @@ export default class ParsersNifti extends ParsersVolume {
     this._arrayBuffer = data.buffer;
     this._url = data.url;
     this._dataSet = null;
-    this._niftiHeader = null;
     this._niftiImage = null;
     this._ordered = true;
     this._orderedData = null;
@@ -390,7 +391,7 @@ export default class ParsersNifti extends ParsersVolume {
     const buffer = this._niftiImage!;
 
     const totalNumPixels = numPixels * this.numberOfFrames();
-    let tmp: any = null;
+    let tmp: PixelBuffer | null = null;
     this._orderedData = null;
 
     if (this._dataSet.datatypeCode === 2) {

@@ -1,6 +1,12 @@
 /** * Imports ***/
 import { Vector3 } from 'three';
 import ParsersVolume from './parsers.volume';
+import type { ParserFileData } from './parsers.types';
+
+interface MghTag {
+  tagType: number | undefined;
+  tagValue: string;
+}
 
 /**
  * @module parsers/mgh
@@ -45,7 +51,7 @@ export default class ParsersMgh extends ParsersVolume {
   private _buffer: ArrayBuffer;
   private _bufferPos: number;
   private _dataPos: number;
-  private _pixelData: any;
+  private _pixelData: Uint8Array | Int16Array | Int32Array | Float32Array | null;
 
   private _version: number;
   private _width: number;
@@ -55,25 +61,27 @@ export default class ParsersMgh extends ParsersVolume {
   private _type: number;
   private _dof: number;
   private _goodRASFlag: number;
-  private _spacingXYZ: any;
-  private _Xras: any;
-  private _Yras: any;
-  private _Zras: any;
-  private _Cras: any;
+  // Start as plain number[] literals, then get overwritten by _readFloat(3) (Float32Array) once
+  // the real header is parsed - both are indexable/fromArray-compatible so this union covers both.
+  private _spacingXYZ: number[] | Float32Array;
+  private _Xras: number[] | Float32Array;
+  private _Yras: number[] | Float32Array;
+  private _Zras: number[] | Float32Array;
+  private _Cras: number[] | Float32Array;
 
   private _tr: number;
   private _flipAngle: number;
   private _te: number;
   private _ti: number;
   private _fov: number;
-  private _tags: any[];
+  private _tags: MghTag[];
 
-  private _origin: any;
-  private _imageOrient: any;
+  private _origin: number[];
+  private _imageOrient: number[];
 
   private _swapEndian: boolean;
 
-  constructor(data: any, id: number) {
+  constructor(data: ParserFileData, id: number) {
     super();
 
     /**
@@ -82,7 +90,7 @@ export default class ParsersMgh extends ParsersVolume {
      */
     this._id = id;
     this._url = data.url;
-    this._buffer = null as any;
+    this._buffer = null;
     this._bufferPos = 0;
     this._dataPos = 0;
     this._pixelData = null;
@@ -279,28 +287,30 @@ export default class ParsersMgh extends ParsersVolume {
     }
   }
 
-  pixelSpacing(frameIndex: number = 0): any {
+  pixelSpacing(frameIndex: number = 0): number[] | Float32Array {
     return this._spacingXYZ;
   }
 
-  imageOrientation(frameIndex: number = 0): any {
+  imageOrientation(frameIndex: number = 0): number[] {
     return this._imageOrient;
   }
 
-  imagePosition(frameIndex: number = 0): any {
+  imagePosition(frameIndex: number = 0): number[] {
     return this._origin;
   }
 
   extractPixelData(frameIndex: number = 0) {
     const sliceSize = this._width * this._height;
-    return this._pixelData.slice(frameIndex * sliceSize, (frameIndex + 1) * sliceSize);
+    return this._pixelData!.slice(frameIndex * sliceSize, (frameIndex + 1) * sliceSize);
   }
 
-  // signed int32
-  _readInt(len: number = 1): any {
+  // signed int32 - len omitted/1 reads a single number; any other len reads an array.
+  _readInt(len?: 1): number;
+  _readInt(len: number): Int32Array;
+  _readInt(len: number = 1): number | Int32Array {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
     this._bufferPos += len * 4;
-    let v;
+    let v: number | Int32Array;
     if (len == 1) {
       v = tempBuff.getInt32(0, this._swapEndian);
     } else {
@@ -313,10 +323,12 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   // signed int16
-  _readShort(len: number = 1): any {
+  _readShort(len?: 1): number;
+  _readShort(len: number): Int16Array;
+  _readShort(len: number = 1): number | Int16Array {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 2));
     this._bufferPos += len * 2;
-    let v;
+    let v: number | Int16Array;
     if (len == 1) {
       v = tempBuff.getInt16(0, this._swapEndian);
     } else {
@@ -329,7 +341,9 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   // signed int64
-  _readLong(len: number = 1): any {
+  _readLong(len?: 1): number | undefined;
+  _readLong(len: number): Uint16Array | undefined;
+  _readLong(len: number = 1): number | Uint16Array | undefined {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 8));
     this._bufferPos += len * 8;
     const v = new Uint16Array(len);
@@ -347,12 +361,12 @@ export default class ParsersMgh extends ParsersVolume {
         shiftLow = 4;
       }
       const high = tempBuff.getInt32(i * 8 + shiftHigh, this._swapEndian);
-      let low: any = tempBuff.getInt32(i * 8 + shiftLow, this._swapEndian);
+      let low: number | undefined = tempBuff.getInt32(i * 8 + shiftLow, this._swapEndian);
       if (high != 0) {
         console.log('Unable to read Int64 with high word: ' + high + 'low word: ' + low);
         low = undefined;
       }
-      v[i] = low;
+      v[i] = low!;
     }
     if (len == 0) {
       return undefined;
@@ -364,10 +378,12 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   // signed int8
-  _readChar(len: number = 1): any {
+  _readChar(len?: 1): number;
+  _readChar(len: number): Int8Array;
+  _readChar(len: number = 1): number | Int8Array {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
     this._bufferPos += len;
-    let v;
+    let v: number | Int8Array;
     if (len == 1) {
       v = tempBuff.getInt8(0);
     } else {
@@ -380,10 +396,12 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   // unsigned int8
-  _readUChar(len: number = 1): any {
+  _readUChar(len?: 1): number;
+  _readUChar(len: number): Uint8Array;
+  _readUChar(len: number = 1): number | Uint8Array {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
     this._bufferPos += len;
-    let v;
+    let v: number | Uint8Array;
     if (len == 1) {
       v = tempBuff.getUint8(0);
     } else {
@@ -396,10 +414,12 @@ export default class ParsersMgh extends ParsersVolume {
   }
 
   // float32
-  _readFloat(len: number = 1): any {
+  _readFloat(len?: 1): number;
+  _readFloat(len: number): Float32Array;
+  _readFloat(len: number = 1): number | Float32Array {
     const tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
     this._bufferPos += len * 4;
-    let v;
+    let v: number | Float32Array;
     if (len == 1) {
       v = tempBuff.getFloat32(0, this._swapEndian);
     } else {
@@ -411,12 +431,12 @@ export default class ParsersMgh extends ParsersVolume {
     return v;
   }
 
-  _tagReadStart(): [any, any] {
+  _tagReadStart(): [number | undefined, number | undefined] {
     if (this._bufferPos >= this._buffer.byteLength) {
       return [undefined, undefined];
     }
-    let tagType: any = this._readInt();
-    let tagLen: any;
+    let tagType: number | undefined = this._readInt();
+    let tagLen: number | undefined;
     switch (tagType) {
       case ParsersMgh.TAG_OLD_MGH_XFORM:
         tagLen = this._readInt();

@@ -3,6 +3,19 @@ import NrrdReader from 'nrrd-js';
 import pako from 'pako';
 import { Vector3 } from 'three';
 import ParsersVolume from './parsers.volume';
+import type { ParserFileData } from './parsers.types';
+
+// nrrd-js ships no types of its own - shape verified against every field this file reads.
+interface NrrdDataSet {
+  space: string;
+  sizes: number[];
+  type: string;
+  spaceDirections: number[][];
+  spaceOrigin: number[];
+  buffer: ArrayBuffer;
+  encoding: string;
+}
+
 /**
  * @module parsers/nrrd
  */
@@ -10,7 +23,7 @@ export default class ParsersNrrd extends ParsersVolume {
   private _id: number;
   private _arrayBuffer: ArrayBuffer;
   private _url: string;
-  private _dataSet: any;
+  private _dataSet: NrrdDataSet | null;
   private _unpackedData: ArrayBuffer | null;
 
   /**
@@ -19,7 +32,7 @@ export default class ParsersNrrd extends ParsersVolume {
    * @param {*} data
    * @param {*} id
    */
-  constructor(data: any, id: number) {
+  constructor(data: ParserFileData, id: number) {
     super();
 
     /**

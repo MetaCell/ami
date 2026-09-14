@@ -1,3 +1,5 @@
+import type { SegmentationSegment, UltrasoundRegion } from '../models/models.types';
+
 /**
  * @module parsers/volume
  */
@@ -24,7 +26,7 @@ export default class ParsersVolume {
     return 'unknown';
   }
 
-  segmentationSegments(): any[] {
+  segmentationSegments(): SegmentationSegment[] {
     return [];
   }
 
@@ -72,7 +74,7 @@ export default class ParsersVolume {
     return 0;
   }
 
-  ultrasoundRegions(frameIndex: number = 0): any[] {
+  ultrasoundRegions(frameIndex: number = 0): UltrasoundRegion[] {
     return [];
   }
 
@@ -141,7 +143,7 @@ export default class ParsersVolume {
    * Get the raw Header.
    * @return {*}
    */
-  rawHeader(): any {
+  rawHeader(): unknown {
     return 'no value provided';
   }
 
@@ -192,7 +194,7 @@ export default class ParsersVolume {
    *
    * @return {*}
    */
-  minMaxPixelData(pixelData: any[] = []): number[] {
+  minMaxPixelData(pixelData: ArrayLike<number> = []): number[] {
     const minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
     const numPixels = pixelData.length;
     for (let index = 0; index < numPixels; index++) {

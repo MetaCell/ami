@@ -2,16 +2,24 @@
 import { Vector3 } from 'three';
 import ParsersVolume from './parsers.volume';
 
+interface ParserMHDData {
+  url: string;
+  mhdBuffer: ArrayBuffer;
+  rawBuffer: ArrayBuffer;
+}
+
 /**
  * @module parsers/mhd
  */
 export default class ParsersMHD extends ParsersVolume {
   private _id: number;
   private _url: string;
-  private _header: Record<string, any>;
+  // Starts as all-string key/value pairs from the raw header text; DimSize/ElementSpacing/
+  // TransformMatrix/Offset are then overwritten below with their split() array form.
+  private _header: Record<string, string | string[]>;
   private _buffer: ArrayBuffer | null;
 
-  constructor(data: any, id: number) {
+  constructor(data: ParserMHDData, id: number) {
     super();
 
     /**
@@ -33,10 +41,10 @@ export default class ParsersMHD extends ParsersVolume {
         }
       });
 
-      this._header.DimSize = this._header.DimSize.split(' ');
-      this._header.ElementSpacing = this._header.ElementSpacing.split(' ');
-      this._header.TransformMatrix = this._header.TransformMatrix.split(' ');
-      this._header.Offset = this._header.Offset.split(' ');
+      this._header.DimSize = (this._header.DimSize as string).split(' ');
+      this._header.ElementSpacing = (this._header.ElementSpacing as string).split(' ');
+      this._header.TransformMatrix = (this._header.TransformMatrix as string).split(' ');
+      this._header.Offset = (this._header.Offset as string).split(' ');
       //
       this._buffer = data.rawBuffer;
     } catch (error) {
@@ -128,8 +136,9 @@ export default class ParsersMHD extends ParsersVolume {
   }
 
   imageOrientation(frameIndex: number = 0): number[] {
-    const invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
-    const invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
+    const anatomicalOrientation = this._header.AnatomicalOrientation as string;
+    const invertX = anatomicalOrientation.match(/L/) ? -1 : 1;
+    const invertY = anatomicalOrientation.match(/P/) ? -1 : 1;
 
     const x = new Vector3(
       parseFloat(this._header.TransformMatrix[0]) * invertX,

@@ -1,6 +1,18 @@
 import * as THREE from 'three';
 import Intersections from '../core/core.intersections';
 import Validators from '../core/core.validators';
+import type { Box } from '../core/core.types';
+
+/**
+ * What CamerasOrthographic actually needs from a controls object - either
+ * ControlsTrackball or ControlsTrackballOrtho satisfy this structurally, and both
+ * are equally valid here, so this is intentionally a shape rather than one concrete class.
+ */
+interface ControlsLike {
+  target: THREE.Vector3;
+  update: () => void;
+  handleResize: () => void;
+}
 
 /**
  * Orthographic camera from THREE.JS with some extra convenience
@@ -34,8 +46,8 @@ const camerasOrthographic = (three: typeof THREE = window.THREE!) => {
     _up: THREE.Vector3 | null;
     _direction: THREE.Vector3 | null;
 
-    _controls: any;
-    _box: any;
+    _controls: ControlsLike | null;
+    _box: Box | null;
     _canvas: { width: number | null; height: number | null };
 
     _fromFront: boolean;
@@ -91,7 +103,14 @@ const camerasOrthographic = (three: typeof THREE = window.THREE!) => {
     /**
      * Initialize orthographic camera variables
      */
-    init(xCosine: THREE.Vector3, yCosine: THREE.Vector3, zCosine: THREE.Vector3, controls: any, box: any, canvas: any) {
+    init(
+      xCosine: THREE.Vector3,
+      yCosine: THREE.Vector3,
+      zCosine: THREE.Vector3,
+      controls: ControlsLike,
+      box: Box,
+      canvas: { width: number | null; height: number | null }
+    ) {
       // DEPRECATION NOTICE
       window.console.warn(
         `cameras.orthographic.init(...) is deprecated.
@@ -656,7 +675,7 @@ const camerasOrthographic = (three: typeof THREE = window.THREE!) => {
       this._updateLabels();
     }
 
-    set controls(controls: any) {
+    set controls(controls: ControlsLike) {
       this._controls = controls;
     }
 
@@ -664,7 +683,7 @@ const camerasOrthographic = (three: typeof THREE = window.THREE!) => {
       return this._controls;
     }
 
-    set box(box: any) {
+    set box(box: Box) {
       this._box = box;
     }
 

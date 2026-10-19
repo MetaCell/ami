@@ -549,8 +549,7 @@ export default class CoreUtils {
   static stringToNumber(numberAsString: string): number {
     let number = Number(numberAsString);
 
-    // returns true is number is NaN
-    if (number !== number) {
+    if (Number.isNaN(number)) {
       const dots = (numberAsString.match(/\./g) || []).length;
       const commas = (numberAsString.match(/,/g) || []).length;
 
@@ -565,7 +564,7 @@ export default class CoreUtils {
       // if that didn't help
       // weird stuff happenning
       // should throw an error instead of setting value to 1.0
-      if (number !== number) {
+      if (Number.isNaN(number)) {
         console.error(
           `String could not be converted to number (${numberAsString}). Setting value to "1.0".`
         );

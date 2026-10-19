@@ -13,6 +13,9 @@ import ShadersVertex from '../shaders/shaders.data.vertex';
 
 type IntensitySetting = 'windowCenter' | 'windowWidth' | 'rescaleSlope' | 'rescaleIntercept';
 
+/** The concrete class _geometry actually holds - see geometries.slice.ts's `vertices` field. */
+type GeometriesSliceInstance = InstanceType<NonNullable<ReturnType<typeof geometriesSlice>>>;
+
 const helpersSlice = (three: typeof THREE = window.THREE!) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
@@ -46,6 +49,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
     _planePosition: THREE.Vector3;
     _planeDirection: THREE.Vector3;
     _aaBBspace: string;
+    _meshAabbSpace: string | null;
     _geometry: THREE.BufferGeometry | null;
     _mesh: THREE.Mesh | null;
     _visible: boolean;
@@ -104,6 +108,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       // also changes the transform
       // there is also a switch to move back mesh to LPS space automatically
       this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
+      this._meshAabbSpace = null;
       this._material = null;
       this._textures = [];
       this._shadersFragment = ShadersFragment;
@@ -279,6 +284,11 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       this._update();
     }
 
+    /*
+     * Move the slice in ONE rebuild. StackHelper.index used to set `index` and then `planePosition`,
+     * and each setter runs a full _update() - so every scroll tick rebuilt the slice twice, per
+     * pane. Nothing observes the intermediate state, so it was pure churn.
+     */
     setIndexAndPlanePosition(index: number, planePosition: THREE.Vector3) {
       this._index = index;
       this._planePosition = planePosition;
@@ -461,6 +471,7 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
       if (this._aaBBspace === 'IJK') {
         this._mesh.applyMatrix4(this._stack.ijk2LPS);
       }
+      this._meshAabbSpace = this._aaBBspace;
 
       this._mesh.visible = this._visible;
 
@@ -559,6 +570,70 @@ const helpersSlice = (three: typeof THREE = window.THREE!) => {
     }
 
     _update() {
+      /*
+       * Fast path: move the existing vertices instead of tearing the mesh down.
+       *
+       * A slice change used to dispose the geometry and rebuild the mesh, which frees and
+       * reallocates a GPU buffer every time - twice per tick before setIndexAndPlanePosition, and
+       * once per pane, so twelve alloc/free cycles per scroll tick in a six-pane layout. Drivers
+       * that stall on buffer orphaning turn that into a hitch that no JS profiler can see.
+       *
+       * The slice polygon is the intersection of a plane with the volume's box, so for an
+       * axis-aligned plane sweeping the volume it stays a rectangle and only the positions move.
+       * When the vertex count matches we copy the new positions into the existing attribute; when
+       * it does not (the plane crossing a corner, an oblique plane) we fall back to the rebuild.
+       */
+      // The mesh carries an ijk2LPS matrix only if it was built in IJK space, so after an aabbSpace
+      // switch the existing mesh no longer fits the new positions and must be rebuilt.
+      if (
+        this._mesh &&
+        this._meshAabbSpace === this._aaBBspace &&
+        this._geometry &&
+        this._geometry.attributes.position
+      ) {
+        let candidate: GeometriesSliceInstance | null = null;
+        try {
+          const SliceGeometryContructor = geometriesSlice(three)!;
+          candidate = new SliceGeometryContructor(
+            this._halfDimensions,
+            this._center,
+            this._planePosition,
+            this._planeDirection,
+            this._toAABB
+          );
+        } catch (e) {
+          candidate = null;
+        }
+
+        const current = this._geometry.attributes.position;
+        if (
+          candidate &&
+          candidate.attributes &&
+          candidate.attributes.position &&
+          candidate.attributes.position.array.length === current.array.length
+        ) {
+          current.array.set(candidate.attributes.position.array);
+          current.needsUpdate = true;
+          // `vertices` is legacy state the border helper and normal computation still read; it's
+          // only ever declared on GeometriesSlice (see geometries.slice.ts), not the broader
+          // THREE.BufferGeometry type _geometry is typed as (the public `geometry` setter accepts
+          // any BufferGeometry), but _create() only ever constructs it via this same constructor.
+          (this._geometry as GeometriesSliceInstance).vertices = candidate.vertices;
+          this._geometry.computeBoundingBox();
+          this._geometry.computeBoundingSphere();
+          candidate.dispose();
+
+          // Still refreshed: with intensityAuto on, ami derives the window from the current frame,
+          // so skipping this would leave the previous slice's window/level in place.
+          this.updateIntensitySettings();
+          this.updateIntensitySettingsUniforms();
+          return;
+        }
+        if (candidate) {
+          candidate.dispose();
+        }
+      }
+
       // update slice
       if (this._mesh) {
         this.remove(this._mesh);

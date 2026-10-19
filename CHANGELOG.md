@@ -5,7 +5,7 @@ We may want to also add it to the Gtihub release information.
 
 Note: We need this file so we can log new features while we are developing instead of having to do it all at once when release happens.
 
-## Unreleased
+## 0.34.2
 
 ### Fixed
 - [[helpers]] `SliceHelper._update()` no longer reuses the existing mesh after `aabbSpace` changes. The seed mesh is built in IJK space with an `ijk2LPS` matrix; reusing it for LPS positions applied that transform twice, misplacing the slice relative to its border until a vertex-count change forced a rebuild.

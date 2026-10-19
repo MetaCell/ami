@@ -425,6 +425,7 @@ const helpersSlice = (three = window.THREE) => {
       if (this._aaBBspace === 'IJK') {
         this._mesh.applyMatrix4(this._stack.ijk2LPS);
       }
+      this._meshAabbSpace = this._aaBBspace;
 
       this._mesh.visible = this._visible;
 
@@ -525,7 +526,14 @@ const helpersSlice = (three = window.THREE) => {
        * When the vertex count matches we copy the new positions into the existing attribute; when
        * it does not (the plane crossing a corner, an oblique plane) we fall back to the rebuild.
        */
-      if (this._mesh && this._geometry && this._geometry.attributes.position) {
+      // The mesh carries an ijk2LPS matrix only if it was built in IJK space, so after an aabbSpace
+      // switch the existing mesh no longer fits the new positions and must be rebuilt.
+      if (
+        this._mesh &&
+        this._meshAabbSpace === this._aaBBspace &&
+        this._geometry &&
+        this._geometry.attributes.position
+      ) {
         let candidate = null;
         try {
           const SliceGeometryContructor = geometriesSlice(three);

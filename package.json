@@ -57,7 +57,6 @@
     "dicom-parser": "1.8.21",
     "eventemitter3": "^5.0.4",
     "jpeg-lossless-decoder-js": "2.1.2",
-    "math-float32-to-binary-string": "^1.0.0",
     "nifti-reader-js": "0.8.0",
     "nrrd-js": "^0.2.1",
     "pako": "2.1.0"

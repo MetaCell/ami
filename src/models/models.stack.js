@@ -1,5 +1,4 @@
 /** * Imports ***/
-import binaryString from 'math-float32-to-binary-string';
 import { Matrix4, RGBAFormat, RGBFormat, Vector3 } from 'three';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
@@ -604,6 +603,8 @@ export default class ModelsStack extends ModelsBase {
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       const data = new Uint8Array(textureSize * textureSize * 4);
+      // IEEE 754 single precision, most significant byte first
+      const float32View = new DataView(new ArrayBuffer(4));
 
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
@@ -611,13 +612,12 @@ export default class ModelsStack extends ModelsBase {
 
         const raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
-          const bitString = binaryString(raw);
-          const bitStringArray = bitString.match(/.{1,8}/g);
+          float32View.setFloat32(0, raw);
 
-          data[4 * packIndex] = parseInt(bitStringArray[0], 2);
-          data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
-          data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
-          data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+          data[4 * packIndex] = float32View.getUint8(0);
+          data[4 * packIndex + 1] = float32View.getUint8(1);
+          data[4 * packIndex + 2] = float32View.getUint8(2);
+          data[4 * packIndex + 3] = float32View.getUint8(3);
         }
 
         packIndex++;

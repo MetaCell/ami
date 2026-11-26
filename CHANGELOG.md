@@ -5,6 +5,11 @@ We may want to also add it to the Gtihub release information.
 
 Note: We need this file so we can log new features while we are developing instead of having to do it all at once when release happens.
 
+## 0.34.3
+
+### Changed
+- [[models]] `ModelsStack._packTo8Bits()` packs 32 bits float voxels with a `DataView` instead of the `math-float32-to-binary-string` package, which is removed from the dependencies. The bytes are identical for any value representable in single precision, and values that are not are now rounded to nearest instead of truncated. The package was the only reason `update-notifier`, `configstore` (and its `uuid@2`, `dot-prop` and `got` copies) were installed, all of which carry known vulnerabilities.
+
 ## 0.34.2
 
 ### Fixed
